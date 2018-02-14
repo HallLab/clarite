@@ -13,11 +13,10 @@ transform_list <- function(df, key) {
 
   t_key <- data.frame(t(key))
   names(t_key) <- as.character(unlist(t_key[1,]))
-  t_key <- data.frame(t_key[-1,], stringsAsFactors=FALSE)
 
   for(n in names(t_key)){
     #Get the function to preform
-    fun <- as.character(t_key[[n]][1])
+    fun <- as.character(t_key[[n]][2])
     df[,n] <- do.call(fun, list(df[,n]))
   }
 
