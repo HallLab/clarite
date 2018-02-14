@@ -9,6 +9,9 @@
 #' outlier_threshold(df, x=2.5)
 
 outlier_threshold <- function(df, x=2.5) {
+  if(is.element('IID', names(df))==FALSE){
+    stop("Please add IID to dataframe as column 1")
+  }
   
   calcs <- function(v, threshold){
     pdf <- v
