@@ -2,6 +2,7 @@
 
 export(chisq_tests)
 export(correlations)
+export(freq_tables)
 export(get_binary)
 export(get_categorical)
 export(get_check)
@@ -11,3 +12,4 @@ export(outlier_threshold)
 export(recode_missing)
 export(remove_outliers)
 export(sample_keep)
+export(sample_keep_subgroups)

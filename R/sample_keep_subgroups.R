@@ -9,9 +9,14 @@
 #' sample_keep_subgroups(df, n)
 
 
-sample_keep_subgroups <- function(df, n=1){
+sample_keep_subgroups <- function(df, n=200){
 
-  keep <- df[, sapply(df, function(col) length(col[!is.na(col)])) >= n, drop=FALSE]
+  if(is.element('IID', names(df))==FALSE){
+    stop("Please add IID to dataframe as column 1")
+  }
+
+  keep <- df[, sapply(df, function(v) (min(table(v)) > n))]
+  keep <- cbind("IID"=df$IID, keep)
 
   return(keep)
 }
