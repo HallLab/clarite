@@ -7,7 +7,7 @@
 outlier_threshold(df, x = 2.5)
 }
 \arguments{
-\item{df}{data frame}
+\item{df}{data frame with IID as first column}
 
 \item{x}{number of standard deviations away from the mean to qualify as an outlier}
 }
