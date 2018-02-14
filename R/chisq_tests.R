@@ -8,6 +8,10 @@
 #' chisq_tests(df)
 
 chisq_tests <- function(df) {
+  
+  if(is.element('IID', names(df))==FALSE){
+    stop("Please add IID to dataframe as column 1")
+  }
 
   chi <- function(v){
     freq_tab <- table(v)
