@@ -1,7 +1,7 @@
 #' outlier_threshold
 #'
 #' Create data frame with outliers and summary statistics for each variable
-#' @param df data frame
+#' @param df data frame with IID as first column
 #' @param x number of standard deviations away from the mean to qualify as an outlier
 #' @return data frame consisting of summary statistics for the input dataframe and potential dataframe if outliers were to be removed at that threshold
 #' @export
@@ -26,7 +26,7 @@ outlier_threshold <- function(df, x=2.5) {
     return(out)
   }
   
-  sumdf <- as.data.frame(t(sapply(df, calcs, threshold=x)))
+  sumdf <- as.data.frame(t(sapply(df[, -1], calcs, threshold=x)))
   sumdf <- cbind(rownames(sumdf), data.frame(sumdf, row.names=NULL))
   names(sumdf) <- c("Variable","N","Min","Median","Mean","Max","SD","Outlier_SD","Pros_N","Pros_Min","Pros_Median","Pros_Mean","Pros_Max","Pros_SD" )
   return(sumdf)
