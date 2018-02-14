@@ -1,7 +1,7 @@
 #' sample_keep_subgroups
 #'
 #' Keep variables with a minimum of n samples
-#' @param df data frame
+#' @param df data frame with IID as first column
 #' @param n minimum sample size desired
 #' @return data frame containing only those variables with at least n samples per factor level
 #' @export

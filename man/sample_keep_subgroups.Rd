@@ -7,7 +7,7 @@
 sample_keep_subgroups(df, n = 200)
 }
 \arguments{
-\item{df}{data frame}
+\item{df}{data frame with IID as first column}
 
 \item{n}{minimum sample size desired}
 }
