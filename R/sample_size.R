@@ -11,7 +11,7 @@ sample_size <- function(df) {
 
   df_n <- as.data.frame(sapply(df, function(x) (length(na.omit(x)))))
   df_n <- cbind(rownames(df_n), data.frame(df_n, row.names=NULL))
-  names(df_n) <- c("Variable", "Levels")
+  names(df_n) <- c("Variable", "N")
 
   return(df_n)
 }
