@@ -1,4 +1,5 @@
-##Developed by deven orie & anastasia lucas
+##Deven Orie 
+##Dartmouth'19 - CS & Econ Major
 ##Pipeline clean_rows Cleaner
 ##Imports Necessary Installations - Numpy, GGPLOT, GG-Grid, Python 2.7
 
