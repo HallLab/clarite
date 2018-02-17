@@ -1,1 +1,0 @@
-When running the GUI Application. All files and return documents will output into this directory.
