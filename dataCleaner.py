@@ -16,10 +16,15 @@ import tkFileDialog
 from io import StringIO
 import os.path
 from random import randint
+import datetime
 
 
 with open('logs.txt', 'w') as global_log:
-	global_log.write("DataCleaner Program Opened"+'\n'+'\n')
+	global_log.write("--------------------------PROGRAM LOGS--------------------------"+'\n')
+	global_log.write("THIS LOGS ALL OF YOUR VALUES & FUNCTIONS USED IN THE GUI PROGRAM"+'\n')
+	global_log.write("----------------------------------------------------------------"+'\n'+'\n')
+	global_log.write("DataCleaner Program Opened"+'\n')
+	global_log.write("PROGRAM OPENED :  "+ datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y") + '\n'+'\n')
 
 
 
@@ -104,7 +109,7 @@ def recode_missing():
 			with open('datacleaner_Output/recode_missing_out.txt', 'w') as file:
 				file.write(fileclean_rows)
 			with open('logs.txt', 'a') as g:
-				g.write("----------------------------------------------------" + '\n')
+				g.write("----------------------------------------------------------------" + '\n')
 				g.write("Missing Values Replace Function Called" + '\n')
 				g.write("Missing Value: "+ str(missing_val.get()) + '\n')
 				g.write("Missing Value Replacement: "+ str(missing_val_replacement.get()) + '\n' + '\n')
@@ -119,7 +124,7 @@ def recode_key():
 	key_array = []
 
 	with open('logs.txt', 'a') as g:
-		g.write("----------------------------------------------------" + '\n')
+		g.write("----------------------------------------------------------------" + '\n')
 
 		g.write("Missing Values Dictionary Function Called" + '\n')
 
@@ -175,7 +180,7 @@ def get_binary():
 	proc = subprocess.call(['Rscript','r/gui_generated_scripts/get_binary1.R'], shell=False)
 
 	with open('logs.txt', 'a') as g:
-		g.write("----------------------------------------------------" + '\n')
+		g.write("----------------------------------------------------------------" + '\n')
 
 		g.write("Get Binary Variables Function Called" + '\n' +'\n' )
 
@@ -205,7 +210,7 @@ def get_continuous():
 	proc = subprocess.call(['Rscript','r/gui_generated_scripts/get_continuous1.R'], shell=False)
 	
 	with open('logs.txt', 'a') as g:
-		g.write("----------------------------------------------------" + '\n')
+		g.write("----------------------------------------------------------------" + '\n')
 
 		g.write("Get Continuous Variables Function Called" + '\n')
 		g.write("Lower Bound: " + lower_bound + '\n' +'\n' )
@@ -238,7 +243,7 @@ def get_categorical():
 	proc = subprocess.call(['Rscript','r/gui_generated_scripts/get_categorical1.R'], shell=False)
 	
 	with open('logs.txt', 'a') as g:
-		g.write("----------------------------------------------------" + '\n')
+		g.write("----------------------------------------------------------------" + '\n')
 
 		g.write("Get Categorical Variables Function Called" + '\n')
 		g.write("Lower Bound: " + lower_bound + '\n')
@@ -272,7 +277,7 @@ def get_check():
 	proc = subprocess.call(['Rscript','r/gui_generated_scripts/get_check1.R'], shell=False)
 
 	with open('logs.txt', 'a') as g:
-		g.write("----------------------------------------------------" + '\n')
+		g.write("----------------------------------------------------------------" + '\n')
 
 		g.write("Get Ambiguous Variables Function Called" + '\n')
 		g.write("Lower Bound: " + lower_bound + '\n')
@@ -304,7 +309,7 @@ def sample_keep():
 	proc = subprocess.call(['Rscript','r/gui_generated_scripts/sample_keep1.R'], shell=False)
 
 	with open('logs.txt', 'a') as g:
-		g.write("----------------------------------------------------" + '\n')
+		g.write("----------------------------------------------------------------" + '\n')
 
 		g.write("Get Ambiguous Variables Function Called" + '\n')
 		g.write("Lower Bound: " + lower_bound + '\n' +'\n' )
@@ -336,7 +341,7 @@ def transform_list():
 	proc = subprocess.call(['Rscript','r/gui_generated_scripts/transform_list1.R'], shell=False)
 	
 	with open('logs.txt', 'a') as g:
-		g.write("----------------------------------------------------" + '\n')
+		g.write("----------------------------------------------------------------" + '\n')
 
 		g.write("Transform List Function Called" + '\n' + '\n')
 
@@ -344,7 +349,7 @@ def transform_list():
 def remove_outliers():
 
 	with open('logs.txt', 'a') as g:
-		g.write("----------------------------------------------------" + '\n')
+		g.write("----------------------------------------------------------------" + '\n')
 
 		g.write("Remove Outliers Function Called" + '\n'+ '\n' )
 
@@ -487,7 +492,7 @@ def histogram():
 	
 	with open('logs.txt', 'a') as g:
 
-		g.write("----------------------------------------------------" + '\n')
+		g.write("----------------------------------------------------------------" + '\n')
 
 		g.write("Generate Histogram Function Called" + '\n')
 		g.write("Number of Plots Per Page: " + str(h1.get()) + '\n')
@@ -533,7 +538,7 @@ def boxplot():
 	proc = subprocess.call(['Rscript','r/gui_generated_scripts/box_plot1.R'], shell=False)
 
 	with open('logs.txt', 'a') as g:
-		g.write("----------------------------------------------------" + '\n')
+		g.write("----------------------------------------------------------------" + '\n')
 
 		g.write("Generate Box Plot Function Called" + '\n')
 		g.write("Number of Plots Per Page: " + str(bx1.get()) + '\n')
@@ -577,7 +582,7 @@ def qqplot():
 	proc = subprocess.call(['Rscript','r/gui_generated_scripts/qq_plot1.R'], shell=False)
 
 	with open('logs.txt', 'a') as g:
-		g.write("----------------------------------------------------" + '\n')
+		g.write("----------------------------------------------------------------" + '\n')
 
 		g.write("Generate QQ Plot Function Called" + '\n')
 		g.write("Number of Plots Per Page: " + str(qq1.get()) + '\n')
@@ -625,7 +630,7 @@ def barplot():
 	proc = subprocess.call(['Rscript','r/gui_generated_scripts/bar_plot1.R'], shell=False)
 
 	with open('logs.txt', 'a') as g:
-		g.write("----------------------------------------------------" + '\n')
+		g.write("----------------------------------------------------------------" + '\n')
 
 		g.write("Generate Bar Plot Function Called" + '\n')
 		g.write("Number of Plots Per Page: " + str(bp1.get()) + '\n')
@@ -661,7 +666,7 @@ def frequency_table():
 	proc = subprocess.call(['Rscript','r/gui_generated_scripts/freq_tables1.R'], shell=False)
 	
 	with open('logs.txt', 'a') as g:
-		g.write("----------------------------------------------------" + '\n')
+		g.write("----------------------------------------------------------------" + '\n')
 
 		g.write("Generate Frequency Table Function Called" + '\n'+'\n')
 
@@ -690,7 +695,7 @@ def correlations():
 	proc = subprocess.call(['Rscript','r/gui_generated_scripts/correlations1.R'], shell=False)
 	
 	with open('logs.txt', 'a') as g:
-		g.write("----------------------------------------------------" + '\n')
+		g.write("----------------------------------------------------------------" + '\n')
 		g.write("Generate Correlations Function Called" + '\n')
 		g.write("Threshold: " + threshold_val+ '\n')
 
@@ -716,7 +721,7 @@ def sample_size():
 	proc = subprocess.call(['Rscript','r/summary/sample_size1.R'], shell=False)
 	
 	with open('logs.txt', 'a') as g:
-		g.write("----------------------------------------------------" + '\n')
+		g.write("----------------------------------------------------------------" + '\n')
 		g.write("Sample Size Function Called" + '\n')
 		g.write("Threshold: " + threshold_val+ '\n'+'\n')
 
@@ -740,7 +745,7 @@ def get_levels():
 	f.close()
 	proc = subprocess.call(['Rscript','r/gui_generated_scripts/get_levels1.R'], shell=False)
 	with open('logs.txt', 'a') as g:
-		g.write("----------------------------------------------------" + '\n')
+		g.write("----------------------------------------------------------------" + '\n')
 		g.write("Get Levels Function Called" + '\n')
 	
 def outliers():
@@ -765,7 +770,7 @@ def outliers():
 	f.close()
 	proc = subprocess.call(['Rscript','r/gui_generated_scripts/outliers1.R'], shell=False)
 	with open('logs.txt', 'a') as g:
-		g.write("----------------------------------------------------" + '\n')
+		g.write("----------------------------------------------------------------" + '\n')
 		g.write("Threshold: " + threshold_val+ '\n'+'\n')
 	
 def chisq_tests():
