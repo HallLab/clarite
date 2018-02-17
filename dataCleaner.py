@@ -167,7 +167,7 @@ def get_binary():
 
 
 
-	f.write(file_output_path)
+	f.write(file_output_path+ '\n')
 
 
 	f.close()
@@ -185,15 +185,24 @@ def get_continuous():
 	filedata = f.read()
 	f.close()
 
-	argument_1 = "a1 = 18"
 	lower_bound = "a1 = " + str(continuous_var.get())
-	newdata = filedata.replace(CONSTANT_INPUT,final).replace(argument_1, lower_bound)
+	file_output_path = "write.table(newdata,"+ "file" + "=" + '"datacleaner_Output/continuous_var_out.txt",' + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
 
-	f = open('r/get_continuous1.R','w')
+	newdata = filedata
+
+	f = open('r/gui_generated_scripts/get_continuous1.R','w')
+
 	f.write(newdata)
+	f.write(final + '\n')
+	f.write(lower_bound + '\n')
+	f.write("newdata <- get_continuous(a0, a1)"+ '\n')
+	f.write(file_output_path+ '\n')
+
 	f.close()
 
-	proc = subprocess.call(['Rscript','r/get_continuous1.R'], shell=False)
+
+
+	proc = subprocess.call(['Rscript','r/gui_generated_scripts/get_continuous1.R'], shell=False)
 	
 	with open('logs.txt', 'a') as g:
 		g.write("----------------------------------------------------" + '\n')
@@ -206,20 +215,27 @@ def get_categorical():
 	f = open('r/get_categorical.R','r')
 	filedata = f.read()
 	f.close()
+	file_output_path = "write.table(newdata,"+ "file" + "=" + '"datacleaner_Output/get_categorical_out.txt",' + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
 
-	argument_1 = "a1 = 3"
-	argument_2 = "a1 = 6"
 	lower_bound = "a1 = " + str(categorical1.get())
 	upper_bound = "a2 = " + str(categorical2.get())
 
-	newdata = filedata.replace(CONSTANT_INPUT,final).replace(argument_1,lower_bound).replace(argument_2,upper_bound)
+	newdata = filedata
 
 	
-	f = open('r/get_categorical1.R','w')
+	f = open('r/gui_generated_scripts/get_categorical1.R','w')
 	f.write(newdata)
+	f.write(final + '\n')
+	f.write(lower_bound + '\n')
+	f.write(upper_bound + '\n')
+	f.write("newdata <- get_categorical(a0, a1, a2)"+ '\n')
+	f.write(file_output_path + '\n')
+
+
+
 	f.close()
 
-	proc = subprocess.call(['Rscript','r/get_categorical1.R'], shell=False)
+	proc = subprocess.call(['Rscript','r/gui_generated_scripts/get_categorical1.R'], shell=False)
 	
 	with open('logs.txt', 'a') as g:
 		g.write("----------------------------------------------------" + '\n')
@@ -234,18 +250,26 @@ def get_check():
 	filedata = f.read()
 	f.close()
 
-	argument_1 = "a1 = 6"
-	argument_2 = "a1 = 18"
+	file_output_path = "write.table(newdata,"+ "file" + "=" + '"datacleaner_Output/get_check_out.txt",' + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
+
 	lower_bound = "a1 = " + str(ambiguous1.get())
 	upper_bound = "a2 = " + str(ambiguous2.get())
 
-	newdata = filedata.replace(CONSTANT_INPUT,final).replace(argument_1,lower_bound).replace(argument_2,upper_bound)
+	newdata = filedata
 	
-	f = open('r/get_check1.R','w')
+	f = open('r/gui_generated_scripts/get_check1.R','w')
 	f.write(newdata)
+	f.write(final + '\n')
+	f.write(lower_bound + '\n')
+	f.write(upper_bound + '\n')
+	f.write("newdata <- get_check(a0, a1, a2)"+ '\n')
+	f.write(file_output_path + '\n')
+
+
+
 	f.close()
 	
-	proc = subprocess.call(['Rscript','r/get_check1.R'], shell=False)
+	proc = subprocess.call(['Rscript','r/gui_generated_scripts/get_check1.R'], shell=False)
 
 	with open('logs.txt', 'a') as g:
 		g.write("----------------------------------------------------" + '\n')
@@ -260,16 +284,24 @@ def sample_keep():
 	filedata = f.read()
 	f.close()
 
-	argument_1 = "a1 = 1"
+	file_output_path = "write.table(newdata,"+ "file" + "=" + '"datacleaner_Output/sample_keep_out.txt",' + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
+
 	lower_bound = "a1 = " + str(sample_keep_var.get())
-	newdata = filedata.replace(CONSTANT_INPUT,final).replace(argument_1, lower_bound)
+	newdata = filedata
 
 	
-	f = open('r/sample_keep1.R','w')
+	f = open('r/gui_generated_scripts/sample_keep1.R','w')
 	f.write(newdata)
+	f.write(final + '\n')
+	f.write(lower_bound + '\n')
+	f.write("newdata <- sample_keep(a0, a1)"+ '\n')
+	f.write(file_output_path + '\n')
+
+
+
 	f.close()
 
-	proc = subprocess.call(['Rscript','r/sample_keep1.R'], shell=False)
+	proc = subprocess.call(['Rscript','r/gui_generated_scripts/sample_keep1.R'], shell=False)
 
 	with open('logs.txt', 'a') as g:
 		g.write("----------------------------------------------------" + '\n')
@@ -283,16 +315,25 @@ def transform_list():
 	filedata = f.read()
 	f.close()
 
+	file_output_path = "write.table(newdata,"+ "file" + "=" + '"datacleaner_Output/transform_list.txt",' + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
+
 	argument_1 = "a1 = read.delim('/Users/deven/desktop/it.txt', header=TRUE)"
 	a1 = "a1 = read.delim('" + global_transform_key_dictionary + A0_2
-	newdata = filedata.replace(CONSTANT_INPUT,final).replace(argument_1,a1)
+
+	newdata = filedata
 
 	
-	f = open('r/transform_list1.R','w')
+	f = open('r/gui_generated_scripts/transform_list1.R','w')
 	f.write(newdata)
+	f.write(final + '\n')
+	f.write(a1 + '\n')
+	f.write("newdata <- transform_list(a0, a1)"+ '\n')
+	f.write(file_output_path + '\n')
+
+
 	f.close()
 	
-	proc = subprocess.call(['Rscript','r/transform_list1.R'], shell=False)
+	proc = subprocess.call(['Rscript','r/gui_generated_scripts/transform_list1.R'], shell=False)
 	
 	with open('logs.txt', 'a') as g:
 		g.write("----------------------------------------------------" + '\n')
@@ -407,17 +448,13 @@ def remove_outliers():
 def histogram():
 
 
-	f = open('r/visualize/histogram_plot.R','r')
+	f = open('r/histogram_plot.R','r')
 	filedata = f.read()
 	f.close()
 
-	#These are the strings/constant values in the R file
-	argument_1 = "a1 = 14"
-	argument_2 = "a2 = 3"
-	argument_3 = "a3 = 5"
-	argument_4 = "a4 = 12"
-	argument_5 = "a5 = 9"
-	argument_6 = "a6 = 300"
+	# file_output_path = "write.table(newdata,"+ "file" + "=" + '"datacleaner_Output/histogram_plot.txt",' + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
+
+
 
 	#dafault values for the above variables
 	number_of_plots_per_page = "a1 = " + str(h1.get())
@@ -428,22 +465,25 @@ def histogram():
 	resolution_of_plot = "a6 = " + str(h6.get())
 
 
-
-	newdata = filedata.\
-	replace(CONSTANT_INPUT,final).\
-	replace(argument_1,number_of_plots_per_page).\
-	replace(argument_2,number_of_rows_per_page).\
-	replace(argument_3,numebr_of_columns_per_page).\
-	replace(argument_4,width_of_plot).\
-	replace(argument_5,height_of_plot).\
-	replace(argument_6,resolution_of_plot)
+	newdata = filedata
 
 
-	f = open('r/visualize/histogram_plot1.R','w')
+	f = open('r/gui_generated_scripts/histogram_plot1.R','w')
+
 	f.write(newdata)
+	f.write(final + '\n')
+	f.write(number_of_plots_per_page + '\n')
+	f.write(number_of_rows_per_page + '\n')
+	f.write(numebr_of_columns_per_page + '\n')
+	f.write(width_of_plot + '\n')
+	f.write(height_of_plot + '\n')
+	f.write(resolution_of_plot + '\n')
+	f.write("quartz()" + '\n')
+	f.write("bar_plot(a0, a1, file='datacleaner_Output/histogram_plot_out', a2, a3, a4, a5, a6)" + '\n')
+
 	f.close()
 
-	proc = subprocess.call(['Rscript','r/visualize/histogram_plot1.R'], shell=False)
+	proc = subprocess.call(['Rscript','r/gui_generated_scripts/histogram_plot1.R'], shell=False)
 	
 	with open('logs.txt', 'a') as g:
 
@@ -461,18 +501,12 @@ def histogram():
 
 def boxplot():
 
-	f = open('r/visualize/box_plot.R','r')
+	f = open('r/box_plot.R','r')
 	filedata = f.read()
 	f.close()
 
-	newdata = filedata.replace(CONSTANT_INPUT,final)
+	newdata = filedata
 
-	argument_1 = "a1 = 12"
-	argument_2 = "a2 = 4"
-	argument_3 = "a3 = 3"
-	argument_4 = "a4 = 13.5"
-	argument_5 = "a5 = 12"
-	argument_6 = "a6 = 210"
 
 
 	number_of_plots_per_page = "a1 = " + str(bx1.get())
@@ -483,10 +517,20 @@ def boxplot():
 	resolution_of_plot = "a6 = " + str(bx6.get())
 
 
-	f = open('r/visualize/box_plot1.R','w')
+	f = open('r/gui_generated_scripts/box_plot1.R','w')
 	f.write(newdata)
+	f.write(final + '\n')
+	f.write(number_of_plots_per_page + '\n')
+	f.write(number_of_rows_per_page + '\n')
+	f.write(numebr_of_columns_per_page + '\n')
+	f.write(width_of_plot + '\n')
+	f.write(height_of_plot + '\n')
+	f.write(resolution_of_plot + '\n')
+	f.write("quartz()" + '\n')
+	f.write("box_plot(a0, a1, file='datacleaner_Output/boxplot_out', a2, a3, a4, a5, a6)" + '\n')
+
 	f.close()
-	proc = subprocess.call(['Rscript','r/visualize/box_plot1.R'], shell=False)
+	proc = subprocess.call(['Rscript','r/gui_generated_scripts/box_plot1.R'], shell=False)
 
 	with open('logs.txt', 'a') as g:
 		g.write("----------------------------------------------------" + '\n')
@@ -503,20 +547,11 @@ def boxplot():
 
 def qqplot():
 	
-	f = open('r/visualize/qq_plot.R','r')
+	f = open('r/qq_plot.R','r')
 	filedata = f.read()
 	f.close()
 
-	newdata = filedata.replace(CONSTANT_INPUT,final)
-
-
-	argument_1 = "a1 = 12"
-	argument_2 = "a2 = 4"
-	argument_3 = "a3 = 3"
-	argument_4 = "a4 = 13.5"
-	argument_5 = "a5 = 12"
-	argument_6 = "a6 = 210"
-
+	newdata = filedata
 
 	number_of_plots_per_page = "a1 = " + str(qq1.get())
 	number_of_rows_per_page = "a2 = " + str(qq2.get())
@@ -526,10 +561,20 @@ def qqplot():
 	resolution_of_plot = "a6 = " + str(qq6.get())
 
 
-	f = open('r/visualize/qq_plot1.R','w')
+	f = open('r/gui_generated_scripts/qq_plot1.R','w')
 	f.write(newdata)
+	f.write(final + '\n')
+	f.write(number_of_plots_per_page + '\n')
+	f.write(number_of_rows_per_page + '\n')
+	f.write(numebr_of_columns_per_page + '\n')
+	f.write(width_of_plot + '\n')
+	f.write(height_of_plot + '\n')
+	f.write(resolution_of_plot + '\n')
+	f.write("quartz()" + '\n')
+	f.write("qq_plot(a0, a1, file='datacleaner_Output/boxplot_out', a2, a3, a4, a5, a6)" + '\n')
+
 	f.close()
-	proc = subprocess.call(['Rscript','r/visualize/qq_plot1.R'], shell=False)
+	proc = subprocess.call(['Rscript','r/gui_generated_scripts/qq_plot1.R'], shell=False)
 
 	with open('logs.txt', 'a') as g:
 		g.write("----------------------------------------------------" + '\n')
@@ -546,18 +591,11 @@ def qqplot():
 
 def barplot():
 		
-	f = open('r/visualize/bar_plot.R','r')
+	f = open('r/bar_plot.R','r')
 	filedata = f.read()
 	f.close()
 
-	newdata = filedata.replace(CONSTANT_INPUT,final)
-
-	argument_1 = "a1 = 12"
-	argument_2 = "a2 = 4"
-	argument_3 = "a3 = 3"
-	argument_4 = "a4 = 13.5"
-	argument_5 = "a5 = 12"
-	argument_6 = "a6 = 210"
+	newdata = filedata
 
 
 	number_of_plots_per_page = "a1 = " + str(bp1.get())
@@ -570,10 +608,21 @@ def barplot():
 
 
 
-	f = open('r/visualize/bar_plot1.R','w')
+	f = open('r/gui_generated_scripts/bar_plot1.R','w')
 	f.write(newdata)
+	f.write(final + '\n')
+	f.write(number_of_plots_per_page + '\n')
+	f.write(number_of_rows_per_page + '\n')
+	f.write(numebr_of_columns_per_page + '\n')
+	f.write(width_of_plot + '\n')
+	f.write(height_of_plot + '\n')
+	f.write(resolution_of_plot + '\n')
+	f.write("quartz()" + '\n')
+	f.write("bar_plot(a0, a1, file='datacleaner_Output/boxplot_out', a2, a3, a4, a5, a6)" + '\n')
+
+
 	f.close()
-	proc = subprocess.call(['Rscript','r/visualize/bar_plot1.R'], shell=False)
+	proc = subprocess.call(['Rscript','r/gui_generated_scripts/bar_plot1.R'], shell=False)
 
 	with open('logs.txt', 'a') as g:
 		g.write("----------------------------------------------------" + '\n')
@@ -593,16 +642,23 @@ def barplot():
 			###********************** Summary Functions ************************###
 ###***************************************************************************************###
 def frequency_table():
-	f = open('r/summary/freq_tables.R','r')
+	f = open('r/freq_tables.R','r')
 	filedata = f.read()
 	f.close()
 
-	newdata = filedata.replace(CONSTANT_INPUT,final)
+	file_output_path = "write.table(newdata,"+ "file" + "=" + '"datacleaner_Output/freq_tables_out.txt",' + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
 
-	f = open('r/summary/freq_tables1.R','w')
+	newdata = filedata
+
+	f = open('r/gui_generated_scripts/freq_tables1.R','w')
 	f.write(newdata)
+	f.write(final + '\n')
+	f.write("newdata <- freq_tables(a0)"+ '\n')
+	f.write(file_output_path + '\n')
+
+
 	f.close()
-	proc = subprocess.call(['Rscript','r/summary/freq_tables1.R'], shell=False)
+	proc = subprocess.call(['Rscript','r/gui_generated_scripts/freq_tables1.R'], shell=False)
 	
 	with open('logs.txt', 'a') as g:
 		g.write("----------------------------------------------------" + '\n')
@@ -610,20 +666,28 @@ def frequency_table():
 		g.write("Generate Frequency Table Function Called" + '\n'+'\n')
 
 def correlations():
-	f = open('r/summary/correlations.R','r')
+	f = open('r/correlations.R','r')
 	filedata = f.read()
 	f.close()
 
-	argument1 = "a1 = 0"
+	file_output_path = "write.table(newdata,"+ "file" + "=" + '"datacleaner_Output/correlations_out.txt",' + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
 
 	threshold_val = "a1 = " + str(find_correlations_var.get())
-	newdata = filedata.replace(CONSTANT_INPUT,final).replace(argument1,threshold_val)
+	newdata = filedata
 
 
-	f = open('r/summary/correlations1.R','w')
+	f = open('r/gui_generated_scripts/correlations1.R','w')
 	f.write(newdata)
+	f.write(final + '\n')
+	f.write(threshold_val)
+	f.write("newdata <- correlations(a0,a1)"+ '\n')
+	f.write(file_output_path + '\n')
+
+
+
+
 	f.close()
-	proc = subprocess.call(['Rscript','r/summary/correlations1.R'], shell=False)
+	proc = subprocess.call(['Rscript','r/gui_generated_scripts/correlations1.R'], shell=False)
 	
 	with open('logs.txt', 'a') as g:
 		g.write("----------------------------------------------------" + '\n')
@@ -632,14 +696,22 @@ def correlations():
 
 
 def sample_size():
-	f = open('r/summary/sample_size.R','r')
+	f = open('r/sample_size.R','r')
 	filedata = f.read()
 	f.close()
 
-	newdata = filedata.replace(CONSTANT_INPUT,final)
+	file_output_path = "write.table(newdata,"+ "file" + "=" + '"datacleaner_Output/sample_size_out.txt",' + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
 
-	f = open('r/summary/sample_size1.R','w')
+	newdata = filedata
+
+	f = open('r/gui_generated_scripts/sample_size1.R','w')
 	f.write(newdata)
+	f.write(final + '\n')
+	f.write("newdata <- sample_size(a0)"+ '\n')
+	f.write(file_output_path + '\n')
+
+
+
 	f.close()
 	proc = subprocess.call(['Rscript','r/summary/sample_size1.R'], shell=False)
 	
@@ -651,49 +723,70 @@ def sample_size():
 
 
 def get_levels():
-	f = open('r/summary/get_levels.R','r')
+	f = open('r/get_levels.R','r')
 	filedata = f.read()
 	f.close()
+	file_output_path = "write.table(newdata,"+ "file" + "=" + '"datacleaner_Output/get_levels_out.txt",' + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
 
-	newdata = filedata.replace(CONSTANT_INPUT,final)
+	newdata = filedata
 
-	f = open('r/summary/get_levels1.R','w')
+	f = open('r/gui_generated_scripts/get_levels1.R','w')
 	f.write(newdata)
+	f.write(final + '\n')
+	f.write("newdata <- get_levels(a0)"+ '\n')
+	f.write(file_output_path + '\n')
+
+
 	f.close()
-	proc = subprocess.call(['Rscript','r/summary/get_levels1.R'], shell=False)
+	proc = subprocess.call(['Rscript','r/gui_generated_scripts/get_levels1.R'], shell=False)
 	with open('logs.txt', 'a') as g:
 		g.write("----------------------------------------------------" + '\n')
 		g.write("Get Levels Function Called" + '\n')
 	
 def outliers():
-	f = open('r/summary/outliers.R','r')
+	f = open('r/outliers.R','r')
 	filedata = f.read()
 	f.close()
 
-	argument1 = "a1 = 2.5"
+	file_output_path = "write.table(newdata,"+ "file" + "=" + '"datacleaner_Output/outlisers.txt",' + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
+
 	threshold_val = "a1 = " + str(find_outliers_var.get())
-	newdata = filedata.replace(CONSTANT_INPUT,final).replace(argument1,threshold_val)
+	newdata = filedata
 
 
-	f = open('r/summary/outliers1.R','w')
+	f = open('r/gui_generated_scripts/outliers1.R','w')
 	f.write(newdata)
+	f.write(final + '\n')
+	f.write(threshold_val + '\n')
+	f.write("newdata <- outliers(a0,a1)"+ '\n')
+	f.write(file_output_path + '\n')
+
+
 	f.close()
-	proc = subprocess.call(['Rscript','r/summary/outliers1.R'], shell=False)
+	proc = subprocess.call(['Rscript','r/gui_generated_scripts/outliers1.R'], shell=False)
 	with open('logs.txt', 'a') as g:
 		g.write("----------------------------------------------------" + '\n')
 		g.write("Threshold: " + threshold_val+ '\n'+'\n')
 	
 def chisq_tests():
-	f = open('r/summary/chisq_tests.R','r')
+	f = open('r/chisq_tests.R','r')
 	filedata = f.read()
 	f.close()
+	
+	file_output_path = "write.table(newdata,"+ "file" + "=" + '"datacleaner_Output/chisq_tests_out.txt",' + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
 
-	newdata = filedata.replace(CONSTANT_INPUT,final)
+	newdata = filedata
 
-	f = open('r/summary/chisq_tests1.R','w')
+	f = open('r/gui_generated_scripts/chisq_tests1.R','w')
 	f.write(newdata)
+	f.write(final + '\n')
+	f.write(threshold_val + '\n')
+	f.write("newdata <- chisq_tests(a0)"+ '\n')
+	f.write(file_output_path + '\n')
+
+
 	f.close()
-	proc = subprocess.call(['Rscript','r/summary/chisq_tests1.R'], shell=False)
+	proc = subprocess.call(['Rscript','r/gui_generated_scripts/chisq_tests1.R'], shell=False)
 	with open('logs.txt', 'a') as g:
 		g.write("Chi Square Function Called" + '\n'+'\n')
 
