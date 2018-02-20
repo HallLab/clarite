@@ -10,7 +10,8 @@
 #' @export
 #' @examples
 #' qq_fun(d, i, annotate)
-
+library(ggplot2)
+library(gridExtra)
 qq_fun <- function(d, i) {
 
   v <- names(d[i])

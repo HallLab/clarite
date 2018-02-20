@@ -14,7 +14,8 @@
 #' @export
 #' @examples
 #' bar_plot(d, n=12, file="plot", nrow=4, ncol=3, wi=13.5, hgt=12, res=210)
-
+library(ggplot2)
+library(gridExtra)
 bar_plot <- function(d, n=12, file="plot", nrow=4, ncol=3, wi=13.5, hgt=12, res=210) {
 
   #n_row <- floor(sqrt(n))

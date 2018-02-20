@@ -10,7 +10,8 @@
 #' @export
 #' @examples
 #' hist_fun(d, i, annotate)
-
+library(ggplot2)
+library(gridExtra)
 hist_fun <- function(d, i, annotate) {
 
   if(!missing(annotate)){

@@ -454,7 +454,7 @@ def remove_outliers():
 def histogram():
 
 
-	f = open('r/histogram_plot.R','r')
+	f = open('r/hist_plot.R','r')
 	filedata = f.read()
 	f.close()
 
@@ -474,7 +474,7 @@ def histogram():
 	newdata = filedata
 
 
-	f = open('r/gui_generated_scripts/histogram_plot1.R','w')
+	f = open('r/gui_generated_scripts/hist_plot1.R','w')
 
 	f.write(newdata)
 	f.write(final + '\n')
@@ -485,11 +485,11 @@ def histogram():
 	f.write(height_of_plot + '\n')
 	f.write(resolution_of_plot + '\n')
 	f.write("quartz()" + '\n')
-	f.write("bar_plot(a0, a1, file='datacleaner_Output/histogram_plot_out', a2, a3, a4, a5, a6)" + '\n')
+	f.write("hist_plot(a0, a1, file='datacleaner_Output/hist_plot_out', a2, a3, a4, a5, a6)" + '\n')
 
 	f.close()
 
-	proc = subprocess.call(['Rscript','r/gui_generated_scripts/histogram_plot1.R'], shell=False)
+	proc = subprocess.call(['Rscript','r/gui_generated_scripts/hist_plot1.R'], shell=False)
 	
 	with open('logs.txt', 'a') as g:
 

@@ -3,5 +3,5 @@ THIS LOGS ALL OF YOUR VALUES & FUNCTIONS USED IN THE GUI PROGRAM
 ----------------------------------------------------------------
 
 DataCleaner Program Opened
-PROGRAM OPENED :  04:17PM on February 17, 2018
+PROGRAM OPENED :  12:16PM on February 20, 2018
 
