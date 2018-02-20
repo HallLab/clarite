@@ -880,12 +880,21 @@ class CheckPage(Frame):
 		    if(var1.get()):
 		       var2.set(0)
 		       controller.show_frame(CleanData)
+		       with open('logs.txt', 'a') as g:
+					g.write("----------------------------------------------------------------" + '\n')
+					g.write("Do you want to clean your data file:  USER Selected ----->   YES" + '\n')
+					g.write('\n'+'\n')
 
 
 		def checkbutton_value2():
 		    if(var2.get()):
 		       var1.set(0)
 		       controller.show_frame(MenuOptions)
+		       with open('logs.txt', 'a') as g:
+					g.write("----------------------------------------------------------------" + '\n')
+					g.write("Do you want to clean your data file:  USER Selected ----->   NO" + '\n')
+					g.write('\n'+'\n')
+
 
 		var1=IntVar()
 		checkbox_1 = Checkbutton(self, text='Yes   ', variable=var1, command=checkbutton_value1,font=("Courier", 20))
@@ -946,12 +955,20 @@ class MenuOptions(Frame):
 		    if(var1.get()):
 		       var2.set(0)
 		       controller.show_frame(FilterData)
+		       with open('logs.txt', 'a') as g:
+					g.write("----------------------------------------------------------------" + '\n')
+					g.write("Do you want to filter your data file:  USER Selected ----->   YES" + '\n')
+					g.write('\n'+'\n')
 
 
 		def checkbutton_value2():
 		    if(var2.get()):
 		       var1.set(0)
 		       controller.show_frame(VisualizeDataMenu)
+		       with open('logs.txt', 'a') as g:
+					g.write("----------------------------------------------------------------" + '\n')
+					g.write("Do you want to filter your data file:  USER Selected ----->   NO" + '\n')
+					g.write('\n'+'\n')
 
 		var1=IntVar()
 		checkbox_1 = Checkbutton(self, text='Yes   ', variable=var1, command=checkbutton_value1,font=("Courier", 20))
@@ -990,13 +1007,20 @@ class VisualizeDataMenu(Frame):
 		    if(var1.get()):
 		       var2.set(0)
 		       controller.show_frame(VisualizeData)
+		       with open('logs.txt', 'a') as g:
+					g.write("----------------------------------------------------------------" + '\n')
+					g.write("Do you want to visualize your data file:  USER Selected ----->   YES" + '\n')
+					g.write('\n'+'\n')
 
 
 		def checkbutton_value2():
 		    if(var2.get()):
 		       var1.set(0)
 		       controller.show_frame(SummarizeDataMenu)
-
+		       with open('logs.txt', 'a') as g:
+					g.write("----------------------------------------------------------------" + '\n')
+					g.write("Do you want to visualize your data file:  USER Selected ----->   NO" + '\n')
+					g.write('\n'+'\n')
 
 		var1=IntVar()
 		checkbox_1 = Checkbutton(self, text='Yes   ', variable=var1, command=checkbutton_value1,font=("Courier", 20))
@@ -1024,12 +1048,20 @@ class SummarizeDataMenu(Frame):
 		    if(var1.get()):
 		       var2.set(0)
 		       controller.show_frame(SummarizeData)
+		       with open('logs.txt', 'a') as g:
+					g.write("----------------------------------------------------------------" + '\n')
+					g.write("Do you want to summarize your data file:  USER Selected ----->   YES" + '\n')
+					g.write('\n'+'\n')
 
 
 		def checkbutton_value2():
 		    if(var2.get()):
 		       var1.set(0)
 		       controller.show_frame(EndPage)
+		       with open('logs.txt', 'a') as g:
+					g.write("----------------------------------------------------------------" + '\n')
+					g.write("Do you want to summarize your data file:  USER Selected ----->   NO" + '\n')
+					g.write('\n'+'\n')
 
 
 		var1=IntVar()
