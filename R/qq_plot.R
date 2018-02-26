@@ -1,6 +1,6 @@
-#' bar_plot
+#' qq_plot
 #'
-#' Create barcharts and choose number to display per page
+#' Create qqplots and choose number to display per page
 #' Note: There is an issue with dev.off() if using RStudio
 #' Dependencies: ggplot2, gridExtra
 #' @param d data frame
@@ -13,23 +13,20 @@
 #' @return png image(s)
 #' @export
 #' @examples
-#' bar_plot(d, n=12, file="plot", nrow=4, ncol=3, wi=13.5, hgt=12, res=210)
-
-bar_plot <- function(d, n=12, file="plot", nrow=4, ncol=3, wi=13.5, hgt=12, res=210) {
-
-  #n_row <- floor(sqrt(n))
-  #n_col <- ceiling(n/n_row)
-  #wi <- 4.5*n_col
-  #hgt <- 3*n_row
-    
+#' qq_plot(d, n=12, file="plot", nrow=4, ncol=3, wi=13.5, hgt=12, res=210)
+library(ggplot2)
+library(gridExtra)
+qq_plot <- function(d, n=12, file="plot", nrow=4, ncol=3, wi=13.5, hgt=12, res=210) {
+  
   if(n > ncol(d)){
     stop("Number of plots per page (", n, ") is larger than number of variables to plot (", ncol(d), ")")
   }
-
+ 
   iter <- ceiling(ncol(d)/n)
   k <- 1
   inc <- n
-  print("Starting bar charts")
+
+  print("Starting qqplots")
     
   for(j in 1:iter){
     
@@ -41,17 +38,23 @@ bar_plot <- function(d, n=12, file="plot", nrow=4, ncol=3, wi=13.5, hgt=12, res=
       
       v <- names(d[i])
       smpls <- length(d[[v]][!is.na(d[[v]])])
-      sumstr <- paste("Sample Size = ", smpls, sep="")
+      std <- sd(d[[i]], na.rm=TRUE)
+      sumstr <- paste("Sample Size = ", smpls, ", Std.Dev. = ", format(std, digits=4), sep="")
+      y <- quantile(d[[v]][!is.na(d[[v]])], c(0.25, 0.75))
+      x <- qnorm(c(0.25, 0.75))
+      slope <- diff(y)/diff(x)
+      int <- y[1L] - slope * x[1L]
       
       #Explicitly set aes to look in local environment due to bug in ggplot  
-      b <- ggplot(d, aes(x=factor(d[[v]])), environment=environment()) + geom_bar(fill="cadetblue4", colour="white", width=.5) + labs(x="Category", y="Count")
-      b <- b + ggtitle(bquote(atop(.(v), atop(.(sumstr), ""))))
-      print(b)
-      plots[[lst_indx]] <- grid.arrange(b, ncol=1)
+      q <- ggplot(d, aes(sample=d[[v]]), environment=environment()) + geom_point(stat="qq", na.rm=TRUE) + labs(x="Sample", y="Theoretical") 
+      q <- q + ggtitle(bquote(atop(.(v), atop(.(sumstr), "")))) + stat_qq(alpha=0.5) + geom_abline(slope=slope, intercept=int, colour="black") + theme(plot.title=element_text(size=9), axis.title=element_text(size=8))
+          
+      print(q)
+      plots[[lst_indx]] <- grid.arrange(q, ncol=1)
       lst_indx <- lst_indx + 1
     }
       
-    png(paste(file, "_barchart_", j, ".png", sep=""), width=wi, height=hgt, units="in", res=210, pointsize=4)
+    png(paste(file, "_qqplot_", j, ".png", sep=""), width=wi, height=hgt, units="in", res=210, pointsize=4)
     do.call("grid.arrange", c(plots, ncol=ncol))
     dev.off()
     print(paste("Printing image", j, "of", iter, sep=" "))
@@ -65,6 +68,6 @@ bar_plot <- function(d, n=12, file="plot", nrow=4, ncol=3, wi=13.5, hgt=12, res=
     }
   }
     
-    print("Finished creating barcharts")
+    print("Finished creating qqplots")
 }
 
