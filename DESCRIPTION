@@ -3,7 +3,7 @@ Title: A Package for Easy Data Cleaning
 Version: 0.0.0.9000
 Authors@R: person("Anastasia", "Lucas", email = "anastasia.lucas.bioinfo@gmail.com", role = c("aut", "cre"))
 Description: datacleanR is an intuitive package for the cleaning, visualization, and analysis of non-genetic data.
-Depends: R (>= 3.4.3)
+Depends: R (>= 3.2.1)
 Suggests: ggplot2, gridExtra, gvlma
 License: 
 Encoding: UTF-8
