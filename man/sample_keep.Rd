@@ -4,7 +4,7 @@
 \alias{sample_keep}
 \title{sample_keep}
 \usage{
-sample_keep(df, n = 1)
+sample_keep(df, n = 200)
 }
 \arguments{
 \item{df}{data frame}

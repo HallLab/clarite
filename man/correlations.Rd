@@ -4,7 +4,7 @@
 \alias{correlations}
 \title{correlations}
 \usage{
-correlations(df, x = 0)
+correlations(df, x = 0.5)
 }
 \arguments{
 \item{df}{data frame}
@@ -17,7 +17,7 @@ data frame with three columns, Variable 1, Variable 2, and the correlation betwe
 \description{
 Identify variables that are correlated above a certain threshold
 Note: Uses the pairwise.complete.obs in the base R cor function
-Note: A threshold of 0.6 also includes variables with a negative correlation stronger than -0.6
+Note: A threshold of 0.5 also includes variables with a negative correlation stronger than -0.5
 }
 \examples{
 correlations(df, x=0)
