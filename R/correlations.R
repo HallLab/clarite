@@ -2,7 +2,7 @@
 #'
 #' Identify variables that are correlated above a certain threshold
 #' Note: Uses the pairwise.complete.obs in the base R cor function
-#' Note: A threshold of 0.6 also includes variables with a negative correlation stronger than -0.6
+#' Note: A threshold of 0.5 also includes variables with a negative correlation stronger than -0.5
 #' @param df data frame
 #' @param x correlation threshold, -1 <= x <= 1
 #' @return data frame with three columns, Variable 1, Variable 2, and the correlation between Variable 1 and Variable 2
@@ -10,7 +10,7 @@
 #' @examples
 #' correlations(df, x=0)
 
-correlations <- function(df, x=0){
+correlations <- function(df, x=0.5){
 
   df <- as.matrix(df)
   class(df) <- "numeric"
