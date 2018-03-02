@@ -9,7 +9,7 @@
 #' sample_keep(df, n)
 
 
-sample_keep <- function(df, n=1){
+sample_keep <- function(df, n=200){
 
   keep <- df[, sapply(df, function(col) length(col[!is.na(col)])) >= n, drop=FALSE]
 
