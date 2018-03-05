@@ -10,9 +10,10 @@
 #' @export
 #' @examples
 #' hist_fun(d, i, annotate)
-library(ggplot2)
-library(gridExtra)
 hist_fun <- function(d, i, annotate) {
+  if (!requireNamespace(c("ggplot2", "gridExtra"), quietly = TRUE)) {
+    stop("Please install ggplot2 and gridExtra to create visualization.", call. = FALSE)
+  }
 
   if(!missing(annotate)){
     #Add clinical lab information

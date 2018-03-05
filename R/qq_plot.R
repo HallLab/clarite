@@ -14,10 +14,12 @@
 #' @export
 #' @examples
 #' qq_plot(d, n=12, file="plot", nrow=4, ncol=3, wi=13.5, hgt=12, res=210)
-library(ggplot2)
-library(gridExtra)
+
 qq_plot <- function(d, n=12, file="plot", nrow=4, ncol=3, wi=13.5, hgt=12, res=210) {
-  
+  if (!requireNamespace(c("ggplot2", "gridExtra"), quietly = TRUE)) {
+    stop("Please install ggplot2 and gridExtra to create visualization.", call. = FALSE)
+  }
+
   if(n > ncol(d)){
     stop("Number of plots per page (", n, ") is larger than number of variables to plot (", ncol(d), ")")
   }

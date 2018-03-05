@@ -1,12 +1,12 @@
 #' ewas
 #'
-#' Run environment-wide association study 
+#' Run environment-wide association study
 #' @param cat data frame containing categorical variables with first column as IID
 #' @param cont data frame containing continuous variables with first column as IID
 #' @param y name of predictor variable
-#' @param cov vector containing names of covariates 
+#' @param cov vector containing names of covariates
 #' @param regress family for the regression model as specified in glm, linear or logisitic
-#' @param adjust p-value adjustment (bonferroni or fdr) 
+#' @param adjust p-value adjustment (bonferroni or fdr)
 #' @return data frame containing following fields Variable, Variable Type, Regression Type, Sample Size, SE, Beta, Variable p-value, LRT, AIC, adjusted p-value
 #' @export
 #' @examples
@@ -22,20 +22,21 @@ ewas <- function(cat=NULL, cont=NULL, y, cov=NULL, regress, adjust){
   if(missing(regress)){
     stop("Please specify family type for glm()")
   }
-  
+
   ###Continuous###
   #Regress over columns != IID, y, covariates, or categorical variables
   regress_cont <- function(d, fmla, cols, rtype){
     mco <- lapply(d[, !(colnames(d) %in% cols)], function (x) do.call("glm", list(as.formula(fmla), family=as.name(rtype), data=as.name("d"))))
     sco <- lapply(mco, function (x) summary(x))
     #Grab sample size, beta, se beta, and pvalue
-    rco <- data.frame(t(as.data.frame(sapply(mco, function(x) as.data.frame(length(x$residuals))))), 
-                               t(as.data.frame(sapply(sco, function(x) as.data.frame(cbind(x$coefficients[2,1], 
-                                                                                           x$coefficients[2,2],
-                                                                                           x$coefficients[2,4]))))))
+    rco <- data.frame(t(as.data.frame(sapply(mco, function(x) as.data.frame(length(x$residuals))))),
+                      t(as.data.frame(sapply(mco, function(x) as.data.frame(x$converged)))),
+                      t(as.data.frame(sapply(sco, function(x) as.data.frame(cbind(x$coefficients[2,1],
+                                                                                  x$coefficients[2,2],
+                                                                                  x$coefficients[2,4]))))))
     prco <- data.frame(names = gsub("\\.length.x.residuals.","", row.names(rco)), rco, row.names = NULL)
-    names(prco) <- c("Variable", "N", "Beta", "SE", "Variable_pvalue")
-    prco$Sort <- prco$Variable_pvalue
+    names(prco) <- c("Variable", "N", "Converged", "Beta", "SE", "Variable_pvalue")
+    prco$Sort <- ifelse(prca$Converged==TRUE, prco$Variable_pvalue, NA)
     return(prco)
   }
 
@@ -47,12 +48,13 @@ ewas <- function(cat=NULL, cont=NULL, y, cov=NULL, regress, adjust){
     lrt <- mapply(function (x,y) anova(x,y, test="LRT"), x=mca, y=red, SIMPLIFY = FALSE)
     #Grab sample size, beta, se beta, and pvalue
     rca <- data.frame(t(as.data.frame(sapply(mca, function(x) as.data.frame(length(x$residuals))))),
-                               "NA", "NA", "NA",
-                               t(as.data.frame(sapply(lrt, function(x) as.data.frame(cbind(x$`Pr(>Chi)`[2]))))),
-                               t(as.data.frame(mapply(function (x,y) x$aic-y$aic, x=mca, y=red, SIMPLIFY = FALSE))))
+                      t(as.data.frame(sapply(mca, function(x) as.data.frame(x$converged)))),
+                      "NA", "NA", "NA",
+                      t(as.data.frame(sapply(lrt, function(x) as.data.frame(cbind(x$`Pr(>Chi)`[2]))))),
+                      t(as.data.frame(mapply(function (x,y) x$aic-y$aic, x=mca, y=red, SIMPLIFY = FALSE))))
     prca <- data.frame(names = gsub("\\.length.x.residuals.","", row.names(rca)), rca, row.names = NULL)
-    names(prca) <- c("Variable", "N", "Beta", "SE", "Variable_pvalue", "LRT_pvalue", "Diff_AIC")
-    prca$Sort <- prca$LRT_pvalue
+    names(prca) <- c("Variable", "N", "Converged", "Beta", "SE", "Variable_pvalue", "LRT_pvalue", "Diff_AIC")
+    prca$Sort <- ifelse(prca$Converged==TRUE, prca$LRT_pvalue, NA)
     return(prca)
   }
 
@@ -70,7 +72,7 @@ ewas <- function(cat=NULL, cont=NULL, y, cov=NULL, regress, adjust){
       stop("Please make sure that all values in 'cont' are numeric")
     }
     d <- merge(cat, cont, by="IID", all=TRUE)
-    
+
     if(dim(cont[, !(colnames(cont) %in% c("IID", cov, y))])[2]>0){
       rcont <- regress_cont(d=d, fmla=fmla, cols=c("IID", cov, y, names(cat)), rtype=regress)
       rcont$LRT_pvalue <- NA
@@ -105,10 +107,10 @@ ewas <- function(cat=NULL, cont=NULL, y, cov=NULL, regress, adjust){
     d <- as.data.frame(sapply(cat, factor))
     fres <- regress_cat(d=d, fmla=fmla, cols=c("IID", cov, y, names(cont)), rtype=regress)
   }
-  
+
   fres <- as.data.frame(lapply(fres, unlist))
   fres <- fres[order(fres$Sort),]
-  
+
   #Optional multiple testing correction
   if(!missing(adjust)){
     if(length(grep("fdr", adjust))!=0){
@@ -120,8 +122,8 @@ ewas <- function(cat=NULL, cont=NULL, y, cov=NULL, regress, adjust){
       fres <- fres[order(fres$pvalue_Bonf), ]
     }
   }
-  
+
   return(fres[, names(fres)!="Sort"])
 }
 
- 
+

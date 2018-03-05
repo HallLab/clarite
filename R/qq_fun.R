@@ -10,9 +10,11 @@
 #' @export
 #' @examples
 #' qq_fun(d, i, annotate)
-library(ggplot2)
-library(gridExtra)
+
 qq_fun <- function(d, i) {
+  if (!requireNamespace(c("ggplot2", "gridExtra"), quietly = TRUE)) {
+    stop("Please install ggplot2 and gridExtra to create visualization.", call. = FALSE)
+  }
 
   v <- names(d[i])
   smpls <- length(d[[v]][!is.na(d[[v]])])
