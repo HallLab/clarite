@@ -5,7 +5,7 @@
 \title{box_plot}
 \usage{
 box_plot(d, n = 12, file = "plot", nrow = 4, ncol = 3, wi = 13.5,
-  hgt = 12, res = 210, annotate)
+  hgt = 12, res = 300, annotate)
 }
 \arguments{
 \item{d}{data frame}

@@ -16,7 +16,7 @@
 #' @examples
 #' box_plot(d, n=12, file="plot", nrow=4, ncol=3, wi=13.5, hgt=12, res=210, annotate)
 
-box_plot <- function(d, n=12, file="plot", nrow=4, ncol=3, wi=13.5, hgt=12, res=210, annotate) {
+box_plot <- function(d, n=12, file="plot", nrow=4, ncol=3, wi=13.5, hgt=12, res=300, annotate) {
   if (!requireNamespace(c("ggplot2", "gridExtra"), quietly = TRUE)) {
     stop("Please install ggplot2 and gridExtra to create visualization.", call. = FALSE)
   }

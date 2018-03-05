@@ -5,7 +5,7 @@
 \title{bar_plot}
 \usage{
 bar_plot(d, n = 12, file = "plot", nrow = 4, ncol = 3, wi = 13.5,
-  hgt = 12, res = 210)
+  hgt = 12, res = 300)
 }
 \arguments{
 \item{d}{data frame}
