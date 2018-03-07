@@ -9,7 +9,7 @@ samplefilter(d, samples, exclude = FALSE)
 \arguments{
 \item{d}{data frame, with first column as IID}
 
-\item{samples}{list of samples to subset}
+\item{samples}{list or dataframe of samples to subset}
 
 \item{exclude}{boolean, keep or exclude}
 }
