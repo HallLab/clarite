@@ -4,7 +4,14 @@
 ##Imports Necessary Installations - Numpy, GGPLOT, GG-Grid, Python 2.7
 
 ##Recommended to keep DataCleaner Directory on Desktop
+# import Tkinter
+
+import ttk as ttk
+# import Tkinter as tk
 from Tkinter import *
+# from Tkinter import messagebox
+
+
 import subprocess
 import io
 import sys
@@ -18,15 +25,17 @@ from io import StringIO
 import os.path
 from random import randint
 import datetime
+import shlex
 
+global time_stamp
+time_stamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-with open('logs.txt', 'w') as global_log:
-	global_log.write("--------------------------PROGRAM LOGS--------------------------"+'\n')
-	global_log.write("THIS LOGS ALL OF YOUR VALUES & FUNCTIONS USED IN THE GUI PROGRAM"+'\n')
-	global_log.write("----------------------------------------------------------------"+'\n'+'\n')
-	global_log.write("DataCleaner Program Opened"+'\n')
-	global_log.write("PROGRAM OPENED :  "+ datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y") + '\n'+'\n')
+global log_file_name
+log_file_name = time_stamp + "-"'logs.txt'
 
+with open(log_file_name, 'w') as global_log:
+	global_log.write("LIVE LOG REPORT - PROGRAM OPENED :  " + datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y") + '\n')
+	global_log.write("LOGS INPUT VALUES, STDOUT, STDERR, R SCRIPT & FUNC CALLS (GUI PROGRAM)"+'\n'+'\n')
 
 
 ##Global Constant Values
@@ -51,8 +60,10 @@ def choose_start_file():
 	global final
 	final = A0_0 + global_start_file_path + A0_2
 
-	with open('logs.txt', 'a') as g:
-		g.write("File Chosen: "+ global_start_file_path + '\n'+'\n')
+	with open(log_file_name, 'a') as g:
+		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
+		g.write("File Chosen: "+ global_start_file_path + '\n')
+	refresh_logs()
 
 	
 ##Dialogue Function
@@ -61,9 +72,9 @@ def dialogue_file_dictionary():
 	global_recode_key_dictionary = tkFileDialog.askopenfilename()
 	choose_dictionary_label_name.set("Dictionary File: " + global_recode_key_dictionary)
 
-	with open('logs.txt', 'a') as g:
+	with open(log_file_name, 'a') as g:
 		g.write("Recode Key Dictionary Chosen: "+ global_recode_key_dictionary + '\n'+'\n')
-
+	refresh_logs()
 	
 
 # def dialogue_file_recode_key():
@@ -109,8 +120,8 @@ def recode_missing():
 			fileclean_rows = fileclean_rows.replace("\t" + str(missing_val.get()), "\t"+str(missing_val_replacement.get()))
 			with open('datacleaner_Output/recode_missing_out.txt', 'w') as file:
 				file.write(fileclean_rows)
-			with open('logs.txt', 'a') as g:
-				g.write("----------------------------------------------------------------" + '\n')
+			with open(log_file_name, 'a') as g:
+				g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
 				g.write("Missing Values Replace Function Called" + '\n')
 				g.write("Missing Value: "+ str(missing_val.get()) + '\n')
 				g.write("Missing Value Replacement: "+ str(missing_val_replacement.get()) + '\n' + '\n')
@@ -120,15 +131,16 @@ def recode_missing():
 		file_name.set("File Path Is Invalid: " + global_start_file_path)
 
 
+	refresh_logs()
 def recode_key():
 	iterator = 0
 	key_array = []
 
-	with open('logs.txt', 'a') as g:
-		g.write("----------------------------------------------------------------" + '\n')
+	with open(log_file_name, 'a') as g:
+		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
 
 		g.write("Missing Values Dictionary Function Called" + '\n')
-
+	refresh_logs()
 	dictionary = global_recode_key_dictionary
 
 	with open(dictionary, 'r') as file :
@@ -178,13 +190,16 @@ def get_binary():
 
 	f.close()
 
-	proc = subprocess.call(['Rscript','r/gui_generated_scripts/get_binary1.R'], shell=False)
-
-	with open('logs.txt', 'a') as g:
-		g.write("----------------------------------------------------------------" + '\n')
+	with open(log_file_name, 'a') as g:
+		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
 
 		g.write("Get Binary Variables Function Called" + '\n' +'\n' )
+	
 
+	s_out = open("logs.txt", "a")
+	proc = subprocess.call(['Rscript','r/gui_generated_scripts/get_binary1.R'], shell=False,stdout=s_out, stderr=s_out)
+
+	refresh_logs()
 
 def get_continuous():
 	f = open('r/get_continuous.R','r')
@@ -207,15 +222,20 @@ def get_continuous():
 	f.close()
 
 
-
-	proc = subprocess.call(['Rscript','r/gui_generated_scripts/get_continuous1.R'], shell=False)
 	
-	with open('logs.txt', 'a') as g:
-		g.write("----------------------------------------------------------------" + '\n')
+	with open(log_file_name, 'a') as g:
+		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
 
 		g.write("Get Continuous Variables Function Called" + '\n')
 		g.write("Lower Bound: " + lower_bound + '\n' +'\n' )
 
+
+
+
+	s_out = open("logs.txt", "a")
+	proc = subprocess.call(['Rscript','r/gui_generated_scripts/get_continuous1.R'], shell=False,stdout=s_out, stderr=s_out)
+
+	refresh_logs()
 
 def get_categorical():
 	f = open('r/get_categorical.R','r')
@@ -241,15 +261,19 @@ def get_categorical():
 
 	f.close()
 
-	proc = subprocess.call(['Rscript','r/gui_generated_scripts/get_categorical1.R'], shell=False)
 	
-	with open('logs.txt', 'a') as g:
-		g.write("----------------------------------------------------------------" + '\n')
+	with open(log_file_name, 'a') as g:
+		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
 
 		g.write("Get Categorical Variables Function Called" + '\n')
 		g.write("Lower Bound: " + lower_bound + '\n')
 		g.write("Upper Bound: " + upper_bound + '\n' +'\n' )
 
+
+	s_out = open("logs.txt", "a")
+	proc = subprocess.call(['Rscript','r/gui_generated_scripts/get_categorical1.R'], shell=False,stdout=s_out, stderr=s_out)
+
+	refresh_logs()
 
 def get_check():
 	f = open('r/get_check.R','r')
@@ -275,16 +299,18 @@ def get_check():
 
 	f.close()
 	
-	proc = subprocess.call(['Rscript','r/gui_generated_scripts/get_check1.R'], shell=False)
 
-	with open('logs.txt', 'a') as g:
-		g.write("----------------------------------------------------------------" + '\n')
+	with open(log_file_name, 'a') as g:
+		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
 
 		g.write("Get Ambiguous Variables Function Called" + '\n')
 		g.write("Lower Bound: " + lower_bound + '\n')
 		g.write("Upper Bound: " + upper_bound + '\n' +'\n' )
+	
+	s_out = open("logs.txt", "a")
+	proc = subprocess.call(['Rscript','r/gui_generated_scripts/get_check1.R'], shell=False,stdout=s_out, stderr=s_out)
 
-
+	refresh_logs()
 def sample_keep():
 	f = open('r/sample_keep.R','r')
 	filedata = f.read()
@@ -307,14 +333,17 @@ def sample_keep():
 
 	f.close()
 
-	proc = subprocess.call(['Rscript','r/gui_generated_scripts/sample_keep1.R'], shell=False)
 
-	with open('logs.txt', 'a') as g:
-		g.write("----------------------------------------------------------------" + '\n')
+	with open(log_file_name, 'a') as g:
+		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
 
 		g.write("Get Ambiguous Variables Function Called" + '\n')
 		g.write("Lower Bound: " + lower_bound + '\n' +'\n' )
 
+	s_out = open("logs.txt", "a")
+	proc = subprocess.call(['Rscript','r/gui_generated_scripts/sample_keep1.R'], shell=False,stdout=s_out, stderr=s_out)
+
+	refresh_logs()
 
 def transform_list():
 	f = open('r/transform_list.R','r')
@@ -339,21 +368,24 @@ def transform_list():
 
 	f.close()
 	
-	proc = subprocess.call(['Rscript','r/gui_generated_scripts/transform_list1.R'], shell=False)
 	
-	with open('logs.txt', 'a') as g:
-		g.write("----------------------------------------------------------------" + '\n')
+	with open(log_file_name, 'a') as g:
+		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
 
 		g.write("Transform List Function Called" + '\n' + '\n')
 
+	s_out = open("logs.txt", "a")
+	proc = subprocess.call(['Rscript','r/gui_generated_scripts/transform_list1.R'], shell=False,stdout=s_out, stderr=s_out)
+
+	refresh_logs()
 
 def remove_outliers():
 
-	with open('logs.txt', 'a') as g:
-		g.write("----------------------------------------------------------------" + '\n')
+	with open(log_file_name, 'a') as g:
+		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
 
 		g.write("Remove Outliers Function Called" + '\n'+ '\n' )
-
+	refresh_logs()
 	# input_file = outlier_file
         matrix = []
         # input_file = '/Users/deven/desktop/miss.txt'
@@ -489,11 +521,10 @@ def histogram():
 
 	f.close()
 
-	proc = subprocess.call(['Rscript','r/gui_generated_scripts/hist_plot1.R'], shell=False)
 	
-	with open('logs.txt', 'a') as g:
+	with open(log_file_name, 'a') as g:
 
-		g.write("----------------------------------------------------------------" + '\n')
+		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
 
 		g.write("Generate Histogram Function Called" + '\n')
 		g.write("Number of Plots Per Page: " + str(h1.get()) + '\n')
@@ -502,8 +533,11 @@ def histogram():
 		g.write("Width of Plot: " + str(h4.get()) + '\n')
 		g.write("Height of Plot: " + str(h5.get()) + '\n')
 		g.write("Resolution of Plot: " + str(h6.get()) + '\n' +'\n' )
+	
+	s_out = open("logs.txt", "a")
+	proc = subprocess.call(['Rscript','r/gui_generated_scripts/hist_plot1.R'], shell=False,stdout=s_out, stderr=s_out)
 
-
+	refresh_logs()
 
 def boxplot():
 
@@ -536,10 +570,9 @@ def boxplot():
 	f.write("box_plot(a0, a1, file='datacleaner_Output/boxplot_out', a2, a3, a4, a5, a6)" + '\n')
 
 	f.close()
-	proc = subprocess.call(['Rscript','r/gui_generated_scripts/box_plot1.R'], shell=False)
 
-	with open('logs.txt', 'a') as g:
-		g.write("----------------------------------------------------------------" + '\n')
+	with open(log_file_name, 'a') as g:
+		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
 
 		g.write("Generate Box Plot Function Called" + '\n')
 		g.write("Number of Plots Per Page: " + str(bx1.get()) + '\n')
@@ -548,8 +581,11 @@ def boxplot():
 		g.write("Width of Plot: " + str(bx4.get()) + '\n')
 		g.write("Height of Plot: " + str(bx5.get()) + '\n')
 		g.write("Resolution of Plot: " + str(bx6.get()) + '\n' +'\n' )
+	
+	s_out = open("logs.txt", "a")
+	proc = subprocess.call(['Rscript','r/gui_generated_scripts/box_plot1.R'], shell=False,stdout=s_out, stderr=s_out)
 
-
+	refresh_logs()
 
 def qqplot():
 	
@@ -580,10 +616,9 @@ def qqplot():
 	f.write("qq_plot(a0, a1, file='datacleaner_Output/boxplot_out', a2, a3, a4, a5, a6)" + '\n')
 
 	f.close()
-	proc = subprocess.call(['Rscript','r/gui_generated_scripts/qq_plot1.R'], shell=False)
 
-	with open('logs.txt', 'a') as g:
-		g.write("----------------------------------------------------------------" + '\n')
+	with open(log_file_name, 'a') as g:
+		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
 
 		g.write("Generate QQ Plot Function Called" + '\n')
 		g.write("Number of Plots Per Page: " + str(qq1.get()) + '\n')
@@ -592,7 +627,11 @@ def qqplot():
 		g.write("Width of Plot: " + str(qq4.get()) + '\n')
 		g.write("Height of Plot: " + str(qq5.get()) + '\n')
 		g.write("Resolution of Plot: " + str(qq6.get()) + '\n' +'\n' )
+	
+	s_out = open("logs.txt", "a")
+	proc = subprocess.call(['Rscript','r/gui_generated_scripts/qq_plot1.R'], shell=False,stdout=s_out, stderr=s_out)
 
+	refresh_logs()
 
 
 def barplot():
@@ -628,10 +667,9 @@ def barplot():
 
 
 	f.close()
-	proc = subprocess.call(['Rscript','r/gui_generated_scripts/bar_plot1.R'], shell=False)
 
-	with open('logs.txt', 'a') as g:
-		g.write("----------------------------------------------------------------" + '\n')
+	with open(log_file_name, 'a') as g:
+		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
 
 		g.write("Generate Bar Plot Function Called" + '\n')
 		g.write("Number of Plots Per Page: " + str(bp1.get()) + '\n')
@@ -641,7 +679,12 @@ def barplot():
 		g.write("Height of Plot: " + str(bp5.get()) + '\n')
 		g.write("Resolution of Plot: " + str(bp6.get()) + '\n' +'\n' )
 
+	
+	s_out = open("logs.txt", "a")
+	
+	proc = subprocess.call(['Rscript','r/gui_generated_scripts/bar_plot1.R'], shell=False, stdout=s_out, stderr=s_out)
 
+	refresh_logs()
 
 
 ###***************************************************************************************###
@@ -664,13 +707,17 @@ def frequency_table():
 
 
 	f.close()
-	proc = subprocess.call(['Rscript','r/gui_generated_scripts/freq_tables1.R'], shell=False)
 	
-	with open('logs.txt', 'a') as g:
-		g.write("----------------------------------------------------------------" + '\n')
+	with open(log_file_name, 'a') as g:
+		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
 
 		g.write("Generate Frequency Table Function Called" + '\n'+'\n')
 
+	s_out = open("logs.txt", "a")
+	
+	proc = subprocess.call(['Rscript','r/gui_generated_scripts/freq_tables1.R'], shell=False, stdout=s_out, stderr=s_out)
+
+	refresh_logs()
 def correlations():
 	f = open('r/correlations.R','r')
 	filedata = f.read()
@@ -685,7 +732,7 @@ def correlations():
 	f = open('r/gui_generated_scripts/correlations1.R','w')
 	f.write(newdata)
 	f.write(final + '\n')
-	f.write(threshold_val)
+	f.write(threshold_val+ '\n')
 	f.write("newdata <- correlations(a0,a1)"+ '\n')
 	f.write(file_output_path + '\n')
 
@@ -693,14 +740,18 @@ def correlations():
 
 
 	f.close()
-	proc = subprocess.call(['Rscript','r/gui_generated_scripts/correlations1.R'], shell=False)
 	
-	with open('logs.txt', 'a') as g:
-		g.write("----------------------------------------------------------------" + '\n')
+	with open(log_file_name, 'a') as g:
+		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
 		g.write("Generate Correlations Function Called" + '\n')
 		g.write("Threshold: " + threshold_val+ '\n')
+	
+	s_out = open("logs.txt", "a")
+	
+	proc = subprocess.call(['Rscript','r/gui_generated_scripts/correlations1.R'], shell=False, stdout=s_out, stderr=s_out)
 
-
+	refresh_logs()
+	
 def sample_size():
 	f = open('r/sample_size.R','r')
 	filedata = f.read()
@@ -719,13 +770,17 @@ def sample_size():
 
 
 	f.close()
-	proc = subprocess.call(['Rscript','r/summary/sample_size1.R'], shell=False)
 	
-	with open('logs.txt', 'a') as g:
-		g.write("----------------------------------------------------------------" + '\n')
+	with open(log_file_name, 'a') as g:
+		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
 		g.write("Sample Size Function Called" + '\n')
-		g.write("Threshold: " + threshold_val+ '\n'+'\n')
+		# g.write("Threshold: " + threshold_val+ '\n'+'\n')
+	
+	s_out = open("logs.txt", "a")
+	
+	proc = subprocess.call(['Rscript','r/gui_generated_scripts/sample_size1.R'], shell=False, stdout=s_out, stderr=s_out)
 
+	refresh_logs()
 
 
 def get_levels():
@@ -744,11 +799,18 @@ def get_levels():
 
 
 	f.close()
-	proc = subprocess.call(['Rscript','r/gui_generated_scripts/get_levels1.R'], shell=False)
-	with open('logs.txt', 'a') as g:
-		g.write("----------------------------------------------------------------" + '\n')
+
+	with open(log_file_name, 'a') as g:
+		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
 		g.write("Get Levels Function Called" + '\n')
 	
+	s_out = open("logs.txt", "a")
+	
+	proc = subprocess.call(['Rscript','r/gui_generated_scripts/get_levels1.R'], shell=False, stdout=s_out, stderr=s_out)
+
+	refresh_logs()
+
+
 def outliers():
 	f = open('r/outliers.R','r')
 	filedata = f.read()
@@ -767,13 +829,17 @@ def outliers():
 	f.write("newdata <- outliers(a0,a1)"+ '\n')
 	f.write(file_output_path + '\n')
 
-
 	f.close()
-	proc = subprocess.call(['Rscript','r/gui_generated_scripts/outliers1.R'], shell=False)
-	with open('logs.txt', 'a') as g:
-		g.write("----------------------------------------------------------------" + '\n')
+	with open(log_file_name, 'a') as g:
+		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
 		g.write("Threshold: " + threshold_val+ '\n'+'\n')
+
+	s_out = open("logs.txt", "a")
 	
+	proc = subprocess.call(['Rscript','r/gui_generated_scripts/outliers1.R'], shell=False, stdout=s_out, stderr=s_out)
+
+	refresh_logs()
+
 def chisq_tests():
 	f = open('r/chisq_tests.R','r')
 	filedata = f.read()
@@ -786,48 +852,51 @@ def chisq_tests():
 	f = open('r/gui_generated_scripts/chisq_tests1.R','w')
 	f.write(newdata)
 	f.write(final + '\n')
-	f.write(threshold_val + '\n')
+	# f.write(threshold_val + '\n')
 	f.write("newdata <- chisq_tests(a0)"+ '\n')
 	f.write(file_output_path + '\n')
 
 
 	f.close()
-	proc = subprocess.call(['Rscript','r/gui_generated_scripts/chisq_tests1.R'], shell=False)
-	with open('logs.txt', 'a') as g:
+	with open(log_file_name, 'a') as g:
 		g.write("Chi Square Function Called" + '\n'+'\n')
+	
+	s_out = open("logs.txt", "a")
+	
+	proc = subprocess.call(['Rscript','r/gui_generated_scripts/chisq_tests1.R'], shell=False, stdout=s_out, stderr=s_out)
 
-
+	refresh_logs()
 ###***************************************************************************************###
    		###*************************** GUI CLASS BELOW **************************###
 ###***************************************************************************************###
-class App(Tk):
+# class App(Tk):
 
-	def __init__(self, *args, **kwargs):
-		Tk.__init__(self, *args, **kwargs)
+# 	def __init__(self, *args, **kwargs):
+# 		Tk.__init__(self, *args, **kwargs)
 
-		#Setup Menu
-		MainMenu(self)
-		#Setup Frams
-		container = Frame(self)
-		container.pack(side="top", fill="both", expand=True)
-		container.grid_rowconfigure(0, weight=1)		
-		container.grid_columnconfigure(0, weight=1)
+# 		#Setup Menu
+# 		MainMenu(self)
+# 		#Setup Frams
+# 		container = Frame(self)
+# 		container.pack(side="top", fill="both", expand=True)
+# 		container.grid_rowconfigure(0, weight=1)		
+# 		container.grid_columnconfigure(0, weight=1)
 
 
-		self.frames = {}
+# 		self.frames = {}
 
-		for F in (StartPage, CleanData, RecodeMissing, RecodeKey, RemoveOutliers, VisualizeData,FilterData,SummarizeData, HistogramProgram,BoxPlotProgram,QQPlot,BarPlotProgram,CheckPage,MenuOptions,ContinuousProgram,CategoricalProgram,AmbiguousProgram,SampleKeepProgram,TransformData,FindOutliersProgram,FindCorrelationsProgram,VisualizeDataMenu,SummarizeDataMenu,EndPage
+# 		for F in (StartPage, CleanData, RecodeMissing, RecodeKey, RemoveOutliers, VisualizeData,FilterData,SummarizeData, HistogramProgram,BoxPlotProgram,QQPlot,BarPlotProgram,CheckPage,MenuOptions,ContinuousProgram,CategoricalProgram,AmbiguousProgram,SampleKeepProgram,TransformData,FindOutliersProgram,FindCorrelationsProgram,VisualizeDataMenu,SummarizeDataMenu,EndPage
 
-):
-			frame = F(container, self)
-			self.frames[F] = frame
-			frame.grid(row=0, column=0, sticky="snew")
+# ):
+# 			frame = F(container, self)
+# 			self.frames[F] = frame
+# 			frame.grid(row=0, column=0, sticky="snew")
 
-		self.show_frame(StartPage)
+# 		self.show_frame(StartPage)
 
-	def show_frame(self, context):
-		frame = self.frames[context]
-		frame.tkraise()
+# 	def show_frame(self, context):
+# 		frame = self.frames[context]
+# 		frame.tkraise()
 
 
 
@@ -837,7 +906,7 @@ class StartPage(Frame):
 
 		label = Label(self, text="Welcome to Data Cleaner")
 		label.config(width=200)
-		label.config(font=("Courier", 35))
+		label.config(font=("Comfortaa", 35))
 		label.config(fg="cyan4")
 
 
@@ -849,10 +918,10 @@ class StartPage(Frame):
 
 		
 		choose_file_label = Label(self, textvariable=choose_start_file_name)
-		choose_file_label.config(font=("Courier", 17))
+		choose_file_label.config(font=("Comfortaa", 15))
 		choose_file_label.pack(pady=20)
 		
-		choose_file = Button(self,text="Choose File", command= choose_start_file)
+		choose_file = Button(self,text="Chose File", command= choose_start_file)
 		choose_file.pack(pady=20)
 
 		continue_button = Button(self,text="Continue", command= lambda:controller.show_frame(CheckPage))
@@ -860,1004 +929,1902 @@ class StartPage(Frame):
 		# self.button.pack(ipadx=10, ipady=10)
 
 
-class CheckPage(Frame):
-	def __init__(self,parent, controller):
-		Frame.__init__(self,parent)
-
-		label = Label(self, text="Do you want to clean your data file?")
-		label.config(width=200)
-		label.config(font=("Courier", 20))
-		label.pack(pady=20)
-		label.config(fg="cyan4")
-
-
-
-		global var_int 
-		var_int = IntVar()
-		var_int.set = 0
-
-		def checkbutton_value1():
-		    if(var1.get()):
-		       var2.set(0)
-		       controller.show_frame(CleanData)
-		       with open('logs.txt', 'a') as g:
-					g.write("----------------------------------------------------------------" + '\n')
-					g.write("Do you want to clean your data file:  USER Selected ----->   YES" + '\n')
-					g.write('\n'+'\n')
-
-
-		def checkbutton_value2():
-		    if(var2.get()):
-		       var1.set(0)
-		       controller.show_frame(MenuOptions)
-		       with open('logs.txt', 'a') as g:
-					g.write("----------------------------------------------------------------" + '\n')
-					g.write("Do you want to clean your data file:  USER Selected ----->   NO" + '\n')
-					g.write('\n'+'\n')
+# class CheckPage(Frame):
+# 	def __init__(self,parent, controller):
+# 		Frame.__init__(self,parent)
+
+# 		label = Label(self, text="Do you want to clean your data file?")
+# 		label.config(width=200)
+# 		label.config(font=("Comfortaa", 20))
+# 		label.pack(pady=20)
+# 		label.config(fg="cyan4")
+
+
+
+# 		global var_int 
+# 		var_int = IntVar()
+# 		var_int.set = 0
+
+# 		def checkbutton_value1():
+# 		    if(var1.get()):
+# 		       var2.set(0)
+# 		       controller.show_frame(CleanData)
+# 		       with open(log_file_name, 'a') as g:
+# 					g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
+# 					g.write("Do you want to clean your data file:  USER Selected ----->   YES" + '\n')
+# 					g.write('\n'+'\n')
+
+
+# 		def checkbutton_value2():
+# 		    if(var2.get()):
+# 		       var1.set(0)
+# 		       controller.show_frame(MenuOptions)
+# 		       with open(log_file_name, 'a') as g:
+# 					g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
+# 					g.write("Do you want to clean your data file:  USER Selected ----->   NO" + '\n')
+# 					g.write('\n'+'\n')
 
 
-		var1=IntVar()
-		checkbox_1 = Checkbutton(self, text='Yes   ', variable=var1, command=checkbutton_value1,font=("Courier", 20))
-		checkbox_1.pack(pady=10)
-		var2=IntVar()
-		checkbox_2 = Checkbutton(self, text='No   ', variable=var2, command=checkbutton_value2,font=("Courier", 20))
-		checkbox_2.pack(pady=(0,40))
+# 		var1=IntVar()
+# 		checkbox_1 = Checkbutton(self, text='Yes   ', variable=var1, command=checkbutton_value1,font=("Comfortaa", 20))
+# 		checkbox_1.pack(pady=10)
+# 		var2=IntVar()
+# 		checkbox_2 = Checkbutton(self, text='No   ', variable=var2, command=checkbutton_value2,font=("Comfortaa", 20))
+# 		checkbox_2.pack(pady=(0,40))
 
 
-		back = Button(self,text="Back", command= lambda:controller.show_frame(StartPage))
-		back.pack()
-#Clean File Page
-class CleanData(Frame):
-	def __init__(self,parent, controller):
-		Frame.__init__(self,parent)
-
-		label = Label(self, text="Do you have one missing value to replace in your file?")
-		label.config(width=200)
-		label.config(font=("Courier", 20))
-		label.pack(pady=20)
-		label.config(fg="cyan4")
+# 		back = Button(self,text="Back", command= lambda:controller.show_frame(StartPage))
+# 		back.pack()
+# #Clean File Page
+# class CleanData(Frame):
+# 	def __init__(self,parent, controller):
+# 		Frame.__init__(self,parent)
+
+# 		label = Label(self, text="Do you have one missing value to replace in your file?")
+# 		label.config(width=200)
+# 		label.config(font=("Comfortaa", 20))
+# 		label.pack(pady=20)
+# 		label.config(fg="cyan4")
 
-
-		def checkbutton_value1():
-		    if(var1.get()):
-		       var2.set(0)
-		       controller.show_frame(RecodeMissing)
-
-
-		def checkbutton_value2():
-		    if(var2.get()): 
-		       var1.set(0)
-		       controller.show_frame(RecodeKey)
-
-		var1=IntVar()
-		checkbox_1 = Checkbutton(self, text='Yes   ', variable=var1, command=checkbutton_value1,font=("Courier", 20))
-		checkbox_1.pack(pady=10)
-		var2=IntVar()
-		checkbox_2 = Checkbutton(self, text='No   ', variable=var2, command=checkbutton_value2,font=("Courier", 20))
-		checkbox_2.pack(pady=(0,40))
-
-		back = Button(self,text="Back", command= lambda:controller.show_frame(CheckPage))
-		back.pack()
+
+# 		def checkbutton_value1():
+# 		    if(var1.get()):
+# 		       var2.set(0)
+# 		       controller.show_frame(RecodeMissing)
+
+
+# 		def checkbutton_value2():
+# 		    if(var2.get()): 
+# 		       var1.set(0)
+# 		       controller.show_frame(RecodeKey)
+
+# 		var1=IntVar()
+# 		checkbox_1 = Checkbutton(self, text='Yes   ', variable=var1, command=checkbutton_value1,font=("Comfortaa", 20))
+# 		checkbox_1.pack(pady=10)
+# 		var2=IntVar()
+# 		checkbox_2 = Checkbutton(self, text='No   ', variable=var2, command=checkbutton_value2,font=("Comfortaa", 20))
+# 		checkbox_2.pack(pady=(0,40))
+
+# 		back = Button(self,text="Back", command= lambda:controller.show_frame(CheckPage))
+# 		back.pack()
 
 
-class MenuOptions(Frame):
-	def __init__(self,parent, controller):
-		Frame.__init__(self,parent)
-
-		label = Label(self, text="Do you want to filter your Data?")
-		label.config(width=200)
-		label.config(font=("Courier", 20))
-		label.pack(pady=(10,40))
-		label.config(fg="cyan4")
-
-
-		def checkbutton_value1():
-		    if(var1.get()):
-		       var2.set(0)
-		       controller.show_frame(FilterData)
-		       with open('logs.txt', 'a') as g:
-					g.write("----------------------------------------------------------------" + '\n')
-					g.write("Do you want to filter your data file:  USER Selected ----->   YES" + '\n')
-					g.write('\n'+'\n')
-
-
-		def checkbutton_value2():
-		    if(var2.get()):
-		       var1.set(0)
-		       controller.show_frame(VisualizeDataMenu)
-		       with open('logs.txt', 'a') as g:
-					g.write("----------------------------------------------------------------" + '\n')
-					g.write("Do you want to filter your data file:  USER Selected ----->   NO" + '\n')
-					g.write('\n'+'\n')
-
-		var1=IntVar()
-		checkbox_1 = Checkbutton(self, text='Yes   ', variable=var1, command=checkbutton_value1,font=("Courier", 20))
-		checkbox_1.pack(pady=10)
-		var2=IntVar()
-		checkbox_2 = Checkbutton(self, text='No   ', variable=var2, command=checkbutton_value2,font=("Courier", 20))
-		checkbox_2.pack(pady=(0,40))
-
-
-		# filter_data_page = Button(self,text="Filter Data", command= lambda:controller.show_frame(FilterData))
-		# filter_data_page.pack(pady=(0,20))
+# class MenuOptions(Frame):
+# 	def __init__(self,parent, controller):
+# 		Frame.__init__(self,parent)
+
+# 		label = Label(self, text="Do you want to filter your Data?")
+# 		label.config(width=200)
+# 		label.config(font=("Comfortaa", 20))
+# 		label.pack(pady=(10,40))
+# 		label.config(fg="cyan4")
+
+
+# 		def checkbutton_value1():
+# 		    if(var1.get()):
+# 		       var2.set(0)
+# 		       controller.show_frame(FilterData)
+# 		       with open(log_file_name, 'a') as g:
+# 					g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
+# 					g.write("Do you want to filter your data file:  USER Selected ----->   YES" + '\n')
+# 					g.write('\n'+'\n')
+
+
+# 		def checkbutton_value2():
+# 		    if(var2.get()):
+# 		       var1.set(0)
+# 		       controller.show_frame(VisualizeDataMenu)
+# 		       with open(log_file_name, 'a') as g:
+# 					g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
+# 					g.write("Do you want to filter your data file:  USER Selected ----->   NO" + '\n')
+# 					g.write('\n'+'\n')
+
+# 		var1=IntVar()
+# 		checkbox_1 = Checkbutton(self, text='Yes   ', variable=var1, command=checkbutton_value1,font=("Comfortaa", 20))
+# 		checkbox_1.pack(pady=10)
+# 		var2=IntVar()
+# 		checkbox_2 = Checkbutton(self, text='No   ', variable=var2, command=checkbutton_value2,font=("Comfortaa", 20))
+# 		checkbox_2.pack(pady=(0,40))
+
+
+# 		# filter_data_page = Button(self,text="Filter Data", command= lambda:controller.show_frame(FilterData))
+# 		# filter_data_page.pack(pady=(0,20))
 
-
-		# visualize_data_page = Button(self,text="Visualize Data", command= lambda:controller.show_frame(VisualizeDataMenu))
-		# visualize_data_page.pack(pady=(0,20))
-
-		# summarize_page_button = Button(self,text="Summarize Data", command= lambda:controller.show_frame(SummarizeDataMenu))
-		# summarize_page_button.pack(pady=(0,40))
+
+# 		# visualize_data_page = Button(self,text="Visualize Data", command= lambda:controller.show_frame(VisualizeDataMenu))
+# 		# visualize_data_page.pack(pady=(0,20))
+
+# 		# summarize_page_button = Button(self,text="Summarize Data", command= lambda:controller.show_frame(SummarizeDataMenu))
+# 		# summarize_page_button.pack(pady=(0,40))
 
-		back = Button(self,text="Back", command= lambda:controller.show_frame(CheckPage))
-		back.pack()
+# 		back = Button(self,text="Back", command= lambda:controller.show_frame(CheckPage))
+# 		back.pack()
 
-class VisualizeDataMenu(Frame):
+# class VisualizeDataMenu(Frame):
 
-	def __init__(self,parent, controller):
-		Frame.__init__(self,parent)
+# 	def __init__(self,parent, controller):
+# 		Frame.__init__(self,parent)
 
 
-		label = Label(self, text="Do you want to Visualize your Data?")
-		label.config(width=200)
-		label.config(font=("Courier", 20))
-		label.pack(pady=30)
-		label.config(fg="cyan4")
+# 		label = Label(self, text="Do you want to Visualize your Data?")
+# 		label.config(width=200)
+# 		label.config(font=("Comfortaa", 20))
+# 		label.pack(pady=30)
+# 		label.config(fg="cyan4")
 
-		def checkbutton_value1():
-		    if(var1.get()):
-		       var2.set(0)
-		       controller.show_frame(VisualizeData)
-		       with open('logs.txt', 'a') as g:
-					g.write("----------------------------------------------------------------" + '\n')
-					g.write("Do you want to visualize your data file:  USER Selected ----->   YES" + '\n')
-					g.write('\n'+'\n')
+# 		def checkbutton_value1():
+# 		    if(var1.get()):
+# 		       var2.set(0)
+# 		       controller.show_frame(VisualizeData)
+# 		       with open(log_file_name, 'a') as g:
+# 					g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
+# 					g.write("Do you want to visualize your data file:  USER Selected ----->   YES" + '\n')
+# 					g.write('\n'+'\n')
 
 
-		def checkbutton_value2():
-		    if(var2.get()):
-		       var1.set(0)
-		       controller.show_frame(SummarizeDataMenu)
-		       with open('logs.txt', 'a') as g:
-					g.write("----------------------------------------------------------------" + '\n')
-					g.write("Do you want to visualize your data file:  USER Selected ----->   NO" + '\n')
-					g.write('\n'+'\n')
+# 		def checkbutton_value2():
+# 		    if(var2.get()):
+# 		       var1.set(0)
+# 		       controller.show_frame(SummarizeDataMenu)
+# 		       with open(log_file_name, 'a') as g:
+# 					g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
+# 					g.write("Do you want to visualize your data file:  USER Selected ----->   NO" + '\n')
+# 					g.write('\n'+'\n')
 
-		var1=IntVar()
-		checkbox_1 = Checkbutton(self, text='Yes   ', variable=var1, command=checkbutton_value1,font=("Courier", 20))
-		checkbox_1.pack(pady=10)
-		var2=IntVar()
-		checkbox_2 = Checkbutton(self, text='No   ', variable=var2, command=checkbutton_value2,font=("Courier", 20))
-		checkbox_2.pack(pady=(0,40))
+# 		var1=IntVar()
+# 		checkbox_1 = Checkbutton(self, text='Yes   ', variable=var1, command=checkbutton_value1,font=("Comfortaa", 20))
+# 		checkbox_1.pack(pady=10)
+# 		var2=IntVar()
+# 		checkbox_2 = Checkbutton(self, text='No   ', variable=var2, command=checkbutton_value2,font=("Comfortaa", 20))
+# 		checkbox_2.pack(pady=(0,40))
 
-		back = Button(self,text="Back", command= lambda:controller.show_frame(MenuOptions))
-		back.pack()
+# 		back = Button(self,text="Back", command= lambda:controller.show_frame(MenuOptions))
+# 		back.pack()
 
-class SummarizeDataMenu(Frame):
+# class SummarizeDataMenu(Frame):
 
-	def __init__(self,parent, controller):
-		Frame.__init__(self,parent)
+# 	def __init__(self,parent, controller):
+# 		Frame.__init__(self,parent)
 
 
-		label = Label(self, text="Want to make Summaries of your Data?")
-		label.config(width=200)
-		label.config(font=("Courier", 20))
-		label.pack(pady=30)
-		label.config(fg="cyan4")
+# 		label = Label(self, text="Want to make Summaries of your Data?")
+# 		label.config(width=200)
+# 		label.config(font=("Comfortaa", 20))
+# 		label.pack(pady=30)
+# 		label.config(fg="cyan4")
 
-		def checkbutton_value1():
-		    if(var1.get()):
-		       var2.set(0)
-		       controller.show_frame(SummarizeData)
-		       with open('logs.txt', 'a') as g:
-					g.write("----------------------------------------------------------------" + '\n')
-					g.write("Do you want to summarize your data file:  USER Selected ----->   YES" + '\n')
-					g.write('\n'+'\n')
+# 		def checkbutton_value1():
+# 		    if(var1.get()):
+# 		       var2.set(0)
+# 		       controller.show_frame(SummarizeData)
+# 		       with open(log_file_name, 'a') as g:
+# 					g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
+# 					g.write("Do you want to summarize your data file:  USER Selected ----->   YES" + '\n')
+# 					g.write('\n'+'\n')
 
 
-		def checkbutton_value2():
-		    if(var2.get()):
-		       var1.set(0)
-		       controller.show_frame(EndPage)
-		       with open('logs.txt', 'a') as g:
-					g.write("----------------------------------------------------------------" + '\n')
-					g.write("Do you want to summarize your data file:  USER Selected ----->   NO" + '\n')
-					g.write('\n'+'\n')
+# 		def checkbutton_value2():
+# 		    if(var2.get()):
+# 		       var1.set(0)
+# 		       controller.show_frame(EndPage)
+# 		       with open(log_file_name, 'a') as g:
+# 					g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
+# 					g.write("Do you want to summarize your data file:  USER Selected ----->   NO" + '\n')
+# 					g.write('\n'+'\n')
 
 
-		var1=IntVar()
-		checkbox_1 = Checkbutton(self, text='Yes   ', variable=var1, command=checkbutton_value1,font=("Courier", 20))
-		checkbox_1.pack(pady=10)
-		var2=IntVar()
-		checkbox_2 = Checkbutton(self, text='No   ', variable=var2, command=checkbutton_value2,font=("Courier", 20))
-		checkbox_2.pack(pady=(0,40))
+# 		var1=IntVar()
+# 		checkbox_1 = Checkbutton(self, text='Yes   ', variable=var1, command=checkbutton_value1,font=("Comfortaa", 20))
+# 		checkbox_1.pack(pady=10)
+# 		var2=IntVar()
+# 		checkbox_2 = Checkbutton(self, text='No   ', variable=var2, command=checkbutton_value2,font=("Comfortaa", 20))
+# 		checkbox_2.pack(pady=(0,40))
 
-		back = Button(self,text="Back", command= lambda:controller.show_frame(VisualizeDataMenu))
-		back.pack()
+# 		back = Button(self,text="Back", command= lambda:controller.show_frame(VisualizeDataMenu))
+# 		back.pack()
 
-class EndPage(Frame):
-	def __init__(self,parent, controller):
-		Frame.__init__(self,parent)
+# class EndPage(Frame):
+# 	def __init__(self,parent, controller):
+# 		Frame.__init__(self,parent)
 
 
-		label = Label(self, text="EndPage")
-		label.config(width=200)
-		label.config(font=("Courier", 20))
-		label.pack(pady=30)
-		label.config(fg="cyan4")
+# 		label = Label(self, text="EndPage")
+# 		label.config(width=200)
+# 		label.config(font=("Comfortaa", 20))
+# 		label.pack(pady=30)
+# 		label.config(fg="cyan4")
 
 
-		back = Button(self,text="Start Over", command= lambda:controller.show_frame(StartPage))
-		back.pack()
+# 		back = Button(self,text="Start Over", command= lambda:controller.show_frame(StartPage))
+# 		back.pack()
 
-		back = Button(self,text="Back", command= lambda:controller.show_frame(SummarizeDataMenu))
-		back.pack()
+# 		back = Button(self,text="Back", command= lambda:controller.show_frame(SummarizeDataMenu))
+# 		back.pack()
 
 
-#recode missing
-class RecodeMissing(Frame):
+# #recode missing
+# class RecodeMissing(Frame):
 
-	def __init__(self,parent, controller):
-		Frame.__init__(self,parent)
+# 	def __init__(self,parent, controller):
+# 		Frame.__init__(self,parent)
 
 
-		label = Label(self, text="Replace Missing Values with Input")
-		label.config(width=200)
-		label.config(font=("Courier", 20))
-		label.pack(pady=30)
-		label.config(fg="cyan4")
+# 		label = Label(self, text="Replace Missing Values with Input")
+# 		label.config(width=200)
+# 		label.config(font=("Comfortaa", 20))
+# 		label.pack(pady=30)
+# 		label.config(fg="cyan4")
 
 
 
-		global missing_val_replacement 
-		missing_val_replacement = StringVar()
+# 		global missing_val_replacement 
+# 		missing_val_replacement = StringVar()
 
-		global missing_val 
-		missing_val = StringVar()
+# 		global missing_val 
+# 		missing_val = StringVar()
 
 
-		replacement_label = Label(self, text="What do want to replace your missing value with?",font=("Courier", 14))
-		replacement_label.pack()
-		replacement_box  = Entry(self, textvariable=missing_val_replacement, width=15, bg="alice blue")
-		replacement_box.pack(pady=(0,35))
+# 		replacement_label = Label(self, text="What do want to replace your missing value with?",font=("Comfortaa", 14))
+# 		replacement_label.pack()
+# 		replacement_box  = Entry(self, textvariable=missing_val_replacement, width=15, bg="alice blue")
+# 		replacement_box.pack(pady=(0,35))
 
-		missing_label = Label(self, text="Type in the missing value",font=("Courier", 14))
-		missing_label.pack()
-		missing_entry_box  = Entry(self, textvariable=missing_val, width=15, bg="alice blue")
-		missing_entry_box.pack(pady=(0,30))
+# 		missing_label = Label(self, text="Type in the missing value",font=("Comfortaa", 14))
+# 		missing_label.pack()
+# 		missing_entry_box  = Entry(self, textvariable=missing_val, width=15, bg="alice blue")
+# 		missing_entry_box.pack(pady=(0,30))
 
-		clense_button = Button(self,text="Clense", command= recode_missing)
-		clense_button.pack(pady=(0,25))
+# 		clense_button = Button(self,text="Clense", command= recode_missing)
+# 		clense_button.pack(pady=(0,25))
 
-		continue_button = Button(self,text="Continue", command= lambda:controller.show_frame(MenuOptions))
-		continue_button.pack(pady=(0,25))
+# 		continue_button = Button(self,text="Continue", command= lambda:controller.show_frame(MenuOptions))
+# 		continue_button.pack(pady=(0,25))
 
-		back = Button(self,text="Back", command= lambda:controller.show_frame(CleanData))
-		back.pack()
-#recode key
-class RecodeKey(Frame):
-	def __init__(self,parent, controller):
-		Frame.__init__(self,parent)
+# 		back = Button(self,text="Back", command= lambda:controller.show_frame(CleanData))
+# 		back.pack()
+# #recode key
+# class RecodeKey(Frame):
+# 	def __init__(self,parent, controller):
+# 		Frame.__init__(self,parent)
 
 
-		label = Label(self, text="Missing Value Dictionary - Replace Missing")
-		label.config(width=200)
-		label.config(font=("Courier", 20))
-		label.pack(pady=20)
-		label.config(fg="cyan4")
+# 		label = Label(self, text="Missing Value Dictionary - Replace Missing")
+# 		label.config(width=200)
+# 		label.config(font=("Comfortaa", 20))
+# 		label.pack(pady=20)
+# 		label.config(fg="cyan4")
 
-		# start_page = Button(self,text="Back to Main Menu", command= lambda:controller.show_frame(StartPage))
-		# start_page.pack()
+# 		# start_page = Button(self,text="Back to Main Menu", command= lambda:controller.show_frame(StartPage))
+# 		# start_page.pack()
 
-		global choose_dictionary_label_name 
-		choose_dictionary_label_name= StringVar()
-		choose_dictionary_label_name.set("No Dictionary Chosen")
+# 		global choose_dictionary_label_name 
+# 		choose_dictionary_label_name= StringVar()
+# 		choose_dictionary_label_name.set("No Dictionary Chosen")
 
-		choose_dictionary_label = Label(self, textvariable=choose_dictionary_label_name,font=("Courier", 14))
-		choose_dictionary_label.pack(pady=5)
+# 		choose_dictionary_label = Label(self, textvariable=choose_dictionary_label_name,font=("Comfortaa", 14))
+# 		choose_dictionary_label.pack(pady=5)
 
 
-		choose_dictionary = Button(self,text="Choose Dictionary", command= dialogue_file_dictionary)
-		choose_dictionary.pack(pady=(0,35))	
+# 		choose_dictionary = Button(self,text="Choose Dictionary", command= dialogue_file_dictionary)
+# 		choose_dictionary.pack(pady=(0,35))	
 
 
-		clense_button = Button(self,text="Clense", command= recode_key)
-		clense_button.pack(pady=(0,25))
+# 		clense_button = Button(self,text="Clense", command= recode_key)
+# 		clense_button.pack(pady=(0,25))
 
 
-		continue_button = Button(self,text="Continue", command= lambda:controller.show_frame(MenuOptions))
-		continue_button.pack(pady=(0,25))
+# 		continue_button = Button(self,text="Continue", command= lambda:controller.show_frame(MenuOptions))
+# 		continue_button.pack(pady=(0,25))
 
-		back = Button(self,text="Back", command= lambda:controller.show_frame(CleanData))
-		back.pack()
-		######
+# 		back = Button(self,text="Back", command= lambda:controller.show_frame(CleanData))
+# 		back.pack()
+# 		######
 
 
-#Remove Outliers
-class RemoveOutliers(Frame):
-	def __init__(self,parent, controller):
-		Frame.__init__(self,parent)
+# #Remove Outliers
+# class RemoveOutliers(Frame):
+# 	def __init__(self,parent, controller):
+# 		Frame.__init__(self,parent)
 
-		label = Label(self, text="Remove Outliers",font=("Courier", 20))
-		label.pack(pady=20)
-		label.config(fg="cyan4")
+# 		label = Label(self, text="Remove Outliers",font=("Comfortaa", 20))
+# 		label.pack(pady=20)
+# 		label.config(fg="cyan4")
 
 
-		global choose_outlier_file_name 
-		choose_outlier_file_name= StringVar()
-		choose_outlier_file_name.set("No Data File Chosen")
+# 		global choose_outlier_file_name 
+# 		choose_outlier_file_name= StringVar()
+# 		choose_outlier_file_name.set("No Data File Chosen")
 		
 
-		remove_outliers_button = Button(self,text="Remove Outliers", command= remove_outliers)
-		remove_outliers_button.pack(pady=(0,45))
+# 		remove_outliers_button = Button(self,text="Remove Outliers", command= remove_outliers)
+# 		remove_outliers_button.pack(pady=(0,45))
 
 
-		back = Button(self,text="Back", command= lambda:controller.show_frame(FilterData))
-		back.pack()
+# 		back = Button(self,text="Back", command= lambda:controller.show_frame(FilterData))
+# 		back.pack()
 
 
-class FilterData(Frame):
-	def __init__(self,parent, controller):
-		Frame.__init__(self,parent)
+# class FilterData(Frame):
+# 	def __init__(self,parent, controller):
+# 		Frame.__init__(self,parent)
 
-		label = Label(self, text="Filter Data Menu")
-		label.config(font=("Courier", 20))
-		label.pack(pady=20)
-		label.config(fg="cyan4")
-
-
-		remove_outliers = Button(self,text="Remove Outliers", command= lambda:controller.show_frame(RemoveOutliers))
-		remove_outliers.pack(pady=(0,15))
+# 		label = Label(self, text="Filter Data Menu")
+# 		label.config(font=("Comfortaa", 20))
+# 		label.pack(pady=20)
+# 		label.config(fg="cyan4")
 
 
-		get_binary_button = Button(self,text="Find Binary Variables", command= get_binary)
-		get_binary_button.pack(pady=(0,15))
-
-		get_continuous_button = Button(self,text="Find Continuous Variables", command= lambda:controller.show_frame(ContinuousProgram))
-		get_continuous_button.pack(pady=(0,15))
-
-		get_categorical_button = Button(self,text="Find Categorical Variables", command= lambda:controller.show_frame(CategoricalProgram))
-		get_categorical_button.pack(pady=(0,15))
-
-		get_check_button = Button(self,text="Find Ambiguous Variables", command= lambda:controller.show_frame(AmbiguousProgram))
-		get_check_button.pack(pady=(0,15))
-
-		sample_keep_button = Button(self,text="Keep N Samples", command= lambda:controller.show_frame(SampleKeepProgram))
-		sample_keep_button.pack(pady=(0,15))
-
-		transform_list_button = Button(self,text="Transform Data", command= lambda:controller.show_frame(TransformData))
-		transform_list_button.pack(pady=(0,40))
+# 		remove_outliers = Button(self,text="Remove Outliers", command= lambda:controller.show_frame(RemoveOutliers))
+# 		remove_outliers.pack(pady=(0,15))
 
 
-		global choose_filter_file_name 
-		choose_filter_file_name= StringVar()
-		choose_filter_file_name.set("No Data File Chosen")
+# 		get_binary_button = Button(self,text="Find Binary Variables", command= get_binary)
+# 		get_binary_button.pack(pady=(0,15))
+
+# 		get_continuous_button = Button(self,text="Find Continuous Variables", command= lambda:controller.show_frame(ContinuousProgram))
+# 		get_continuous_button.pack(pady=(0,15))
+
+# 		get_categorical_button = Button(self,text="Find Categorical Variables", command= lambda:controller.show_frame(CategoricalProgram))
+# 		get_categorical_button.pack(pady=(0,15))
+
+# 		get_check_button = Button(self,text="Find Ambiguous Variables", command= lambda:controller.show_frame(AmbiguousProgram))
+# 		get_check_button.pack(pady=(0,15))
+
+# 		sample_keep_button = Button(self,text="Keep N Samples", command= lambda:controller.show_frame(SampleKeepProgram))
+# 		sample_keep_button.pack(pady=(0,15))
+
+# 		transform_list_button = Button(self,text="Transform Data", command= lambda:controller.show_frame(TransformData))
+# 		transform_list_button.pack(pady=(0,40))
+
+
+# 		global choose_filter_file_name 
+# 		choose_filter_file_name= StringVar()
+# 		choose_filter_file_name.set("No Data File Chosen")
 		
 
-		back = Button(self,text="Back", command= lambda:controller.show_frame(MenuOptions))
-		back.pack()
+# 		back = Button(self,text="Back", command= lambda:controller.show_frame(MenuOptions))
+# 		back.pack()
 
 
-def get_key_dictionary():
-	global global_transform_key_dictionary
-	global_transform_key_dictionary = tkFileDialog.askopenfilename()
-	key_dictionary_label.set("Dictionary File: " + global_transform_key_dictionary)
+# def get_key_dictionary():
+# 	global global_transform_key_dictionary
+# 	global_transform_key_dictionary = tkFileDialog.askopenfilename()
+# 	key_dictionary_label.set("Dictionary File: " + global_transform_key_dictionary)
 
 
-class TransformData(Frame):
-	def __init__(self,parent, controller):
-		Frame.__init__(self,parent)
+# class TransformData(Frame):
+# 	def __init__(self,parent, controller):
+# 		Frame.__init__(self,parent)
 
-		label = Label(self, text="Transform User List of Columns & Transform Type")
-		label.config(font=("Courier", 20))
-		label.pack(pady=20)
-		label.config(fg="cyan4")
+# 		label = Label(self, text="Transform User List of Columns & Transform Type")
+# 		label.config(font=("Comfortaa", 20))
+# 		label.pack(pady=20)
+# 		label.config(fg="cyan4")
 
 
-		global key_dictionary_label 
-		key_dictionary_label= StringVar()
-		key_dictionary_label.set("No Dictionary Chosen")
+# 		global key_dictionary_label 
+# 		key_dictionary_label= StringVar()
+# 		key_dictionary_label.set("No Dictionary Chosen")
 
-		choose_key_dictionary_label = Label(self, textvariable=key_dictionary_label)
-		choose_key_dictionary_label.pack(pady=5)
+# 		choose_key_dictionary_label = Label(self, textvariable=key_dictionary_label)
+# 		choose_key_dictionary_label.pack(pady=5)
 
 
-		choose_key_dictionary = Button(self,text="Choose Key Dictionary", command= get_key_dictionary)
-		choose_key_dictionary.pack(pady=(0,20))	
+# 		choose_key_dictionary = Button(self,text="Choose Key Dictionary", command= get_key_dictionary)
+# 		choose_key_dictionary.pack(pady=(0,20))	
 
 
-		transform_data_button = Button(self,text="Transform List", command = transform_list)
-		transform_data_button.pack(pady=(0,40))
+# 		transform_data_button = Button(self,text="Transform List", command = transform_list)
+# 		transform_data_button.pack(pady=(0,40))
 
-		back = Button(self,text="Back", command= lambda:controller.show_frame(FilterData))
-		back.pack()
+# 		back = Button(self,text="Back", command= lambda:controller.show_frame(FilterData))
+# 		back.pack()
 
-#Analyze File Data
-class VisualizeData(Frame):
-	def __init__(self,parent, controller):
-		Frame.__init__(self,parent)
+# #Analyze File Data
+# class VisualizeData(Frame):
+# 	def __init__(self,parent, controller):
+# 		Frame.__init__(self,parent)
 
-		label = Label(self, text="Visualize Data Menu")
-		label.config(width=200)
-		label.config(font=("Courier", 20))
-		label.pack(pady=20)
-		label.config(fg="cyan4")
+# 		label = Label(self, text="Visualize Data Menu")
+# 		label.config(width=200)
+# 		label.config(font=("Comfortaa", 20))
+# 		label.pack(pady=20)
+# 		label.config(fg="cyan4")
 
 
 
-		histogram_button = Button(self,text="Generate Histogram", command= lambda:controller.show_frame(HistogramProgram))
-		histogram_button.pack(pady=(0,20))
+# 		histogram_button = Button(self,text="Generate Histogram", command= lambda:controller.show_frame(HistogramProgram))
+# 		histogram_button.pack(pady=(0,20))
 
-		box_plot_button = Button(self,text="Generate Box Plot", command= lambda:controller.show_frame(BoxPlotProgram))
-		box_plot_button.pack(pady=(0,20))
+# 		box_plot_button = Button(self,text="Generate Box Plot", command= lambda:controller.show_frame(BoxPlotProgram))
+# 		box_plot_button.pack(pady=(0,20))
 
-		qq_plot_button = Button(self,text="Generate QQ Plot", command= lambda:controller.show_frame(QQPlot))
-		qq_plot_button.pack(pady=(0,20))
+# 		qq_plot_button = Button(self,text="Generate QQ Plot", command= lambda:controller.show_frame(QQPlot))
+# 		qq_plot_button.pack(pady=(0,20))
 
-		bar_plot_button = Button(self,text="Generate Bar Plot", command= lambda:controller.show_frame(BarPlotProgram))
-		bar_plot_button.pack(pady=(0,40))
+# 		bar_plot_button = Button(self,text="Generate Bar Plot", command= lambda:controller.show_frame(BarPlotProgram))
+# 		bar_plot_button.pack(pady=(0,40))
 
-		back = Button(self,text="Back", command= lambda:controller.show_frame(VisualizeDataMenu))
-		back.pack()
+# 		back = Button(self,text="Back", command= lambda:controller.show_frame(VisualizeDataMenu))
+# 		back.pack()
 
 
 
-class SummarizeData(Frame):
-	def __init__(self,parent, controller):
-		Frame.__init__(self,parent)
+# class SummarizeData(Frame):
+# 	def __init__(self,parent, controller):
+# 		Frame.__init__(self,parent)
 
-		label = Label(self, text="Summarize Data Menu")
-		label.config(width=200)
-		label.config(font=("Courier", 20))
-		label.pack(pady=20)
-		label.config(fg="cyan4")
+# 		label = Label(self, text="Summarize Data Menu")
+# 		label.config(width=200)
+# 		label.config(font=("Comfortaa", 20))
+# 		label.pack(pady=20)
+# 		label.config(fg="cyan4")
 
 
 
-		frequency_table_button = Button(self,text="Frequency Table", command= frequency_table)
-		frequency_table_button.pack(pady=(0,20))
+# 		frequency_table_button = Button(self,text="Frequency Table", command= frequency_table)
+# 		frequency_table_button.pack(pady=(0,20))
 
-		correlations_button = Button(self,text="Find Correlations", command= lambda:controller.show_frame(FindCorrelationsProgram))
-		correlations_button.pack(pady=(0,20))
+# 		correlations_button = Button(self,text="Find Correlations", command= lambda:controller.show_frame(FindCorrelationsProgram))
+# 		correlations_button.pack(pady=(0,20))
 
-		get_levels_button = Button(self,text="Get Levels", command= get_levels)
-		get_levels_button.pack(pady=(0,20))
+# 		get_levels_button = Button(self,text="Get Levels", command= get_levels)
+# 		get_levels_button.pack(pady=(0,20))
 
-		sample_size_button = Button(self,text="Sample Size", command= sample_size)
-		sample_size_button.pack(pady=(0,20))
+# 		sample_size_button = Button(self,text="Sample Size", command= sample_size)
+# 		sample_size_button.pack(pady=(0,20))
 
-		outliers_button = Button(self,text="Find Outliers", command= lambda:controller.show_frame(FindOutliersProgram))
-		outliers_button.pack(pady=(0,20))
+# 		outliers_button = Button(self,text="Find Outliers", command= lambda:controller.show_frame(FindOutliersProgram))
+# 		outliers_button.pack(pady=(0,20))
 
-		chisq_tests_button = Button(self,text="Chisq Tests", command= chisq_tests)
-		chisq_tests_button.pack(pady=(0,40))
+# 		chisq_tests_button = Button(self,text="Chisq Tests", command= chisq_tests)
+# 		chisq_tests_button.pack(pady=(0,40))
 
-		back = Button(self,text="Back", command= lambda:controller.show_frame(SummarizeDataMenu))
-		back.pack()
+# 		back = Button(self,text="Back", command= lambda:controller.show_frame(SummarizeDataMenu))
+# 		back.pack()
 
-#Histogram Program
-class HistogramProgram(Frame):
-	def __init__(self,parent, controller):
-		Frame.__init__(self,parent)
-
-		label = Label(self, text="Histogram Program")
-		label.config(width=200)
-		label.config(font=("Courier", 20))
-		label.pack(pady=(10,40))
-		label.config(fg="cyan4")
+# #Histogram Program
+# class HistogramProgram(Frame):
+# 	def __init__(self,parent, controller):
+# 		Frame.__init__(self,parent)
+
+# 		label = Label(self, text="Histogram Program")
+# 		label.config(width=200)
+# 		label.config(font=("Comfortaa", 20))
+# 		label.pack(pady=(10,40))
+# 		label.config(fg="cyan4")
 
 
-		histogram_button2 = Button(self,text="Generate Histogram", command= histogram)
-		histogram_button2.pack(pady=(0,20))
+# 		histogram_button2 = Button(self,text="Generate Histogram", command= histogram)
+# 		histogram_button2.pack(pady=(0,20))
 
-		back = Button(self,text="Back", command= lambda:controller.show_frame(VisualizeData))
-		back.pack()
+# 		back = Button(self,text="Back", command= lambda:controller.show_frame(VisualizeData))
+# 		back.pack()
 
-		global h1
-		h1= StringVar()
-		h1.set("")
+# 		global h1
+# 		h1= StringVar()
+# 		h1.set("")
 
-		global h2
-		h2= StringVar()
-		h2.set("")
+# 		global h2
+# 		h2= StringVar()
+# 		h2.set("")
 
-		global h3
-		h3= StringVar()
-		h3.set("")
-
-		global h4
-		h4= StringVar()
-		h4.set("")
+# 		global h3
+# 		h3= StringVar()
+# 		h3.set("")
+
+# 		global h4
+# 		h4= StringVar()
+# 		h4.set("")
 
-		global h5
-		h5= StringVar()
-		h5.set("")
+# 		global h5
+# 		h5= StringVar()
+# 		h5.set("")
 
-		global h6
-		h6= StringVar()
-		h6.set("")
+# 		global h6
+# 		h6= StringVar()
+# 		h6.set("")
 
-		left_frame = Frame(self)
-		left_frame.pack(side=LEFT)
-		right_frame = Frame(self)
-		right_frame.pack(side=RIGHT)
+# 		left_frame = Frame(self)
+# 		left_frame.pack(side=LEFT)
+# 		right_frame = Frame(self)
+# 		right_frame.pack(side=RIGHT)
 
 
-		plots_label = Label(left_frame, text="# of Plots Per Page",font=("Courier", 14))
-		plots_label.pack()
-		plots_labelentry_box  = Entry(left_frame, textvariable=h1, width=15, bg="alice blue")
-		plots_labelentry_box.pack(padx=(90),pady=(0,20))
-
-		row_label = Label(left_frame, text="# of Rows Per Page",font=("Courier", 14))
-		row_label.pack()
-		row_label_entry_box  = Entry(left_frame, textvariable=h2, width=15, bg="alice blue")
-		row_label_entry_box.pack(padx=(90),pady=(0,20))
-
-		column_label = Label(left_frame, text="# of Columns Per Page",font=("Courier", 14))
-		column_label.pack()
-		column_label_entry_box  = Entry(left_frame, textvariable=h3, width=15, bg="alice blue")
-		column_label_entry_box.pack(padx=(90),pady=(0,20))
-
-		width_label = Label(right_frame, text="Width of Plot",font=("Courier", 14))
-		width_label.pack(padx=(0,100))
-		width_label_entry_box  = Entry(right_frame, textvariable=h4, width=15, bg="alice blue")
-		width_label_entry_box.pack(padx=(0,100),pady=(0,20))
-
-		height_label = Label(right_frame, text="Height of Plot",font=("Courier", 14))
-		height_label.pack(padx=(0,100))
-		height_label_entry_box  = Entry(right_frame, textvariable=h5, width=15, bg="alice blue")
-		height_label_entry_box.pack(padx=(0,100),pady=(0,20))
-
-		resolution_label = Label(right_frame, text="Resolution of Plot",font=("Courier", 14))
-		resolution_label.pack(padx=(0,100))
-		resolution_label_entry_box  = Entry(right_frame, textvariable=h6, width=15, bg="alice blue")
-		resolution_label_entry_box.pack(padx=(0,100),pady=(0,20))
-
-		# tfield = tkinter.Text(self)
-		# tfield.pack()
-		# for line in os.popen("run_command", 'r'):
-		# 	tfield.insert("end", line)
-
-#Box Plot Program
-class BoxPlotProgram(Frame):
-	def __init__(self,parent, controller):
-		Frame.__init__(self,parent)
-
-		label = Label(self, text="Box Plot Program")
-		label.config(width=200)
-		label.config(font=("Courier", 20))
-		label.pack(pady=(10,40))
-		label.config(fg="cyan4")
-
-
-		box_plot_button = Button(self,text="Generate Box Plot", command= boxplot)
-		box_plot_button.pack(pady=(0,20))
-
-		back = Button(self,text="Back", command= lambda:controller.show_frame(VisualizeData))
-		back.pack()
-
-		global bx1
-		bx1= StringVar()
-		bx1.set("")
-
-		global bx2
-		bx2= StringVar()
-		bx2.set("")
-
-		global bx3
-		bx3= StringVar()
-		bx3.set("")
-
-		global bx4
-		bx4= StringVar()
-		bx4.set("")
-
-		global bx5
-		bx5= StringVar()
-		bx5.set("")
-
-		global bx6
-		bx6= StringVar()
-		bx6.set("")
-
-		left_frame = Frame(self)
-		left_frame.pack(side=LEFT)
-		right_frame = Frame(self)
-		right_frame.pack(side=RIGHT)
-
-
-		plots_label = Label(left_frame, text="# of Plots Per Page",font=("Courier", 14))
-		plots_label.pack()
-		plots_labelentry_box  = Entry(left_frame, textvariable=bx1, width=15, bg="alice blue")
-		plots_labelentry_box.pack(padx=(90),pady=(0,20))
-
-		row_label = Label(left_frame, text="# of Rows Per Page",font=("Courier", 14))
-		row_label.pack()
-		row_label_entry_box  = Entry(left_frame, textvariable=bx2, width=15, bg="alice blue")
-		row_label_entry_box.pack(padx=(90),pady=(0,20))
-
-		column_label = Label(left_frame, text="# of Columns Per Page",font=("Courier", 14))
-		column_label.pack()
-		column_label_entry_box  = Entry(left_frame, textvariable=bx3, width=15, bg="alice blue")
-		column_label_entry_box.pack(padx=(90),pady=(0,20))
-
-		width_label = Label(right_frame, text="Width of Plot",font=("Courier", 14))
-		width_label.pack(padx=(0,100))
-		width_label_entry_box  = Entry(right_frame, textvariable=bx4, width=15, bg="alice blue")
-		width_label_entry_box.pack(padx=(0,100),pady=(0,20))
-
-		height_label = Label(right_frame, text="Height of Plot",font=("Courier", 14))
-		height_label.pack(padx=(0,100))
-		height_label_entry_box  = Entry(right_frame, textvariable=bx5, width=15, bg="alice blue")
-		height_label_entry_box.pack(padx=(0,100),pady=(0,20))
-
-		resolution_label = Label(right_frame, text="Resolution of Plot",font=("Courier", 14))
-		resolution_label.pack(padx=(0,100))
-		resolution_label_entry_box  = Entry(right_frame, textvariable=bx6, width=15, bg="alice blue")
-		resolution_label_entry_box.pack(padx=(0,100),pady=(0,20))
-#QQ Plot 
-class QQPlot(Frame):
-	def __init__(self,parent, controller):
-		Frame.__init__(self,parent)
-
-
-		label = Label(self, text="QQPlot Program")
-		label.config(width=200)
-		label.config(font=("Courier", 20))
-		label.pack(pady=(10,40))
-		label.config(fg="cyan4")
+# 		plots_label = Label(left_frame, text="# of Plots Per Page",font=("Comfortaa", 14))
+# 		plots_label.pack()
+# 		plots_labelentry_box  = Entry(left_frame, textvariable=h1, width=15, bg="alice blue")
+# 		plots_labelentry_box.pack(padx=(90),pady=(0,20))
+
+# 		row_label = Label(left_frame, text="# of Rows Per Page",font=("Comfortaa", 14))
+# 		row_label.pack()
+# 		row_label_entry_box  = Entry(left_frame, textvariable=h2, width=15, bg="alice blue")
+# 		row_label_entry_box.pack(padx=(90),pady=(0,20))
+
+# 		column_label = Label(left_frame, text="# of Columns Per Page",font=("Comfortaa", 14))
+# 		column_label.pack()
+# 		column_label_entry_box  = Entry(left_frame, textvariable=h3, width=15, bg="alice blue")
+# 		column_label_entry_box.pack(padx=(90),pady=(0,20))
+
+# 		width_label = Label(right_frame, text="Width of Plot",font=("Comfortaa", 14))
+# 		width_label.pack(padx=(0,100))
+# 		width_label_entry_box  = Entry(right_frame, textvariable=h4, width=15, bg="alice blue")
+# 		width_label_entry_box.pack(padx=(0,100),pady=(0,20))
+
+# 		height_label = Label(right_frame, text="Height of Plot",font=("Comfortaa", 14))
+# 		height_label.pack(padx=(0,100))
+# 		height_label_entry_box  = Entry(right_frame, textvariable=h5, width=15, bg="alice blue")
+# 		height_label_entry_box.pack(padx=(0,100),pady=(0,20))
+
+# 		resolution_label = Label(right_frame, text="Resolution of Plot",font=("Comfortaa", 14))
+# 		resolution_label.pack(padx=(0,100))
+# 		resolution_label_entry_box  = Entry(right_frame, textvariable=h6, width=15, bg="alice blue")
+# 		resolution_label_entry_box.pack(padx=(0,100),pady=(0,20))
+
+# 		# tfield = tkinter.Text(self)
+# 		# tfield.pack()
+# 		# for line in os.popen("run_command", 'r'):
+# 		# 	tfield.insert("end", line)
+
+# #Box Plot Program
+# class BoxPlotProgram(Frame):
+# 	def __init__(self,parent, controller):
+# 		Frame.__init__(self,parent)
+
+# 		label = Label(self, text="Box Plot Program")
+# 		label.config(width=200)
+# 		label.config(font=("Comfortaa", 20))
+# 		label.pack(pady=(10,40))
+# 		label.config(fg="cyan4")
+
+
+# 		box_plot_button = Button(self,text="Generate Box Plot", command= boxplot)
+# 		box_plot_button.pack(pady=(0,20))
+
+# 		back = Button(self,text="Back", command= lambda:controller.show_frame(VisualizeData))
+# 		back.pack()
+
+# 		global bx1
+# 		bx1= StringVar()
+# 		bx1.set("")
+
+# 		global bx2
+# 		bx2= StringVar()
+# 		bx2.set("")
+
+# 		global bx3
+# 		bx3= StringVar()
+# 		bx3.set("")
+
+# 		global bx4
+# 		bx4= StringVar()
+# 		bx4.set("")
+
+# 		global bx5
+# 		bx5= StringVar()
+# 		bx5.set("")
+
+# 		global bx6
+# 		bx6= StringVar()
+# 		bx6.set("")
+
+# 		left_frame = Frame(self)
+# 		left_frame.pack(side=LEFT)
+# 		right_frame = Frame(self)
+# 		right_frame.pack(side=RIGHT)
+
+
+# 		plots_label = Label(left_frame, text="# of Plots Per Page",font=("Comfortaa", 14))
+# 		plots_label.pack()
+# 		plots_labelentry_box  = Entry(left_frame, textvariable=bx1, width=15, bg="alice blue")
+# 		plots_labelentry_box.pack(padx=(90),pady=(0,20))
+
+# 		row_label = Label(left_frame, text="# of Rows Per Page",font=("Comfortaa", 14))
+# 		row_label.pack()
+# 		row_label_entry_box  = Entry(left_frame, textvariable=bx2, width=15, bg="alice blue")
+# 		row_label_entry_box.pack(padx=(90),pady=(0,20))
+
+# 		column_label = Label(left_frame, text="# of Columns Per Page",font=("Comfortaa", 14))
+# 		column_label.pack()
+# 		column_label_entry_box  = Entry(left_frame, textvariable=bx3, width=15, bg="alice blue")
+# 		column_label_entry_box.pack(padx=(90),pady=(0,20))
+
+# 		width_label = Label(right_frame, text="Width of Plot",font=("Comfortaa", 14))
+# 		width_label.pack(padx=(0,100))
+# 		width_label_entry_box  = Entry(right_frame, textvariable=bx4, width=15, bg="alice blue")
+# 		width_label_entry_box.pack(padx=(0,100),pady=(0,20))
+
+# 		height_label = Label(right_frame, text="Height of Plot",font=("Comfortaa", 14))
+# 		height_label.pack(padx=(0,100))
+# 		height_label_entry_box  = Entry(right_frame, textvariable=bx5, width=15, bg="alice blue")
+# 		height_label_entry_box.pack(padx=(0,100),pady=(0,20))
+
+# 		resolution_label = Label(right_frame, text="Resolution of Plot",font=("Comfortaa", 14))
+# 		resolution_label.pack(padx=(0,100))
+# 		resolution_label_entry_box  = Entry(right_frame, textvariable=bx6, width=15, bg="alice blue")
+# 		resolution_label_entry_box.pack(padx=(0,100),pady=(0,20))
+# #QQ Plot 
+# class QQPlot(Frame):
+# 	def __init__(self,parent, controller):
+# 		Frame.__init__(self,parent)
+
+
+# 		label = Label(self, text="QQPlot Program")
+# 		label.config(width=200)
+# 		label.config(font=("Comfortaa", 20))
+# 		label.pack(pady=(10,40))
+# 		label.config(fg="cyan4")
 
 		
 
-		qq_plot_button = Button(self,text="Generate QQPlot", command= qqplot)
-		qq_plot_button.pack(pady=(0,20))
+# 		qq_plot_button = Button(self,text="Generate QQPlot", command= qqplot)
+# 		qq_plot_button.pack(pady=(0,20))
 
-		back = Button(self,text="Back", command= lambda:controller.show_frame(VisualizeData))
-		back.pack()
+# 		back = Button(self,text="Back", command= lambda:controller.show_frame(VisualizeData))
+# 		back.pack()
 
-		global qq1
-		qq1= StringVar()
-		qq1.set("")
+# 		global qq1
+# 		qq1= StringVar()
+# 		qq1.set("")
 
-		global qq2
-		qq2= StringVar()
-		qq2.set("")
+# 		global qq2
+# 		qq2= StringVar()
+# 		qq2.set("")
 
-		global qq3
-		qq3= StringVar()
-		qq3.set("")
+# 		global qq3
+# 		qq3= StringVar()
+# 		qq3.set("")
 
-		global qq4
-		qq4= StringVar()
-		qq4.set("")
+# 		global qq4
+# 		qq4= StringVar()
+# 		qq4.set("")
 
-		global qq5
-		qq5= StringVar()
-		qq5.set("")
+# 		global qq5
+# 		qq5= StringVar()
+# 		qq5.set("")
 
-		global qq6
-		qq6= StringVar()
-		qq6.set("")
+# 		global qq6
+# 		qq6= StringVar()
+# 		qq6.set("")
 
-		left_frame = Frame(self)
-		left_frame.pack(side=LEFT)
-		right_frame = Frame(self)
-		right_frame.pack(side=RIGHT)
+# 		left_frame = Frame(self)
+# 		left_frame.pack(side=LEFT)
+# 		right_frame = Frame(self)
+# 		right_frame.pack(side=RIGHT)
 
 
-		plots_label = Label(left_frame, text="# of Plots Per Page",font=("Courier", 14))
-		plots_label.pack()
-		plots_labelentry_box  = Entry(left_frame, textvariable=qq1, width=15, bg="alice blue")
-		plots_labelentry_box.pack(padx=(90),pady=(0,20))
+# 		plots_label = Label(left_frame, text="# of Plots Per Page",font=("Comfortaa", 14))
+# 		plots_label.pack()
+# 		plots_labelentry_box  = Entry(left_frame, textvariable=qq1, width=15, bg="alice blue")
+# 		plots_labelentry_box.pack(padx=(90),pady=(0,20))
 
-		row_label = Label(left_frame, text="# of Rows Per Page",font=("Courier", 14))
-		row_label.pack()
-		row_label_entry_box  = Entry(left_frame, textvariable=qq2, width=15, bg="alice blue")
-		row_label_entry_box.pack(padx=(90),pady=(0,20))
+# 		row_label = Label(left_frame, text="# of Rows Per Page",font=("Comfortaa", 14))
+# 		row_label.pack()
+# 		row_label_entry_box  = Entry(left_frame, textvariable=qq2, width=15, bg="alice blue")
+# 		row_label_entry_box.pack(padx=(90),pady=(0,20))
 
-		column_label = Label(left_frame, text="# of Columns Per Page",font=("Courier", 14))
-		column_label.pack()
-		column_label_entry_box  = Entry(left_frame, textvariable=qq3, width=15, bg="alice blue")
-		column_label_entry_box.pack(padx=(90),pady=(0,20))
+# 		column_label = Label(left_frame, text="# of Columns Per Page",font=("Comfortaa", 14))
+# 		column_label.pack()
+# 		column_label_entry_box  = Entry(left_frame, textvariable=qq3, width=15, bg="alice blue")
+# 		column_label_entry_box.pack(padx=(90),pady=(0,20))
 
-		width_label = Label(right_frame, text="Width of Plot",font=("Courier", 14))
-		width_label.pack(padx=(0,100))
-		width_label_entry_box  = Entry(right_frame, textvariable=qq4, width=15, bg="alice blue")
-		width_label_entry_box.pack(padx=(0,100),pady=(0,20))
+# 		width_label = Label(right_frame, text="Width of Plot",font=("Comfortaa", 14))
+# 		width_label.pack(padx=(0,100))
+# 		width_label_entry_box  = Entry(right_frame, textvariable=qq4, width=15, bg="alice blue")
+# 		width_label_entry_box.pack(padx=(0,100),pady=(0,20))
 
-		height_label = Label(right_frame, text="Height of Plot",font=("Courier", 14))
-		height_label.pack(padx=(0,100))
-		height_label_entry_box  = Entry(right_frame, textvariable=qq5, width=15, bg="alice blue")
-		height_label_entry_box.pack(padx=(0,100),pady=(0,20))
+# 		height_label = Label(right_frame, text="Height of Plot",font=("Comfortaa", 14))
+# 		height_label.pack(padx=(0,100))
+# 		height_label_entry_box  = Entry(right_frame, textvariable=qq5, width=15, bg="alice blue")
+# 		height_label_entry_box.pack(padx=(0,100),pady=(0,20))
 
-		resolution_label = Label(right_frame, text="Resolution of Plot",font=("Courier", 14))
-		resolution_label.pack(padx=(0,100))
-		resolution_label_entry_box  = Entry(right_frame, textvariable=qq6, width=15, bg="alice blue")
-		resolution_label_entry_box.pack(padx=(0,100),pady=(0,20))
+# 		resolution_label = Label(right_frame, text="Resolution of Plot",font=("Comfortaa", 14))
+# 		resolution_label.pack(padx=(0,100))
+# 		resolution_label_entry_box  = Entry(right_frame, textvariable=qq6, width=15, bg="alice blue")
+# 		resolution_label_entry_box.pack(padx=(0,100),pady=(0,20))
 
-#Bar Plot Program
-class BarPlotProgram(Frame):
-	def __init__(self,parent, controller):
-		Frame.__init__(self,parent)
+# #Bar Plot Program
+# class BarPlotProgram(Frame):
+# 	def __init__(self,parent, controller):
+# 		Frame.__init__(self,parent)
 
-		label = Label(self, text="Bar Plot Program")
-		label.config(width=200)
-		label.config(font=("Courier", 20))
-		label.pack(pady=(10,40))
-		label.config(fg="cyan4")
+# 		label = Label(self, text="Bar Plot Program")
+# 		label.config(width=200)
+# 		label.config(font=("Comfortaa", 20))
+# 		label.pack(pady=(10,40))
+# 		label.config(fg="cyan4")
 
 
 	
-		bar_plot_button = Button(self,text="Generate Bar Plot", command= barplot)
-		bar_plot_button.pack(pady=(0,20))
+# 		bar_plot_button = Button(self,text="Generate Bar Plot", command= barplot)
+# 		bar_plot_button.pack(pady=(0,20))
 
-		back = Button(self,text="Back", command= lambda:controller.show_frame(VisualizeData))
-		back.pack()
+# 		back = Button(self,text="Back", command= lambda:controller.show_frame(VisualizeData))
+# 		back.pack()
 
-		global bp1
-		bp1= StringVar()
-		bp1.set("")
+# 		global bp1
+# 		bp1= StringVar()
+# 		bp1.set("")
 
-		global bp2
-		bp2= StringVar()
-		bp2.set("")
+# 		global bp2
+# 		bp2= StringVar()
+# 		bp2.set("")
 
-		global bp3
-		bp3= StringVar()
-		bp3.set("")
+# 		global bp3
+# 		bp3= StringVar()
+# 		bp3.set("")
 
-		global bp4
-		bp4= StringVar()
-		bp4.set("")
+# 		global bp4
+# 		bp4= StringVar()
+# 		bp4.set("")
 
-		global bp5
-		bp5= StringVar()
-		bp5.set("")
+# 		global bp5
+# 		bp5= StringVar()
+# 		bp5.set("")
 
-		global bp6
-		bp6= StringVar()
-		bp6.set("")
+# 		global bp6
+# 		bp6= StringVar()
+# 		bp6.set("")
 
-		left_frame = Frame(self)
-		left_frame.pack(side=LEFT)
-		right_frame = Frame(self)
-		right_frame.pack(side=RIGHT)
+# 		left_frame = Frame(self)
+# 		left_frame.pack(side=LEFT)
+# 		right_frame = Frame(self)
+# 		right_frame.pack(side=RIGHT)
 
 
-		plots_label = Label(left_frame, text="# of Plots Per Page",font=("Courier", 14))
-		plots_label.pack()
-		plots_labelentry_box  = Entry(left_frame, textvariable=bp1, width=15, bg="alice blue")
-		plots_labelentry_box.pack(padx=(90),pady=(0,20))
+# 		plots_label = Label(left_frame, text="# of Plots Per Page",font=("Comfortaa", 14))
+# 		plots_label.pack()
+# 		plots_labelentry_box  = Entry(left_frame, textvariable=bp1, width=15, bg="alice blue")
+# 		plots_labelentry_box.pack(padx=(90),pady=(0,20))
 
-		row_label = Label(left_frame, text="# of Rows Per Page",font=("Courier", 14))
-		row_label.pack()
-		row_label_entry_box  = Entry(left_frame, textvariable=bp2, width=15, bg="alice blue")
-		row_label_entry_box.pack(padx=(90),pady=(0,20))
+# 		row_label = Label(left_frame, text="# of Rows Per Page",font=("Comfortaa", 14))
+# 		row_label.pack()
+# 		row_label_entry_box  = Entry(left_frame, textvariable=bp2, width=15, bg="alice blue")
+# 		row_label_entry_box.pack(padx=(90),pady=(0,20))
 
-		column_label = Label(left_frame, text="# of Columns Per Page",font=("Courier", 14))
-		column_label.pack()
-		column_label_entry_box  = Entry(left_frame, textvariable=bp3, width=15, bg="alice blue")
-		column_label_entry_box.pack(padx=(90),pady=(0,20))
+# 		column_label = Label(left_frame, text="# of Columns Per Page",font=("Comfortaa", 14))
+# 		column_label.pack()
+# 		column_label_entry_box  = Entry(left_frame, textvariable=bp3, width=15, bg="alice blue")
+# 		column_label_entry_box.pack(padx=(90),pady=(0,20))
 
-		width_label = Label(right_frame, text="Width of Plot",font=("Courier", 14))
-		width_label.pack(padx=(0,100))
-		width_label_entry_box  = Entry(right_frame, textvariable=bp4, width=15, bg="alice blue")
-		width_label_entry_box.pack(padx=(0,100),pady=(0,20))
+# 		width_label = Label(right_frame, text="Width of Plot",font=("Comfortaa", 14))
+# 		width_label.pack(padx=(0,100))
+# 		width_label_entry_box  = Entry(right_frame, textvariable=bp4, width=15, bg="alice blue")
+# 		width_label_entry_box.pack(padx=(0,100),pady=(0,20))
 
-		height_label = Label(right_frame, text="Height of Plot",font=("Courier", 14))
-		height_label.pack(padx=(0,100))
-		height_label_entry_box  = Entry(right_frame, textvariable=bp5, width=15, bg="alice blue")
-		height_label_entry_box.pack(padx=(0,100),pady=(0,20))
+# 		height_label = Label(right_frame, text="Height of Plot",font=("Comfortaa", 14))
+# 		height_label.pack(padx=(0,100))
+# 		height_label_entry_box  = Entry(right_frame, textvariable=bp5, width=15, bg="alice blue")
+# 		height_label_entry_box.pack(padx=(0,100),pady=(0,20))
 
-		resolution_label = Label(right_frame, text="Resolution of Plot",font=("Courier", 14))
-		resolution_label.pack(padx=(0,100))
-		resolution_label_entry_box  = Entry(right_frame, textvariable=bp6, width=15, bg="alice blue")
-		resolution_label_entry_box.pack(padx=(0,100),pady=(0,20))
+# 		resolution_label = Label(right_frame, text="Resolution of Plot",font=("Comfortaa", 14))
+# 		resolution_label.pack(padx=(0,100))
+# 		resolution_label_entry_box  = Entry(right_frame, textvariable=bp6, width=15, bg="alice blue")
+# 		resolution_label_entry_box.pack(padx=(0,100),pady=(0,20))
 
 
-##1
-class ContinuousProgram(Frame):
-	def __init__(self,parent, controller):
-		Frame.__init__(self,parent)
+# ##1
+# class ContinuousProgram(Frame):
+# 	def __init__(self,parent, controller):
+# 		Frame.__init__(self,parent)
 
-		label = Label(self, text="Get Continuous Variables")
-		label.config(width=200)
-		label.config(font=("Courier", 20))
-		label.pack(pady=(10,40))
-		label.config(fg="cyan4")
+# 		label = Label(self, text="Get Continuous Variables")
+# 		label.config(width=200)
+# 		label.config(font=("Comfortaa", 20))
+# 		label.pack(pady=(10,40))
+# 		label.config(fg="cyan4")
 
 
 
-		global continuous_var
-		continuous_var= StringVar()
-		continuous_var.set("")
+# 		global continuous_var
+# 		continuous_var= StringVar()
+# 		continuous_var.set("")
 
-		continuous_label = Label(self, text="Minimum # of Unique Values to be Considered Continuous",font=("Courier", 14))
-		continuous_label.pack()
-		continuous_label_entry_box  = Entry(self, textvariable=continuous_var, width=15, bg="alice blue")
-		continuous_label_entry_box.pack(pady=(0,20))
+# 		continuous_label = Label(self, text="Minimum # of Unique Values to be Considered Continuous",font=("Comfortaa", 14))
+# 		continuous_label.pack()
+# 		continuous_label_entry_box  = Entry(self, textvariable=continuous_var, width=15, bg="alice blue")
+# 		continuous_label_entry_box.pack(pady=(0,20))
 
 
-		get_continuous_button = Button(self,text="Get Continuous Variables", command= get_continuous)
-		get_continuous_button.pack(pady=(0,20))
+# 		get_continuous_button = Button(self,text="Get Continuous Variables", command= get_continuous)
+# 		get_continuous_button.pack(pady=(0,20))
 
-		back = Button(self,text="Back", command= lambda:controller.show_frame(FilterData))
-		back.pack()
+# 		back = Button(self,text="Back", command= lambda:controller.show_frame(FilterData))
+# 		back.pack()
 
-class CategoricalProgram(Frame):
-	def __init__(self,parent, controller):
-		Frame.__init__(self,parent)
+# class CategoricalProgram(Frame):
+# 	def __init__(self,parent, controller):
+# 		Frame.__init__(self,parent)
 
-		label = Label(self, text="Get Catrgorical Variables")
-		label.config(width=200)
-		label.config(font=("Courier", 20))
-		label.pack(pady=(10,40))
-		label.config(fg="cyan4")
+# 		label = Label(self, text="Get Catrgorical Variables")
+# 		label.config(width=200)
+# 		label.config(font=("Comfortaa", 20))
+# 		label.pack(pady=(10,40))
+# 		label.config(fg="cyan4")
 
 
 
-		global categorical1
-		categorical1= StringVar()
-		categorical1.set("")
-		categorical1_label = Label(self, text="Min # of Values to be Considered Catrgorical",font=("Courier", 14))
-		categorical1_label.pack()
-		categorical1_label_entry_box  = Entry(self, textvariable=categorical1, width=15, bg="alice blue")
-		categorical1_label_entry_box.pack(pady=(0,20))
+# 		global categorical1
+# 		categorical1= StringVar()
+# 		categorical1.set("")
+# 		categorical1_label = Label(self, text="Min # of Values to be Considered Catrgorical",font=("Comfortaa", 14))
+# 		categorical1_label.pack()
+# 		categorical1_label_entry_box  = Entry(self, textvariable=categorical1, width=15, bg="alice blue")
+# 		categorical1_label_entry_box.pack(pady=(0,20))
 
 
-		global categorical2
-		categorical2= StringVar()
-		categorical2.set("")
-		categorical2_label = Label(self, text="Max # of Values to be Considered Catrgorical",font=("Courier", 14))
-		categorical2_label.pack()
-		categorical2_label_entry_box  = Entry(self, textvariable=categorical2, width=15, bg="alice blue")
-		categorical2_label_entry_box.pack(pady=(0,20))
+# 		global categorical2
+# 		categorical2= StringVar()
+# 		categorical2.set("")
+# 		categorical2_label = Label(self, text="Max # of Values to be Considered Catrgorical",font=("Comfortaa", 14))
+# 		categorical2_label.pack()
+# 		categorical2_label_entry_box  = Entry(self, textvariable=categorical2, width=15, bg="alice blue")
+# 		categorical2_label_entry_box.pack(pady=(0,20))
 
 
-		get_categorical_button = Button(self,text="Get Categorical Variables", command= get_categorical)
-		get_categorical_button.pack(pady=(0,20))
+# 		get_categorical_button = Button(self,text="Get Categorical Variables", command= get_categorical)
+# 		get_categorical_button.pack(pady=(0,20))
 
-		back = Button(self,text="Back", command= lambda:controller.show_frame(FilterData))
-		back.pack()
+# 		back = Button(self,text="Back", command= lambda:controller.show_frame(FilterData))
+# 		back.pack()
 
-class AmbiguousProgram(Frame):
-	def __init__(self,parent, controller):
-		Frame.__init__(self,parent)
+# class AmbiguousProgram(Frame):
+# 	def __init__(self,parent, controller):
+# 		Frame.__init__(self,parent)
 
-		label = Label(self, text="Identify Ambiguous Variables",font=("Courier", 14))
-		label.config(width=200)
-		label.config(font=("Courier", 20))
-		label.pack(pady=(10,40))
-		label.config(fg="cyan4")
+# 		label = Label(self, text="Identify Ambiguous Variables",font=("Comfortaa", 14))
+# 		label.config(width=200)
+# 		label.config(font=("Comfortaa", 20))
+# 		label.pack(pady=(10,40))
+# 		label.config(fg="cyan4")
 
 
-		global ambiguous1
-		ambiguous1= StringVar()
-		ambiguous1.set("")
-		ambiguous1_label = Label(self, text="Min # of Levels Desired",font=("Courier", 14))
-		ambiguous1_label.pack()
-		ambiguous1_label_entry_box  = Entry(self, textvariable=ambiguous1, width=15, bg="alice blue")
-		ambiguous1_label_entry_box.pack(pady=(0,20))
+# 		global ambiguous1
+# 		ambiguous1= StringVar()
+# 		ambiguous1.set("")
+# 		ambiguous1_label = Label(self, text="Min # of Levels Desired",font=("Comfortaa", 14))
+# 		ambiguous1_label.pack()
+# 		ambiguous1_label_entry_box  = Entry(self, textvariable=ambiguous1, width=15, bg="alice blue")
+# 		ambiguous1_label_entry_box.pack(pady=(0,20))
 
 
-		global ambiguous2
-		ambiguous2= StringVar()
-		ambiguous2.set("")
-		ambiguous2_label = Label(self, text="Max # of Levels Desired",font=("Courier", 14))
-		ambiguous2_label.pack()
-		ambiguous2_label_entry_box  = Entry(self, textvariable=ambiguous2, width=15, bg="alice blue")
-		ambiguous2_label_entry_box.pack(pady=(0,20))
+# 		global ambiguous2
+# 		ambiguous2= StringVar()
+# 		ambiguous2.set("")
+# 		ambiguous2_label = Label(self, text="Max # of Levels Desired",font=("Comfortaa", 14))
+# 		ambiguous2_label.pack()
+# 		ambiguous2_label_entry_box  = Entry(self, textvariable=ambiguous2, width=15, bg="alice blue")
+# 		ambiguous2_label_entry_box.pack(pady=(0,20))
 
 
-		get_check_button = Button(self,text="Check Ambiguous Variables", command= get_check)
-		get_check_button.pack(pady=(0,20))
+# 		get_check_button = Button(self,text="Check Ambiguous Variables", command= get_check)
+# 		get_check_button.pack(pady=(0,20))
 
-		back = Button(self,text="Back", command= lambda:controller.show_frame(FilterData))
-		back.pack()
+# 		back = Button(self,text="Back", command= lambda:controller.show_frame(FilterData))
+# 		back.pack()
 
-##1
-class SampleKeepProgram(Frame):
-	def __init__(self,parent, controller):
-		Frame.__init__(self,parent)
+# ##1
+# class SampleKeepProgram(Frame):
+# 	def __init__(self,parent, controller):
+# 		Frame.__init__(self,parent)
 
-		label = Label(self, text="Keep Varibles with n Samples")
-		label.config(width=200)
-		label.config(font=("Courier", 20))
-		label.pack(pady=(10,40))
-		label.config(fg="cyan4")
+# 		label = Label(self, text="Keep Varibles with n Samples")
+# 		label.config(width=200)
+# 		label.config(font=("Comfortaa", 20))
+# 		label.pack(pady=(10,40))
+# 		label.config(fg="cyan4")
 
 
-		global sample_keep_var
-		sample_keep_var= StringVar()
-		sample_keep_var.set("")
+# 		global sample_keep_var
+# 		sample_keep_var= StringVar()
+# 		sample_keep_var.set("")
 
-		sample_keep_var_label = Label(self, text="Min # of Samples per Variable",font=("Courier", 14))
-		sample_keep_var_label.pack()
-		sample_keep_var_label_entry_box  = Entry(self, textvariable=sample_keep_var, width=15, bg="alice blue")
-		sample_keep_var_label_entry_box.pack(pady=(0,20))
+# 		sample_keep_var_label = Label(self, text="Min # of Samples per Variable",font=("Comfortaa", 14))
+# 		sample_keep_var_label.pack()
+# 		sample_keep_var_label_entry_box  = Entry(self, textvariable=sample_keep_var, width=15, bg="alice blue")
+# 		sample_keep_var_label_entry_box.pack(pady=(0,20))
 
-		get_check_button = Button(self,text="Keep N Samples", command= sample_keep)
-		get_check_button.pack(pady=(0,40))
+# 		get_check_button = Button(self,text="Keep N Samples", command= sample_keep)
+# 		get_check_button.pack(pady=(0,40))
 
 
-		back = Button(self,text="Back", command= lambda:controller.show_frame(FilterData))
-		back.pack()
+# 		back = Button(self,text="Back", command= lambda:controller.show_frame(FilterData))
+# 		back.pack()
 
 
-class FindOutliersProgram(Frame):
-	def __init__(self,parent, controller):
-		Frame.__init__(self,parent)
+# class FindOutliersProgram(Frame):
+# 	def __init__(self,parent, controller):
+# 		Frame.__init__(self,parent)
 
-		label = Label(self, text="Find Outliers")
-		label.config(width=200)
-		label.config(font=("Courier", 20))
-		label.pack(pady=(10,40))
-		label.config(fg="cyan4")
+# 		label = Label(self, text="Find Outliers")
+# 		label.config(width=200)
+# 		label.config(font=("Comfortaa", 20))
+# 		label.pack(pady=(10,40))
+# 		label.config(fg="cyan4")
 
 
-		global find_outliers_var
-		find_outliers_var= StringVar()
-		find_outliers_var.set("")
+# 		global find_outliers_var
+# 		find_outliers_var= StringVar()
+# 		find_outliers_var.set("")
 
-		find_outliers_var_label = Label(self, text="Number of Standard Deviations From Mean",font=("Courier", 14))
-		find_outliers_var_label.pack()
-		find_outliers_var_label_entry_box  = Entry(self, textvariable=find_outliers_var, width=15, bg="alice blue")
-		find_outliers_var_label_entry_box.pack(pady=(0,20))
+# 		find_outliers_var_label = Label(self, text="Number of Standard Deviations From Mean",font=("Comfortaa", 14))
+# 		find_outliers_var_label.pack()
+# 		find_outliers_var_label_entry_box  = Entry(self, textvariable=find_outliers_var, width=15, bg="alice blue")
+# 		find_outliers_var_label_entry_box.pack(pady=(0,20))
 
 
-		get_check_button = Button(self,text="Find Outliers", command= outliers)
-		get_check_button.pack(pady=(0,40))
+# 		get_check_button = Button(self,text="Find Outliers", command= outliers)
+# 		get_check_button.pack(pady=(0,40))
 
 
-		back = Button(self,text="Back", command= lambda:controller.show_frame(SummarizeData))
-		back.pack()
+# 		back = Button(self,text="Back", command= lambda:controller.show_frame(SummarizeData))
+# 		back.pack()
 
-class FindCorrelationsProgram(Frame):
-	def __init__(self,parent, controller):
-		Frame.__init__(self,parent)
+# class FindCorrelationsProgram(Frame):
+# 	def __init__(self,parent, controller):
+# 		Frame.__init__(self,parent)
 
-		label = Label(self, text="Find Correlations")
-		label.config(width=200)
-		label.config(font=("Courier", 20))
-		label.pack(pady=(10,40))
-		label.config(fg="cyan4")
+# 		label = Label(self, text="Find Correlations")
+# 		label.config(width=200)
+# 		label.config(font=("Comfortaa", 20))
+# 		label.pack(pady=(10,40))
+# 		label.config(fg="cyan4")
 
 
-		global find_correlations_var
-		find_correlations_var= StringVar()
-		find_correlations_var.set("")
+# 		global find_correlations_var
+# 		find_correlations_var= StringVar()
+# 		find_correlations_var.set("")
 
-		find_correlations_var_label = Label(self, text="Correlation Threshold",font=("Courier", 14))
-		find_correlations_var_label.pack()
-		find_correlations_var_label_entry_box  = Entry(self, textvariable=find_correlations_var, width=15, bg="alice blue")
-		find_correlations_var_label_entry_box.pack(pady=(0,20))
+# 		find_correlations_var_label = Label(self, text="Correlation Threshold",font=("Comfortaa", 14))
+# 		find_correlations_var_label.pack()
+# 		find_correlations_var_label_entry_box  = Entry(self, textvariable=find_correlations_var, width=15, bg="alice blue")
+# 		find_correlations_var_label_entry_box.pack(pady=(0,20))
 
 
 
-		get_check_button = Button(self,text="Find Correlations", command= correlations)
-		get_check_button.pack(pady=(0,40))
+# 		get_check_button = Button(self,text="Find Correlations", command= correlations)
+# 		get_check_button.pack(pady=(0,40))
 
 
-		back = Button(self,text="Back", command= lambda:controller.show_frame(SummarizeData))
-		back.pack()
-class MainMenu:
-	def __init__(self, master):
-		menubar = Menu(master)
-		filemenu = Menu(menubar, tearoff=0)
-		filemenu.add_command(label="Exit", command=master.quit)
-		menubar.add_cascade(label="File", menu=filemenu)
-		master.config(menu=menubar)
+# 		back = Button(self,text="Back", command= lambda:controller.show_frame(SummarizeData))
+# 		back.pack()
+# class MainMenu:
+# 	def __init__(self, master):
+# 		menubar = Menu(master)
+# 		filemenu = Menu(menubar, tearoff=0)
+# 		filemenu.add_command(label="Exit", command=master.quit)
+# 		menubar.add_cascade(label="File", menu=filemenu)
+# 		master.config(menu=menubar)
 
 
 	
 ##To call the GUI Application
-app = App()
-app.title('DataCleaner')
-app.geometry("725x500")
-app.mainloop()
+# app = App()
+# app.title('DataCleaner')
+# app.geometry("725x500")
+# app.mainloop()
 
 
 
 
+root = Tk()
+root.geometry("825x720")
+root.title('ClaritEE')
+n = ttk.Notebook(root)
+
+
+title_label = Label(root,bg="white",text = "Cleaning to Analysis: Robust, Integrated Traits and Exposures using EWAS")
+title_label.config(font=("Comfortaa", 20))
+title_label.pack(pady=15)
+title_label.config(fg="cyan4")
+title_label.pack(fill=X)
+
+
+global choose_start_file_name
+choose_start_file_name= StringVar()
+choose_start_file_name.set("Start by Choosing a Data File")
+
+
+choose_file_label = Label(root, textvariable=choose_start_file_name)
+choose_file_label.config(font=("Comfortaa", 14))
+choose_file_label.pack(pady=5)
+
+
+choose_file = Button(root,text="Choose File", command= choose_start_file)
+choose_file.pack(pady=(0,35))
+
+
+f1 = Frame(n,width=300,height=300)
+f2 = Frame(n,width=300,height=300)
+f3 = Frame(n,width=300,height=300)
+
+n.add(f1,text="Descriptive")
+n.add(f2,text="Quality Control")
+n.add(f3,text="Association")
+
+###****************************General*******************************************###
+
+# def general_value_chosen(self, *args):
+#     value = selected_general_option.get()
+
+#     if value == "Get Levels":
+#     	get_levels()
+#     	refresh_logs()
+
+#     if value == "Sample Size":
+#     	sample_size()
+#     	refresh_logs()
+
+
+
+
+
+def get_levels_popup():
+	toplevel = Toplevel()
+	toplevel.geometry("245x205")
+
+	label1 = Label(toplevel,bg="white",text = "Get Levels")
+	label1.config(font=("Comfortaa", 18))
+	label1.pack(pady=(0,15))
+	label1.config(fg="cyan4")
+	label1.pack(fill=X)
+
+	run_levels_button=Button(toplevel,text="Run", command=get_levels)
+	run_levels_button.pack(fill=X)
+	# toplevel.destroy()
+
+def sample_size_popup():
+	toplevel = Toplevel()
+	toplevel.geometry("245x205")
+
+	label1 = Label(toplevel,bg="white",text = "Sample Size")
+	label1.config(font=("Comfortaa", 18))
+	label1.pack(pady=(0,15))
+	label1.config(fg="cyan4")
+	label1.pack(fill=X)
+
+	run_levels_button=Button(toplevel,text="Run", command=sample_size)
+	run_levels_button.pack(fill=X)
+	# toplevel.destroy()
+
+
+
+left_frame = Frame(f1)
+left_frame.pack(side=LEFT)
+right_frame = Frame(f1)
+right_frame.pack(side=RIGHT)
+
+
+l1 = Label(left_frame,bg="white",text = "General")
+l1.config(font=("Comfortaa", 20))
+l1.pack(pady=(0,5))
+l1.pack(padx=(75,0))
+l1.config(fg="cyan4")
+l1.pack(fill=X)
+
+
+
+Get_Levels = Button(left_frame,text="Get Levels", command= get_levels_popup)
+Get_Levels.pack(padx=(75,0))
+
+Sample_Size = Button(left_frame,text="Sample Size", command= sample_size_popup)
+Sample_Size.pack(padx=(75,0))
+
+
+def frequency_table_popup():
+
+	toplevel = Toplevel()
+	toplevel.geometry("245x205")
+
+	label1 = Label(toplevel,bg="white",text = "Frequency Table")
+	label1.config(font=("Comfortaa", 18))
+	label1.pack(pady=(0,15))
+	label1.config(fg="cyan4")
+	label1.pack(fill=X)
+
+	run_levels_button=Button(toplevel,text="Run", command=frequency_table)
+	run_levels_button.pack(fill=X)
+	# toplevel.destroy()
+
+def bar_plot_popup():
+
+	toplevel = Toplevel()
+	toplevel.geometry("300x235")
+
+	label1 = Label(toplevel,bg="white",text = "Bar Plot")
+	label1.grid(row=0, column=0, columnspan=2)
+	label1.config(font=("Comfortaa", 18))
+	label1.config(fg="cyan4")
+
+	
+
+	global bp1
+	bp1= StringVar()
+	bp1.set("")
+
+	global bp2
+	bp2= StringVar()
+	bp2.set("")
+
+	global bp3
+	bp3= StringVar()
+	bp3.set("")
+
+	global bp4
+	bp4= StringVar()
+	bp4.set("")
+
+	global bp5
+	bp5= StringVar()
+	bp5.set("")
+
+	global bp6
+	bp6= StringVar()
+	bp6.set("")
+
+	plots_label = Label(toplevel, text="Plots Per Page",font=("Comfortaa", 14))
+	plots_label.grid(row=1, column=0)
+
+	plots_labelentry_box  = Entry(toplevel, textvariable=bp1, width=15, bg="alice blue")
+	plots_labelentry_box.grid(row=1, column=1)
+
+	row_label = Label(toplevel, text="Rows Per Page",font=("Comfortaa", 14))
+	row_label.grid(row=2, column=0)
+	row_label_entry_box  = Entry(toplevel, textvariable=bp2, width=15, bg="alice blue")
+	row_label_entry_box.grid(row=2, column=1)
+
+	column_label = Label(toplevel, text="Columns Per Page",font=("Comfortaa", 14))
+	column_label.grid(row=3, column=0)
+	column_label_entry_box  = Entry(toplevel, textvariable=bp3, width=15, bg="alice blue")
+	column_label_entry_box.grid(row=3, column=1)
+
+	width_label = Label(toplevel, text="Width of Plot",font=("Comfortaa", 14))
+	width_label.grid(row=4, column=0)
+	width_label_entry_box  = Entry(toplevel, textvariable=bp4, width=15, bg="alice blue")
+	width_label_entry_box.grid(row=4, column=1)
+
+	height_label = Label(toplevel, text="Height of Plot",font=("Comfortaa", 14))
+	height_label.grid(row=5, column=0)
+	height_label_entry_box  = Entry(toplevel, textvariable=bp5, width=15, bg="alice blue")
+	height_label_entry_box.grid(row=5, column=1)
+
+	resolution_label = Label(toplevel, text="Resolution of Plot",font=("Comfortaa", 14))
+	resolution_label.grid(row=6, column=0)
+	resolution_label_entry_box  = Entry(toplevel, textvariable=bp6, width=15, bg="alice blue")
+	resolution_label_entry_box.grid(row=6, column=1)
+
+
+	run_barplot_button=Button(toplevel,text="Run", command=barplot, width=12)
+	run_barplot_button.grid(row=7, column=0,columnspan=2)
+
+
+def chi_square_popup():
+
+	toplevel = Toplevel()
+	toplevel.geometry("245x205")
+
+	label1 = Label(toplevel,bg="white",text = "Chi Square")
+	label1.config(font=("Comfortaa", 18))
+	label1.pack(pady=(0,15))
+	label1.config(fg="cyan4")
+	label1.pack(fill=X)
+
+	run_levels_button=Button(toplevel,text="Run", command=chisq_tests)
+	run_levels_button.pack(fill=X)
+	# toplevel.destroy()
+
+
+
+def categorical_value_chosen(self, *args):
+    value = selected_categorical_option.get()
+    print(value)
+
+
+l2 = Label(f1,bg="white",text = "Categorical")
+l2.config(font=("Comfortaa", 20))
+l2.pack(pady=(55,5))
+l2.config(fg="cyan4")
+l2.pack(fill=X)
+
+
+
+frequency_table_button = Button(f1,text="Frequency Table", command= frequency_table_popup)
+frequency_table_button.pack(padx=(0,0))
+
+
+
+chi_square_test_button = Button(f1,text="Chi Square Test", command= chi_square_popup)
+chi_square_test_button.pack(padx=(0,0))
+
+
+bar_plot_button = Button(f1,text="Bar Plot", command= bar_plot_popup)
+bar_plot_button.pack(padx=(0,0))
+
+
+
+
+
+def correlations_popup():
+
+	toplevel = Toplevel()
+	toplevel.geometry("325x215")
+
+	label1 = Label(toplevel,bg="white",text = "Find Correlations")
+	label1.grid(row=0, column=0, columnspan=2)
+	label1.config(font=("Comfortaa", 18))
+	label1.config(fg="cyan4")
+
+
+
+	global find_correlations_var
+	find_correlations_var= StringVar()
+	find_correlations_var.set("")
+
+	find_correlations_var_label = Label(toplevel, text="Correlation Threshold",font=("Comfortaa", 14))
+	find_correlations_var_label.grid(row=1, column=0)
+	find_correlations_var_label_entry_box  = Entry(toplevel, textvariable=find_correlations_var, width=15, bg="alice blue")
+	find_correlations_var_label_entry_box.grid(row=1, column=1)
+
+
+
+	get_check_button = Button(toplevel,text="Find Correlations", command= correlations)
+	get_check_button.grid(row=2, column=0,columnspan=2)
+
+
+
+def outliers_popup():
+
+	toplevel = Toplevel()
+	toplevel.geometry("255x215")
+
+	label1 = Label(toplevel,bg="white",text = "Find Outliers")
+	label1.grid(row=0, column=0, columnspan=2)
+	label1.config(font=("Comfortaa", 18))
+	label1.config(fg="cyan4")
+
+
+
+	global find_outliers_var
+	find_outliers_var= StringVar()
+	find_outliers_var.set("")
+
+	find_outliers_var_label = Label(toplevel, text="SD From Mean",font=("Comfortaa", 14))
+	find_outliers_var_label.grid(row=1, column=0)
+	find_outliers_var_label_entry_box  = Entry(toplevel, textvariable=find_outliers_var, width=15, bg="alice blue")
+	find_outliers_var_label_entry_box.grid(row=1, column=1)
+
+
+	get_check_button = Button(toplevel,text="Find Outliers", command= outliers)
+	get_check_button.grid(row=2, column=0,columnspan=2)
+
+
+
+def box_plot_popup():
+
+	toplevel = Toplevel()
+	toplevel.geometry("300x235")
+
+	label1 = Label(toplevel,bg="white",text = "Box Plot")
+	label1.grid(row=0, column=0, columnspan=2)
+	label1.config(font=("Comfortaa", 18))
+	label1.config(fg="cyan4")
+
+	
+	global bx1
+	bx1= StringVar()
+	bx1.set("")
+
+	global bx2
+	bx2= StringVar()
+	bx2.set("")
+
+	global bx3
+	bx3= StringVar()
+	bx3.set("")
+
+	global bx4
+	bx4= StringVar()
+	bx4.set("")
+
+	global bx5
+	bx5= StringVar()
+	bx5.set("")
+
+	global bx6
+	bx6= StringVar()
+	bx6.set("")
+
+
+
+	plots_label = Label(toplevel, text="Plots Per Page",font=("Comfortaa", 14))
+	plots_label.grid(row=1, column=0)
+	plots_labelentry_box  = Entry(toplevel, textvariable=bx1, width=15, bg="alice blue")
+	plots_labelentry_box.grid(row=1, column=1)
+
+	row_label = Label(toplevel, text="Rows Per Page",font=("Comfortaa", 14))
+	row_label.grid(row=2, column=0)
+	row_label_entry_box  = Entry(toplevel, textvariable=bx2, width=15, bg="alice blue")
+	row_label_entry_box.grid(row=2, column=1)
+
+	column_label = Label(toplevel, text="Columns Per Page",font=("Comfortaa", 14))
+	column_label.grid(row=3, column=0)
+	column_label_entry_box  = Entry(toplevel, textvariable=bx3, width=15, bg="alice blue")
+	column_label_entry_box.grid(row=3, column=1)
+
+	width_label = Label(toplevel, text="Width of Plot",font=("Comfortaa", 14))
+	width_label.grid(row=4, column=0)
+	width_label_entry_box  = Entry(toplevel, textvariable=bx4, width=15, bg="alice blue")
+	width_label_entry_box.grid(row=4, column=1)
+
+	height_label = Label(toplevel, text="Height of Plot",font=("Comfortaa", 14))
+	height_label.grid(row=5, column=0)
+	height_label_entry_box  = Entry(toplevel, textvariable=bx5, width=15, bg="alice blue")
+	height_label_entry_box.grid(row=5, column=1)
+
+	resolution_label = Label(toplevel, text="Resolution of Plot",font=("Comfortaa", 14))
+	resolution_label.grid(row=6, column=0)
+	resolution_label_entry_box  = Entry(toplevel, textvariable=bx6, width=15, bg="alice blue")
+	resolution_label_entry_box.grid(row=6, column=1)
+
+
+	box_plot_button = Button(toplevel,text="Run", command= boxplot)
+	box_plot_button.grid(row=7, column=0,columnspan=2)
+
+
+
+def histogram_popup():
+
+	toplevel = Toplevel()
+	toplevel.geometry("300x235")
+
+	label1 = Label(toplevel,bg="white",text = "Histogram")
+	label1.grid(row=0, column=0, columnspan=2)
+	label1.config(font=("Comfortaa", 18))
+	label1.config(fg="cyan4")
+
+	
+
+	plots_label = Label(toplevel, text="Plots Per Page",font=("Comfortaa", 14))
+	plots_label.grid(row=1, column=0)
+
+
+	global h1
+	h1= StringVar()
+	h1.set("")
+
+	global h2
+	h2= StringVar()
+	h2.set("")
+
+	global h3
+	h3= StringVar()
+	h3.set("")
+
+	global h4
+	h4= StringVar()
+	h4.set("")
+
+	global h5
+	h5= StringVar()
+	h5.set("")
+
+	global h6
+	h6= StringVar()
+	h6.set("")
+
+
+	plots_label = Label(toplevel, text="Plots Per Page",font=("Comfortaa", 14))
+	plots_label.grid(row=1, column=0)
+	plots_labelentry_box  = Entry(toplevel, textvariable=h1, width=15, bg="alice blue")
+	plots_labelentry_box.grid(row=1, column=1)
+
+	row_label = Label(toplevel, text="Rows Per Page",font=("Comfortaa", 14))
+	row_label.grid(row=2, column=0)
+	row_label_entry_box  = Entry(toplevel, textvariable=h2, width=15, bg="alice blue")
+	row_label_entry_box.grid(row=2, column=1)
+
+	column_label = Label(toplevel, text="Columns Per Page",font=("Comfortaa", 14))
+	column_label.grid(row=3, column=0)
+	column_label_entry_box  = Entry(toplevel, textvariable=h3, width=15, bg="alice blue")
+	column_label_entry_box.grid(row=3, column=1)
+
+	width_label = Label(toplevel, text="Width of Plot",font=("Comfortaa", 14))
+	width_label.grid(row=4, column=0)
+	width_label_entry_box  = Entry(toplevel, textvariable=h4, width=15, bg="alice blue")
+	width_label_entry_box.grid(row=4, column=1)
+
+	height_label = Label(toplevel, text="Height of Plot",font=("Comfortaa", 14))
+	height_label.grid(row=5, column=0)
+	height_label_entry_box  = Entry(toplevel, textvariable=h5, width=15, bg="alice blue")
+	height_label_entry_box.grid(row=5, column=1)
+
+	resolution_label = Label(toplevel, text="Resolution of Plot",font=("Comfortaa", 14))
+	resolution_label.grid(row=6, column=0)
+	resolution_label_entry_box  = Entry(toplevel, textvariable=h6, width=15, bg="alice blue")
+	resolution_label_entry_box.grid(row=6, column=1)
+
+
+	histogram_button2 = Button(toplevel,text="Run", command= histogram, width=12)
+	histogram_button2.grid(row=7, column=0,columnspan=2)
+
+
+
+
+def qq_plot_popup():
+
+	toplevel = Toplevel()
+	toplevel.geometry("300x235")
+
+	label1 = Label(toplevel,bg="white",text = "QQ Plot")
+	label1.grid(row=0, column=0, columnspan=2)
+	label1.config(font=("Comfortaa", 18))
+	label1.config(fg="cyan4")
+
+
+	global qq1
+	qq1= StringVar()
+	qq1.set("")
+
+	global qq2
+	qq2= StringVar()
+	qq2.set("")
+
+	global qq3
+	qq3= StringVar()
+	qq3.set("")
+
+	global qq4
+	qq4= StringVar()
+	qq4.set("")
+
+	global qq5
+	qq5= StringVar()
+	qq5.set("")
+
+	global qq6
+	qq6= StringVar()
+	qq6.set("")
+
+
+	plots_label = Label(toplevel, text="Plots Per Page",font=("Comfortaa", 14))
+	plots_label.grid(row=1, column=0)
+	plots_labelentry_box  = Entry(toplevel, textvariable=qq1, width=15, bg="alice blue")
+	plots_labelentry_box.grid(row=1, column=1)
+
+	row_label = Label(toplevel, text="Rows Per Page",font=("Comfortaa", 14))
+	row_label.grid(row=2, column=0)
+	row_label_entry_box  = Entry(toplevel, textvariable=qq2, width=15, bg="alice blue")
+	row_label_entry_box.grid(row=2, column=1)
+
+	column_label = Label(toplevel, text="Columns Per Page",font=("Comfortaa", 14))
+	column_label.grid(row=3, column=0)
+	column_label_entry_box  = Entry(toplevel, textvariable=qq3, width=15, bg="alice blue")
+	column_label_entry_box.grid(row=3, column=1)
+
+	width_label = Label(toplevel, text="Width of Plot",font=("Comfortaa", 14))
+	width_label.grid(row=4, column=0)
+	width_label_entry_box  = Entry(toplevel, textvariable=qq4, width=15, bg="alice blue")
+	width_label_entry_box.grid(row=4, column=1)
+
+	height_label = Label(toplevel, text="Height of Plot",font=("Comfortaa", 14))
+	height_label.grid(row=5, column=0)
+	height_label_entry_box  = Entry(toplevel, textvariable=qq5, width=15, bg="alice blue")
+	height_label_entry_box.grid(row=5, column=1)
+
+	resolution_label = Label(toplevel, text="Resolution of Plot",font=("Comfortaa", 14))
+	resolution_label.grid(row=6, column=0)
+	resolution_label_entry_box  = Entry(toplevel, textvariable=qq6, width=15, bg="alice blue")
+	resolution_label_entry_box.grid(row=6, column=1)
+
+
+	qq_plot_button = Button(toplevel,text="Run", command= qqplot, width=12)
+	qq_plot_button.grid(row=7, column=0,columnspan=2)
+
+
+def continuous_value_chosen(self, *args):
+    value = selected_continuous_option.get()
+    print(value)
+
+
+l3 = Label(right_frame,bg="white",text = "Continuous")
+l3.config(font=("Comfortaa", 20))
+l3.pack(pady=(53,5))
+l3.pack(padx=(0,75))
+l3.config(fg="cyan4")
+l3.pack(fill=X)
+
+
+
+correlations_button = Button(right_frame,text="Find Correlations", command= correlations_popup)
+correlations_button.pack(padx=(0,75))
+
+outliers_button = Button(right_frame,text="Outliers", command= outliers_popup)
+outliers_button.pack(padx=(0,75))
+
+histogram_button = Button(right_frame,text="Histogram", command= histogram_popup)
+histogram_button.pack(padx=(0,75))
+
+box_plot_button = Button(right_frame,text="Box Plot", command= box_plot_popup)
+box_plot_button.pack(side=LEFT)
+
+
+qq_pot_button = Button(right_frame,text="QQPlot", command= qq_plot_popup)
+qq_pot_button.pack(padx=(0,75))
+
+
+###****************************LOGS*******************************************###
+
+
+
+
+def refresh_logs():
+
+	listNodes.delete(0,END)
+    	with open("logs.txt") as f:
+		for line in f:
+
+			listNodes.insert(END, str(line))
+
+	listNodes.see(END)
+
+def log_updater():
+
+
+	log_label = Label(root,bg="white",text = "Live Logs")
+	log_label.config(font=("Comfortaa", 15))
+	log_label.pack(pady=(5,0))
+	log_label.config(fg="black")
+	log_label.pack(fill=X)
+
+
+	frame = Frame(root)
+	frame.pack()
+
+	global listNodes 
+	listNodes = Listbox(frame, width=80, height=15, font=("Helvetica", 12))
+	listNodes.pack(side="left", fill="y")
+
+	scrollbar = Scrollbar(frame, orient="vertical")
+	scrollbar.config(command=listNodes.yview)
+	scrollbar.pack(side="right", fill="y")
+
+	listNodes.config(yscrollcommand=scrollbar.set)
+
+	refresh_logs()
+
+
+
+
+
+
+
+
+def colfilter_popup():
+
+	toplevel = Toplevel()
+	toplevel.geometry("245x205")
+
+	label1 = Label(toplevel,bg="white",text = "ColFilter")
+	label1.config(font=("Comfortaa", 18))
+	label1.pack(pady=(0,15))
+	label1.config(fg="cyan4")
+	label1.pack(fill=X)
+
+	run_levels_button=Button(toplevel,text="Run", command=chisq_tests)
+	run_levels_button.pack(fill=X)
+	# toplevel.destroy()
+
+def samplefilter_popup():
+
+	toplevel = Toplevel()
+	toplevel.geometry("245x205")
+
+	label1 = Label(toplevel,bg="white",text = "Sample Filter")
+	label1.config(font=("Comfortaa", 18))
+	label1.pack(pady=(0,15))
+	label1.config(fg="cyan4")
+	label1.pack(fill=X)
+
+	run_levels_button=Button(toplevel,text="Run", command=chisq_tests)
+	run_levels_button.pack(fill=X)
+	# toplevel.destroy()
+
+def get_continuous_popup():
+
+	toplevel = Toplevel()
+	toplevel.geometry("300x235")
+
+	label = Label(toplevel, text="Get Continuous Variables")
+	label.grid(row=0, column=0, columnspan=2)
+	label.config(font=("Comfortaa", 20))
+	label.config(fg="cyan4")
+
+
+	global continuous_var
+	continuous_var= StringVar()
+	continuous_var.set("")
+
+	continuous_label = Label(toplevel, text="Min Values Considered Continuous",font=("Comfortaa", 14))
+	continuous_label.grid(row=1, column=0)
+	continuous_label_entry_box  = Entry(toplevel, textvariable=continuous_var, width=15, bg="alice blue")
+	continuous_label_entry_box.grid(row=1, column=1)
+
+
+	get_continuous_button = Button(toplevel,text="Get Continuous Variables", command= get_continuous)
+	get_continuous_button.grid(row=2, column=0,columnspan=2)
+
+
+
+
+
+
+def get_check_popup():
+
+
+	toplevel = Toplevel()
+	toplevel.geometry("300x235")
+
+	label1 = Label(toplevel,bg="white",text = "Get Check")
+	label1.grid(row=0, column=0, columnspan=2)
+	label1.config(font=("Comfortaa", 18))
+	label1.config(fg="cyan4")
+
+
+	global ambiguous1
+	ambiguous1= StringVar()
+	ambiguous1.set("")
+	ambiguous1_label = Label(toplevel, text="Min Levels Desired",font=("Comfortaa", 14))
+	ambiguous1_label.grid(row=1, column=0)
+	ambiguous1_label_entry_box  = Entry(toplevel, textvariable=ambiguous1, width=15, bg="alice blue")
+	ambiguous1_label_entry_box.grid(row=1, column=1)
+
+
+	global ambiguous2
+	ambiguous2= StringVar()
+	ambiguous2.set("")
+	ambiguous2_label = Label(toplevel, text="Max Levels Desired",font=("Comfortaa", 14))
+	ambiguous2_label.grid(row=2, column=0)
+	ambiguous2_label_entry_box  = Entry(toplevel, textvariable=ambiguous2, width=15, bg="alice blue")
+	ambiguous2_label_entry_box.grid(row=2, column=1)
+
+
+	get_check_button = Button(toplevel,text="Run", command= get_check)
+	get_check_button.grid(row=3, column=0,columnspan=2)
+
+
+def get_categorical_popup():
+
+
+	toplevel = Toplevel()
+	toplevel.geometry("300x235")
+
+	label1 = Label(toplevel,bg="white",text = "Get Categorical")
+	label1.grid(row=0, column=0, columnspan=2)
+	label1.config(font=("Comfortaa", 18))
+	label1.config(fg="cyan4")
+
+
+	global categorical1
+	categorical1= StringVar()
+	categorical1.set("")
+	categorical1_label = Label(toplevel, text="Min Values to be Considered Categorical",font=("Comfortaa", 14))
+	categorical1_label.grid(row=1, column=0)
+	categorical1_label_entry_box  = Entry(toplevel, textvariable=categorical1, width=15, bg="alice blue")
+	categorical1_label_entry_box.grid(row=1, column=1)
+
+
+	global categorical2
+	categorical2= StringVar()
+	categorical2.set("")
+	categorical2_label = Label(toplevel, text="Max Values to be Considered Categorical",font=("Comfortaa", 14))
+	categorical2_label.grid(row=2, column=0)
+	categorical2_label_entry_box  = Entry(toplevel, textvariable=categorical2, width=15, bg="alice blue")
+	categorical2_label_entry_box.grid(row=2, column=1)
+
+
+	run_get_categorical_button=Button(toplevel,text="Run", command=get_categorical, width=12)
+	run_get_categorical_button.grid(row=3, column=0,columnspan=2)
+
+
+
+def sample_keep_subgroups_popup():
+
+	toplevel = Toplevel()
+	toplevel.geometry("245x205")
+
+
+	label = Label(toplevel, text="Keep Varibles with n Samples")
+	label.grid(row=0, column=0, columnspan=2)
+	label.config(font=("Comfortaa", 20))
+	label.config(fg="cyan4")
+
+
+	global sample_keep_var
+	sample_keep_var= StringVar()
+	sample_keep_var.set("")
+
+	sample_keep_var_label = Label(toplevel, text="Min Samples per Variable",font=("Comfortaa", 14))
+	sample_keep_var_label.grid(row=1, column=0)
+	sample_keep_var_label_entry_box  = Entry(toplevel, textvariable=sample_keep_var, width=15, bg="alice blue")
+	sample_keep_var_label_entry_box.grid(row=1, column=1)
+
+	get_check_button = Button(toplevel,text="Keep N Samples", command= sample_keep)
+	get_check_button.grid(row=2, column=0,columnspan=2)
+
+
+
+
+def remove_outliers_popup():
+
+	toplevel = Toplevel()
+	toplevel.geometry("245x205")
+
+	label1 = Label(toplevel,bg="white",text = "Remove Outliers")
+	label1.config(font=("Comfortaa", 18))
+	label1.pack(pady=(0,15))
+	label1.config(fg="cyan4")
+	label1.pack(fill=X)
+
+	run_levels_button=Button(toplevel,text="Run", command=remove_outliers)
+	run_levels_button.pack(fill=X)
+	# toplevel.destroy()
+
+def transform_list_popup():
+
+	toplevel = Toplevel()
+	toplevel.geometry("245x205")
+
+	label1 = Label(toplevel,bg="white",text = "Transform List")
+	label1.config(font=("Comfortaa", 18))
+	label1.pack(pady=(0,15))
+	label1.config(fg="cyan4")
+	label1.pack(fill=X)
+
+	run_levels_button=Button(toplevel,text="Run", command=transform_list)
+	run_levels_button.pack(fill=X)
+	# toplevel.destroy()
+
+
+
+
+###****************************QC*******************************************###
+
+
+f2_left_frame = Frame(f2)
+f2_left_frame.pack(side=LEFT)
+f2_right_frame = Frame(f2)
+f2_right_frame.pack(side=RIGHT)
+
+
+f2_l1 = Label(f2_left_frame,bg="white",text = "General")
+f2_l1.config(font=("Comfortaa", 20))
+f2_l1.pack(pady=(0,5))
+f2_l1.pack(padx=(75,0))
+f2_l1.config(fg="cyan4")
+f2_l1.pack(fill=X)
+
+#sample_keep, get_binary, get_continuous, get_categorical, get_check
+
+Colfilter = Button(f2_left_frame,text="Colfilter", command= colfilter_popup)
+Colfilter.pack(padx=(75,0))
+
+Samplefilter = Button(f2_left_frame,text="Samplefilter", command= samplefilter_popup)
+Samplefilter.pack(padx=(75,0))
+
+get_continuous_button = Button(f2_left_frame,text="Get Continuous", command= get_continuous_popup)
+get_continuous_button.pack(padx=(75,0))
+
+get_categorical_button = Button(f2_left_frame,text="Get Categorical", command= get_categorical_popup)
+get_categorical_button.pack(padx=(75,0))
+
+get_check_button = Button(f2_left_frame,text="Get Check", command= get_check_popup)
+get_check_button.pack(padx=(75,0))
+
+
+
+###*************************###
+
+f2_l2 = Label(f2,bg="white",text = "Categorical")
+f2_l2.config(font=("Comfortaa", 20))
+f2_l2.pack(pady=(104,5))
+f2_l2.config(fg="cyan4")
+f2_l2.pack(fill=X)
+
+
+
+sample_keep_subgroups_button = Button(f2,text="Sample Keep Subgroups", command= sample_keep_subgroups_popup)
+sample_keep_subgroups_button.pack(padx=(0,0))
+
+
+
+
+
+###*************************###
+
+
+f2_l3 = Label(f2_right_frame,bg="white",text = "Continuous")
+f2_l3.config(font=("Comfortaa", 20))
+f2_l3.pack(pady=(53,5))
+f2_l3.pack(padx=(0,75))
+f2_l3.config(fg="cyan4")
+f2_l3.pack(fill=X)
+
+
+
+remove_outliers_button = Button(f2_right_frame,text="Remove Outliers", command= remove_outliers_popup)
+remove_outliers_button.pack(padx=(0,75))
+
+transform_list_button = Button(f2_right_frame,text="Transform List", command= transform_list_popup)
+transform_list_button.pack(padx=(0,75))
+
+
+
+
+
+
+
+# def ewas_popup():
+
+# 	toplevel = Toplevel()
+# 	toplevel.geometry("245x205")
+
+# 	label1 = Label(toplevel,bg="white",text = "EWAS")
+# 	label1.config(font=("Comfortaa", 18))
+# 	label1.pack(pady=(0,15))
+# 	label1.config(fg="cyan4")
+# 	label1.pack(fill=X)
+
+# 	run_levels_button=Button(toplevel,text="Run", command=transform_list)
+# 	run_levels_button.pack(fill=X)
+# 	# toplevel.destroy()
+
+
+
+
+###***************Associations**********###
+
+f3_left_frame = Frame(f3)
+f3_left_frame.pack(side=LEFT)
+f3_right_frame = Frame(f3)
+f3_right_frame.pack(side=RIGHT)
+
+
+f3_l1 = Label(f3_left_frame,bg="white",text = "EWAS")
+f3_l1.config(font=("Comfortaa", 20))
+f3_l1.pack(pady=(0,5))
+f3_l1.pack(padx=(75,0))
+f3_l1.config(fg="cyan4")
+f3_l1.pack(fill=X)
+
+
+
+
+
+n.pack(fill=X)
+
+log_updater()
+
+root.mainloop()
 
 
 

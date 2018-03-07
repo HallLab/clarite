@@ -1,7 +1,0 @@
---------------------------PROGRAM LOGS--------------------------
-THIS LOGS ALL OF YOUR VALUES & FUNCTIONS USED IN THE GUI PROGRAM
-----------------------------------------------------------------
-
-DataCleaner Program Opened
-PROGRAM OPENED :  12:26PM on February 20, 2018
-
