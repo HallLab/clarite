@@ -26,14 +26,14 @@ import os.path
 from random import randint
 import datetime
 import shlex
-import time
 
 global time_stamp
-time_stamp = time.strftime('%X')
+time_stamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-print(time_stamp)
+global log_file_name
+log_file_name = time_stamp + "-"'logs.txt'
 
-with open('logs.txt', 'w') as global_log:
+with open(log_file_name, 'w') as global_log:
 	global_log.write("LIVE LOG REPORT - PROGRAM OPENED :  " + datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y") + '\n')
 	global_log.write("LOGS INPUT VALUES, STDOUT, STDERR, R SCRIPT & FUNC CALLS (GUI PROGRAM)"+'\n'+'\n')
 
@@ -60,8 +60,8 @@ def choose_start_file():
 	global final
 	final = A0_0 + global_start_file_path + A0_2
 
-	with open('logs.txt', 'a') as g:
-		g.write("---------------------------------------------------------------" + time_stamp + "---------------------------------------------------------------" + '\n')
+	with open(log_file_name, 'a') as g:
+		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
 		g.write("File Chosen: "+ global_start_file_path + '\n')
 	refresh_logs()
 
@@ -72,7 +72,7 @@ def dialogue_file_dictionary():
 	global_recode_key_dictionary = tkFileDialog.askopenfilename()
 	choose_dictionary_label_name.set("Dictionary File: " + global_recode_key_dictionary)
 
-	with open('logs.txt', 'a') as g:
+	with open(log_file_name, 'a') as g:
 		g.write("Recode Key Dictionary Chosen: "+ global_recode_key_dictionary + '\n'+'\n')
 	refresh_logs()
 	
@@ -120,8 +120,8 @@ def recode_missing():
 			fileclean_rows = fileclean_rows.replace("\t" + str(missing_val.get()), "\t"+str(missing_val_replacement.get()))
 			with open('datacleaner_Output/recode_missing_out.txt', 'w') as file:
 				file.write(fileclean_rows)
-			with open('logs.txt', 'a') as g:
-				g.write("---------------------------------------------------------------" + time_stamp + "---------------------------------------------------------------" + '\n')
+			with open(log_file_name, 'a') as g:
+				g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
 				g.write("Missing Values Replace Function Called" + '\n')
 				g.write("Missing Value: "+ str(missing_val.get()) + '\n')
 				g.write("Missing Value Replacement: "+ str(missing_val_replacement.get()) + '\n' + '\n')
@@ -136,8 +136,8 @@ def recode_key():
 	iterator = 0
 	key_array = []
 
-	with open('logs.txt', 'a') as g:
-		g.write("---------------------------------------------------------------" + time_stamp + "---------------------------------------------------------------" + '\n')
+	with open(log_file_name, 'a') as g:
+		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
 
 		g.write("Missing Values Dictionary Function Called" + '\n')
 	refresh_logs()
@@ -190,8 +190,8 @@ def get_binary():
 
 	f.close()
 
-	with open('logs.txt', 'a') as g:
-		g.write("---------------------------------------------------------------" + time_stamp + "---------------------------------------------------------------" + '\n')
+	with open(log_file_name, 'a') as g:
+		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
 
 		g.write("Get Binary Variables Function Called" + '\n' +'\n' )
 	
@@ -223,8 +223,8 @@ def get_continuous():
 
 
 	
-	with open('logs.txt', 'a') as g:
-		g.write("---------------------------------------------------------------" + time_stamp + "---------------------------------------------------------------" + '\n')
+	with open(log_file_name, 'a') as g:
+		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
 
 		g.write("Get Continuous Variables Function Called" + '\n')
 		g.write("Lower Bound: " + lower_bound + '\n' +'\n' )
@@ -262,8 +262,8 @@ def get_categorical():
 	f.close()
 
 	
-	with open('logs.txt', 'a') as g:
-		g.write("---------------------------------------------------------------" + time_stamp + "---------------------------------------------------------------" + '\n')
+	with open(log_file_name, 'a') as g:
+		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
 
 		g.write("Get Categorical Variables Function Called" + '\n')
 		g.write("Lower Bound: " + lower_bound + '\n')
@@ -300,8 +300,8 @@ def get_check():
 	f.close()
 	
 
-	with open('logs.txt', 'a') as g:
-		g.write("---------------------------------------------------------------" + time_stamp + "---------------------------------------------------------------" + '\n')
+	with open(log_file_name, 'a') as g:
+		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
 
 		g.write("Get Ambiguous Variables Function Called" + '\n')
 		g.write("Lower Bound: " + lower_bound + '\n')
@@ -334,8 +334,8 @@ def sample_keep():
 	f.close()
 
 
-	with open('logs.txt', 'a') as g:
-		g.write("---------------------------------------------------------------" + time_stamp + "---------------------------------------------------------------" + '\n')
+	with open(log_file_name, 'a') as g:
+		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
 
 		g.write("Get Ambiguous Variables Function Called" + '\n')
 		g.write("Lower Bound: " + lower_bound + '\n' +'\n' )
@@ -369,8 +369,8 @@ def transform_list():
 	f.close()
 	
 	
-	with open('logs.txt', 'a') as g:
-		g.write("---------------------------------------------------------------" + time_stamp + "---------------------------------------------------------------" + '\n')
+	with open(log_file_name, 'a') as g:
+		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
 
 		g.write("Transform List Function Called" + '\n' + '\n')
 
@@ -381,8 +381,8 @@ def transform_list():
 
 def remove_outliers():
 
-	with open('logs.txt', 'a') as g:
-		g.write("---------------------------------------------------------------" + time_stamp + "---------------------------------------------------------------" + '\n')
+	with open(log_file_name, 'a') as g:
+		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
 
 		g.write("Remove Outliers Function Called" + '\n'+ '\n' )
 	refresh_logs()
@@ -522,9 +522,9 @@ def histogram():
 	f.close()
 
 	
-	with open('logs.txt', 'a') as g:
+	with open(log_file_name, 'a') as g:
 
-		g.write("---------------------------------------------------------------" + time_stamp + "---------------------------------------------------------------" + '\n')
+		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
 
 		g.write("Generate Histogram Function Called" + '\n')
 		g.write("Number of Plots Per Page: " + str(h1.get()) + '\n')
@@ -571,8 +571,8 @@ def boxplot():
 
 	f.close()
 
-	with open('logs.txt', 'a') as g:
-		g.write("---------------------------------------------------------------" + time_stamp + "---------------------------------------------------------------" + '\n')
+	with open(log_file_name, 'a') as g:
+		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
 
 		g.write("Generate Box Plot Function Called" + '\n')
 		g.write("Number of Plots Per Page: " + str(bx1.get()) + '\n')
@@ -617,8 +617,8 @@ def qqplot():
 
 	f.close()
 
-	with open('logs.txt', 'a') as g:
-		g.write("---------------------------------------------------------------" + time_stamp + "---------------------------------------------------------------" + '\n')
+	with open(log_file_name, 'a') as g:
+		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
 
 		g.write("Generate QQ Plot Function Called" + '\n')
 		g.write("Number of Plots Per Page: " + str(qq1.get()) + '\n')
@@ -668,8 +668,8 @@ def barplot():
 
 	f.close()
 
-	with open('logs.txt', 'a') as g:
-		g.write("---------------------------------------------------------------" + time_stamp + "---------------------------------------------------------------" + '\n')
+	with open(log_file_name, 'a') as g:
+		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
 
 		g.write("Generate Bar Plot Function Called" + '\n')
 		g.write("Number of Plots Per Page: " + str(bp1.get()) + '\n')
@@ -708,8 +708,8 @@ def frequency_table():
 
 	f.close()
 	
-	with open('logs.txt', 'a') as g:
-		g.write("---------------------------------------------------------------" + time_stamp + "---------------------------------------------------------------" + '\n')
+	with open(log_file_name, 'a') as g:
+		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
 
 		g.write("Generate Frequency Table Function Called" + '\n'+'\n')
 
@@ -741,8 +741,8 @@ def correlations():
 
 	f.close()
 	
-	with open('logs.txt', 'a') as g:
-		g.write("---------------------------------------------------------------" + time_stamp + "---------------------------------------------------------------" + '\n')
+	with open(log_file_name, 'a') as g:
+		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
 		g.write("Generate Correlations Function Called" + '\n')
 		g.write("Threshold: " + threshold_val+ '\n')
 	
@@ -771,8 +771,8 @@ def sample_size():
 
 	f.close()
 	
-	with open('logs.txt', 'a') as g:
-		g.write("---------------------------------------------------------------" + time_stamp + "---------------------------------------------------------------" + '\n')
+	with open(log_file_name, 'a') as g:
+		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
 		g.write("Sample Size Function Called" + '\n')
 		# g.write("Threshold: " + threshold_val+ '\n'+'\n')
 	
@@ -800,8 +800,8 @@ def get_levels():
 
 	f.close()
 
-	with open('logs.txt', 'a') as g:
-		g.write("---------------------------------------------------------------" + time_stamp + "---------------------------------------------------------------" + '\n')
+	with open(log_file_name, 'a') as g:
+		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
 		g.write("Get Levels Function Called" + '\n')
 	
 	s_out = open("logs.txt", "a")
@@ -830,8 +830,8 @@ def outliers():
 	f.write(file_output_path + '\n')
 
 	f.close()
-	with open('logs.txt', 'a') as g:
-		g.write("---------------------------------------------------------------" + time_stamp + "---------------------------------------------------------------" + '\n')
+	with open(log_file_name, 'a') as g:
+		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
 		g.write("Threshold: " + threshold_val+ '\n'+'\n')
 
 	s_out = open("logs.txt", "a")
@@ -858,7 +858,7 @@ def chisq_tests():
 
 
 	f.close()
-	with open('logs.txt', 'a') as g:
+	with open(log_file_name, 'a') as g:
 		g.write("Chi Square Function Called" + '\n'+'\n')
 	
 	s_out = open("logs.txt", "a")
@@ -949,8 +949,8 @@ class StartPage(Frame):
 # 		    if(var1.get()):
 # 		       var2.set(0)
 # 		       controller.show_frame(CleanData)
-# 		       with open('logs.txt', 'a') as g:
-# 					g.write("---------------------------------------------------------------" + time_stamp + "---------------------------------------------------------------" + '\n')
+# 		       with open(log_file_name, 'a') as g:
+# 					g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
 # 					g.write("Do you want to clean your data file:  USER Selected ----->   YES" + '\n')
 # 					g.write('\n'+'\n')
 
@@ -959,8 +959,8 @@ class StartPage(Frame):
 # 		    if(var2.get()):
 # 		       var1.set(0)
 # 		       controller.show_frame(MenuOptions)
-# 		       with open('logs.txt', 'a') as g:
-# 					g.write("---------------------------------------------------------------" + time_stamp + "---------------------------------------------------------------" + '\n')
+# 		       with open(log_file_name, 'a') as g:
+# 					g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
 # 					g.write("Do you want to clean your data file:  USER Selected ----->   NO" + '\n')
 # 					g.write('\n'+'\n')
 
@@ -1024,8 +1024,8 @@ class StartPage(Frame):
 # 		    if(var1.get()):
 # 		       var2.set(0)
 # 		       controller.show_frame(FilterData)
-# 		       with open('logs.txt', 'a') as g:
-# 					g.write("---------------------------------------------------------------" + time_stamp + "---------------------------------------------------------------" + '\n')
+# 		       with open(log_file_name, 'a') as g:
+# 					g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
 # 					g.write("Do you want to filter your data file:  USER Selected ----->   YES" + '\n')
 # 					g.write('\n'+'\n')
 
@@ -1034,8 +1034,8 @@ class StartPage(Frame):
 # 		    if(var2.get()):
 # 		       var1.set(0)
 # 		       controller.show_frame(VisualizeDataMenu)
-# 		       with open('logs.txt', 'a') as g:
-# 					g.write("---------------------------------------------------------------" + time_stamp + "---------------------------------------------------------------" + '\n')
+# 		       with open(log_file_name, 'a') as g:
+# 					g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
 # 					g.write("Do you want to filter your data file:  USER Selected ----->   NO" + '\n')
 # 					g.write('\n'+'\n')
 
@@ -1076,8 +1076,8 @@ class StartPage(Frame):
 # 		    if(var1.get()):
 # 		       var2.set(0)
 # 		       controller.show_frame(VisualizeData)
-# 		       with open('logs.txt', 'a') as g:
-# 					g.write("---------------------------------------------------------------" + time_stamp + "---------------------------------------------------------------" + '\n')
+# 		       with open(log_file_name, 'a') as g:
+# 					g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
 # 					g.write("Do you want to visualize your data file:  USER Selected ----->   YES" + '\n')
 # 					g.write('\n'+'\n')
 
@@ -1086,8 +1086,8 @@ class StartPage(Frame):
 # 		    if(var2.get()):
 # 		       var1.set(0)
 # 		       controller.show_frame(SummarizeDataMenu)
-# 		       with open('logs.txt', 'a') as g:
-# 					g.write("---------------------------------------------------------------" + time_stamp + "---------------------------------------------------------------" + '\n')
+# 		       with open(log_file_name, 'a') as g:
+# 					g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
 # 					g.write("Do you want to visualize your data file:  USER Selected ----->   NO" + '\n')
 # 					g.write('\n'+'\n')
 
@@ -1117,8 +1117,8 @@ class StartPage(Frame):
 # 		    if(var1.get()):
 # 		       var2.set(0)
 # 		       controller.show_frame(SummarizeData)
-# 		       with open('logs.txt', 'a') as g:
-# 					g.write("---------------------------------------------------------------" + time_stamp + "---------------------------------------------------------------" + '\n')
+# 		       with open(log_file_name, 'a') as g:
+# 					g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
 # 					g.write("Do you want to summarize your data file:  USER Selected ----->   YES" + '\n')
 # 					g.write('\n'+'\n')
 
@@ -1127,8 +1127,8 @@ class StartPage(Frame):
 # 		    if(var2.get()):
 # 		       var1.set(0)
 # 		       controller.show_frame(EndPage)
-# 		       with open('logs.txt', 'a') as g:
-# 					g.write("---------------------------------------------------------------" + time_stamp + "---------------------------------------------------------------" + '\n')
+# 		       with open(log_file_name, 'a') as g:
+# 					g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
 # 					g.write("Do you want to summarize your data file:  USER Selected ----->   NO" + '\n')
 # 					g.write('\n'+'\n')
 
@@ -2552,47 +2552,99 @@ def samplefilter_popup():
 def get_continuous_popup():
 
 	toplevel = Toplevel()
-	toplevel.geometry("245x205")
+	toplevel.geometry("300x235")
 
-	label1 = Label(toplevel,bg="white",text = "Get Continuous")
-	label1.config(font=("Comfortaa", 18))
-	label1.pack(pady=(0,15))
-	label1.config(fg="cyan4")
-	label1.pack(fill=X)
+	label = Label(toplevel, text="Get Continuous Variables")
+	label.grid(row=0, column=0, columnspan=2)
+	label.config(font=("Comfortaa", 20))
+	label.config(fg="cyan4")
 
-	run_levels_button=Button(toplevel,text="Run", command=get_continuous)
-	run_levels_button.pack(fill=X)
-	# toplevel.destroy()
+
+	global continuous_var
+	continuous_var= StringVar()
+	continuous_var.set("")
+
+	continuous_label = Label(toplevel, text="Min Values Considered Continuous",font=("Comfortaa", 14))
+	continuous_label.grid(row=1, column=0)
+	continuous_label_entry_box  = Entry(toplevel, textvariable=continuous_var, width=15, bg="alice blue")
+	continuous_label_entry_box.grid(row=1, column=1)
+
+
+	get_continuous_button = Button(toplevel,text="Get Continuous Variables", command= get_continuous)
+	get_continuous_button.grid(row=2, column=0,columnspan=2)
+
+
+
+
+
 
 def get_check_popup():
 
+
 	toplevel = Toplevel()
-	toplevel.geometry("245x205")
+	toplevel.geometry("300x235")
 
 	label1 = Label(toplevel,bg="white",text = "Get Check")
+	label1.grid(row=0, column=0, columnspan=2)
 	label1.config(font=("Comfortaa", 18))
-	label1.pack(pady=(0,15))
 	label1.config(fg="cyan4")
-	label1.pack(fill=X)
 
-	run_levels_button=Button(toplevel,text="Run", command=get_check)
-	run_levels_button.pack(fill=X)
-	# toplevel.destroy()
+
+	global ambiguous1
+	ambiguous1= StringVar()
+	ambiguous1.set("")
+	ambiguous1_label = Label(toplevel, text="Min Levels Desired",font=("Comfortaa", 14))
+	ambiguous1_label.grid(row=1, column=0)
+	ambiguous1_label_entry_box  = Entry(toplevel, textvariable=ambiguous1, width=15, bg="alice blue")
+	ambiguous1_label_entry_box.grid(row=1, column=1)
+
+
+	global ambiguous2
+	ambiguous2= StringVar()
+	ambiguous2.set("")
+	ambiguous2_label = Label(toplevel, text="Max Levels Desired",font=("Comfortaa", 14))
+	ambiguous2_label.grid(row=2, column=0)
+	ambiguous2_label_entry_box  = Entry(toplevel, textvariable=ambiguous2, width=15, bg="alice blue")
+	ambiguous2_label_entry_box.grid(row=2, column=1)
+
+
+	get_check_button = Button(toplevel,text="Run", command= get_check)
+	get_check_button.grid(row=3, column=0,columnspan=2)
+
 
 def get_categorical_popup():
 
+
 	toplevel = Toplevel()
-	toplevel.geometry("245x205")
+	toplevel.geometry("300x235")
 
 	label1 = Label(toplevel,bg="white",text = "Get Categorical")
+	label1.grid(row=0, column=0, columnspan=2)
 	label1.config(font=("Comfortaa", 18))
-	label1.pack(pady=(0,15))
 	label1.config(fg="cyan4")
-	label1.pack(fill=X)
 
-	run_levels_button=Button(toplevel,text="Run", command=get_categorical)
-	run_levels_button.pack(fill=X)
-	# toplevel.destroy()
+
+	global categorical1
+	categorical1= StringVar()
+	categorical1.set("")
+	categorical1_label = Label(toplevel, text="Min Values to be Considered Categorical",font=("Comfortaa", 14))
+	categorical1_label.grid(row=1, column=0)
+	categorical1_label_entry_box  = Entry(toplevel, textvariable=categorical1, width=15, bg="alice blue")
+	categorical1_label_entry_box.grid(row=1, column=1)
+
+
+	global categorical2
+	categorical2= StringVar()
+	categorical2.set("")
+	categorical2_label = Label(toplevel, text="Max Values to be Considered Categorical",font=("Comfortaa", 14))
+	categorical2_label.grid(row=2, column=0)
+	categorical2_label_entry_box  = Entry(toplevel, textvariable=categorical2, width=15, bg="alice blue")
+	categorical2_label_entry_box.grid(row=2, column=1)
+
+
+	run_get_categorical_button=Button(toplevel,text="Run", command=get_categorical, width=12)
+	run_get_categorical_button.grid(row=3, column=0,columnspan=2)
+
 
 
 def sample_keep_subgroups_popup():
@@ -2600,15 +2652,26 @@ def sample_keep_subgroups_popup():
 	toplevel = Toplevel()
 	toplevel.geometry("245x205")
 
-	label1 = Label(toplevel,bg="white",text = "Sample Keep Subgroups")
-	label1.config(font=("Comfortaa", 18))
-	label1.pack(pady=(0,15))
-	label1.config(fg="cyan4")
-	label1.pack(fill=X)
 
-	run_levels_button=Button(toplevel,text="Run", command=sample_keep)
-	run_levels_button.pack(fill=X)
-	# toplevel.destroy()
+	label = Label(toplevel, text="Keep Varibles with n Samples")
+	label.grid(row=0, column=0, columnspan=2)
+	label.config(font=("Comfortaa", 20))
+	label.config(fg="cyan4")
+
+
+	global sample_keep_var
+	sample_keep_var= StringVar()
+	sample_keep_var.set("")
+
+	sample_keep_var_label = Label(toplevel, text="Min Samples per Variable",font=("Comfortaa", 14))
+	sample_keep_var_label.grid(row=1, column=0)
+	sample_keep_var_label_entry_box  = Entry(toplevel, textvariable=sample_keep_var, width=15, bg="alice blue")
+	sample_keep_var_label_entry_box.grid(row=1, column=1)
+
+	get_check_button = Button(toplevel,text="Keep N Samples", command= sample_keep)
+	get_check_button.grid(row=2, column=0,columnspan=2)
+
+
 
 
 def remove_outliers_popup():
