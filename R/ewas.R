@@ -3,7 +3,7 @@
 #' Run environment-wide association study
 #' @param cat data frame containing categorical variables with first column as IID
 #' @param cont data frame containing continuous variables with first column as IID
-#' @param y name of predictor variable
+#' @param y name of response variable
 #' @param cov vector containing names of covariates
 #' @param regress family for the regression model as specified in glm, linear or logisitic
 #' @param adjust p-value adjustment (bonferroni or fdr)
