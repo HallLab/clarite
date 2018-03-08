@@ -2,12 +2,12 @@
 % Please edit documentation in R/sample_keep_subgroups.R
 \name{sample_keep_subgroups}
 \alias{sample_keep_subgroups}
-\title{sample_keep_subgroups}
+\title{Keep variables with a minimum of n samples}
 \usage{
 sample_keep_subgroups(df, n = 200)
 }
 \arguments{
-\item{df}{data frame with IID as first column}
+\item{df}{data frame}
 
 \item{n}{minimum sample size desired}
 }
