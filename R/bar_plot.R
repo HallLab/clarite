@@ -20,11 +20,12 @@ bar_plot <- function(d, n=12, file="plot", nrow=4, ncol=3, wi=13.5, hgt=12, res=
     stop("Please install ggplot2 and gridExtra to create visualization.", call. = FALSE)
   }
 
-  #n_row <- floor(sqrt(n))
-  #n_col <- ceiling(n/n_row)
-  #wi <- 4.5*n_col
-  #hgt <- 3*n_row
-    
+  if(is.element('ID', names(d))==FALSE){
+    stop("Please add ID to dataframe as column 1")
+  }
+ 
+  d <- d[, -1]
+ 
   if(n > ncol(d)){
     stop("Number of plots per page (", n, ") is larger than number of variables to plot (", ncol(d), ")")
   }

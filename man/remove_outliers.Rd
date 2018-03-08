@@ -7,7 +7,7 @@
 remove_outliers(df, x = 2.5)
 }
 \arguments{
-\item{df}{data frame with first column as IID}
+\item{df}{data frame with first column as ID}
 
 \item{x}{number of standard deviations away from the mean to qualify as an outlier}
 }

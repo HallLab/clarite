@@ -11,6 +11,10 @@
 
 
 colfilter <- function(d, cols, exclude=FALSE){
+  if(is.element('ID', names(d=d))==FALSE){
+    stop("Please add ID to dataframe as column 1")
+  }
+
   if(exclude==FALSE){
     if(is.data.frame(cols)==TRUE){
       subd <- d[, colnames(d) %in% cols[,1], drop=FALSE]

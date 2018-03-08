@@ -7,7 +7,7 @@
 freq_tables(df)
 }
 \arguments{
-\item{df}{data frame with IID as first column}
+\item{df}{data frame with ID as first column}
 }
 \value{
 data frame with three columns, Variable, Category, and N

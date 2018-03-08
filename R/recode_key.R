@@ -10,6 +10,11 @@
 #' recode_key(df, key)
 
 recode_key <- function(df, key) {
+
+  if(is.element('ID', names(df))==FALSE){
+    stop("Please add ID to dataframe as column 1")
+  }
+
   t_key <- data.frame(t(key))
   names(t_key) <- as.character(unlist(t_key[1,]))
   t_key <- t_key[-1,]

@@ -11,8 +11,10 @@
 #' correlations(df, x=0)
 
 correlations <- function(df, x=0.5){
-
-  df <- as.matrix(df)
+  if(is.element('ID', names(df))==FALSE){
+    stop("Please add ID to dataframe as column 1")
+  }
+  df <- as.matrix(df[, -1])
   class(df) <- "numeric"
 
   #Make correlation matrix
