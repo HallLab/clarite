@@ -11,7 +11,7 @@
 
 
 colfilter <- function(d, cols, exclude=FALSE){
-  if(is.element('ID', names(d=d))==FALSE){
+  if(is.element('ID', names(d))==FALSE){
     stop("Please add ID to dataframe as column 1")
   }
 
@@ -28,6 +28,7 @@ colfilter <- function(d, cols, exclude=FALSE){
       subd <- d[, !colnames(d) %in% cols, drop=FALSE]
     }
   }
-
+  subd <- data.frame(d$ID, subd)
+  colnames(d)[1] <- "ID"
   return(subd)
 }
