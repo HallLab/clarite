@@ -29,6 +29,6 @@ colfilter <- function(d, cols, exclude=FALSE){
     }
   }
   subd <- data.frame(d$ID, subd)
-  colnames(d)[1] <- "ID"
+  colnames(subd)[1] <- "ID"
   return(subd)
 }
