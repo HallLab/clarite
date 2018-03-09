@@ -14,7 +14,7 @@ get_categorical(df, lower = 3, upper = 6)
 \item{upper}{maximum number of unique values to be considered categorical}
 }
 \value{
-data frame containing only IID and variables meeting the criteria
+data frame containing only ID and variables meeting the criteria
 }
 \description{
 Identify categorical variables from a data frame of mixed variable types

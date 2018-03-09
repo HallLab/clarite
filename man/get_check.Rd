@@ -4,7 +4,7 @@
 \alias{get_check}
 \title{get_check}
 \usage{
-get_check(df, lower = 6, upper = 18)
+get_check(df, lower = 6, upper = 15)
 }
 \arguments{
 \item{df}{data frame of mixed variable types}
@@ -12,7 +12,7 @@ get_check(df, lower = 6, upper = 18)
 \item{lev}{number of levels desired}
 }
 \value{
-data frame containing only IID and variables meeting criteria, which should then be assessed manually
+data frame containing only ID and variables meeting criteria, which should then be assessed manually
 }
 \description{
 Identify ambiguous type variables from a data frame of mixed variable types
@@ -20,5 +20,5 @@ Comparison operators used are < and >
 NA values do not contribute to level counts
 }
 \examples{
-get_check(df, lower=6, upper=18)
+get_check(df, lower=6, upper=15)
 }

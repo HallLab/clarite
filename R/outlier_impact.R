@@ -1,16 +1,16 @@
-#' outlier_threshold
+#' outlier_impact
 #'
 #' Create data frame with outliers and summary statistics for each variable
-#' @param df data frame with IID as first column
+#' @param df data frame with ID as first column
 #' @param x number of standard deviations away from the mean to qualify as an outlier
 #' @return data frame consisting of summary statistics for the input dataframe and potential dataframe if outliers were to be removed at that threshold
 #' @export
 #' @examples
-#' outlier_threshold(df, x=2.5)
+#' outlier_impact(df, x=2.5)
 
-outlier_threshold <- function(df, x=2.5) {
-  if(is.element('IID', names(df))==FALSE){
-    stop("Please add IID to dataframe as column 1")
+outlier_impact <- function(df, x=2.5) {
+  if(is.element('ID', names(df))==FALSE){
+    stop("Please add ID to dataframe as column 1")
   }
   
   calcs <- function(v, threshold){

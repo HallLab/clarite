@@ -11,7 +11,7 @@ ewas(cat = NULL, cont = NULL, y, cov = NULL, regress, adjust)
 
 \item{cont}{data frame containing continuous variables with first column as IID}
 
-\item{y}{name of predictor variable}
+\item{y}{name of response variable}
 
 \item{cov}{vector containing names of covariates}
 

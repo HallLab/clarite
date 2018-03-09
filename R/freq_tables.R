@@ -2,7 +2,7 @@
 #'
 #' Create frequency tables for each variable
 #' Gives the number of observations in each category for all variables in file
-#' @param df data frame with IID as first column
+#' @param df data frame with ID as first column
 #' @return data frame with three columns, Variable, Category, and N
 #' @export
 #' @examples
@@ -10,8 +10,8 @@
 
 freq_tables <- function(df) {
 
-  if(is.element('IID', names(df))==FALSE){
-    stop("Please add IID to dataframe as column 1")
+  if(is.element('ID', names(df))==FALSE){
+    stop("Please add ID to dataframe as column 1")
   }
 
   tab_n <- lapply(df[, -1], function(v){

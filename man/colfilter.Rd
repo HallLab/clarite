@@ -9,7 +9,7 @@ colfilter(d, cols, exclude = FALSE)
 \arguments{
 \item{d}{data frame}
 
-\item{cols}{list of variable names to subset}
+\item{cols}{list or dataframe of variable names to subset}
 
 \item{exclude}{boolean, keep or exclude}
 }

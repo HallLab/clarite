@@ -1,7 +1,7 @@
 #' chisq_tests
 #'
 #' Create table of chi-square tests for each variable
-#' @param df data frame, with IID as first column
+#' @param df data frame, with ID as first column
 #' @return data frame with two columns, Variable and P.Value
 #' @export
 #' @examples
@@ -9,8 +9,8 @@
 
 chisq_tests <- function(df) {
   
-  if(is.element('IID', names(df))==FALSE){
-    stop("Please add IID to dataframe as column 1")
+  if(is.element('ID', names(df))==FALSE){
+    stop("Please add ID to dataframe as column 1")
   }
 
   chi <- function(v){

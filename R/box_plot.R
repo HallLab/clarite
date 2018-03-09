@@ -21,6 +21,13 @@ box_plot <- function(d, n=12, file="plot", nrow=4, ncol=3, wi=13.5, hgt=12, res=
     stop("Please install ggplot2 and gridExtra to create visualization.", call. = FALSE)
   }
 
+
+  if(is.element('ID', names(d))==FALSE){
+    stop("Please add ID to dataframe as column 1")
+  }
+  
+  d <- d[, -1]
+
   if(n > ncol(d)){
     stop("Number of plots per page (", n, ") is larger than number of variables to plot (", ncol(d), ")")
   }

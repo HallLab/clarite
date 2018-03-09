@@ -10,14 +10,18 @@
 #' recode_missing(df, na_val)
 
 recode_missing <- function(df, na_val) {
-    #Replace user value, missing, and empty cells with NA
-    df[df==na_val] <- NA
-    df[df==""|df=="NA"] <-NA
+  
+  if(is.element('ID', names(df))==FALSE){
+    stop("Please add ID to dataframe as column 1")
+  }
+  #Replace user value, missing, and empty cells with NA
+  df[df==na_val] <- NA
+  df[df==""|df=="NA"] <-NA
 
-    #Drop factor levels
-    df <- droplevels(df)
+  #Drop factor levels
+  df <- droplevels(df)
 
-    return(df)
+  return(df)
 }
 
 

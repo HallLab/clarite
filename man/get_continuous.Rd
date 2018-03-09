@@ -4,7 +4,7 @@
 \alias{get_continuous}
 \title{get_continuous}
 \usage{
-get_continuous(df, lower = 18)
+get_continuous(df, lower = 15)
 }
 \arguments{
 \item{df}{data frame of mixed variable types}
@@ -12,7 +12,7 @@ get_continuous(df, lower = 18)
 \item{lower}{minimum number of unique values to be considered continuous}
 }
 \value{
-data frame containing only IID and variables meeting the criteria
+data frame containing only ID and variables meeting the criteria
 }
 \description{
 Identify continuous variables from a data frame of mixed variable types
@@ -20,5 +20,5 @@ Comparison operators used are >=
 NA values do not contribute to level counts
 }
 \examples{
-get_continuous(df, lower=18)
+get_continuous(df, lower=15)
 }

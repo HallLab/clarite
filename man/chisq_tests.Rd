@@ -7,7 +7,7 @@
 chisq_tests(df)
 }
 \arguments{
-\item{df}{data frame, with IID as first column}
+\item{df}{data frame, with ID as first column}
 }
 \value{
 data frame with two columns, Variable and P.Value

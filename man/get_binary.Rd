@@ -12,7 +12,7 @@ get_binary(df, lev = 2)
 \item{lev}{number of levels desired}
 }
 \value{
-data frame containing only IID and variables with the number of levels specified
+data frame containing only ID and variables with the number of levels specified
 }
 \description{
 Identify binary variables from a data frame of mixed variable types
