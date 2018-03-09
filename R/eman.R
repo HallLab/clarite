@@ -9,6 +9,7 @@
 #' @param groups optional file containing variable grouping information
 #' @param line optional pvalue threshold to draw red line at
 #' @param title optional string for plot title
+#' @param morecolors boolean, expand color palette, requires RColorBrewer package, default FALSE
 #' @param file file name of saved image
 #' @param hgt height of plot in inches
 #' @param wi width of plot in inches
@@ -16,9 +17,9 @@
 #' @return png image(s)
 #' @export
 #' @examples
-#' eman(d, ewas=TRUE, groups, line, title=NULL, file="eman", hgt=7, wi=12, res=300 )
+#' eman(d, ewas=TRUE, groups, line, title=NULL, morecolors=FALSE, file="eman", hgt=7, wi=12, res=300 )
 
-eman <- function(d, ewas=TRUE, groups, line, title=NULL, file="eman", hgt=7, wi=12, res=300){
+eman <- function(d, ewas=TRUE, groups, line, title=NULL, morecolors=FALSE, file="eman", hgt=7, wi=12, res=300){
   if (!requireNamespace(c("ggplot2"), quietly = TRUE)) {
     stop("Please install ggplot2 to create visualization.", call. = FALSE)
   }
@@ -32,7 +33,7 @@ eman <- function(d, ewas=TRUE, groups, line, title=NULL, file="eman", hgt=7, wi=
       d$pvalue <- d$LRT_pvalue
     }
   }
-
+  
   if(missing(groups)){  
     if("Shape" %in% names(d)){
       p <- ggplot() + geom_point(data=d, aes(x=factor(Variable), y=-log10(pvalue), shape=factor(Shape)))
@@ -41,18 +42,16 @@ eman <- function(d, ewas=TRUE, groups, line, title=NULL, file="eman", hgt=7, wi=
       p <- ggplot(d, aes(x=factor(Variable), y=-log10(pvalue))) + geom_point() + theme(axis.text.x = element_text(angle=90), axis.title.x=element_blank())
     }
   } else { 
-    if (!requireNamespace(c("RColorBrewer"), quietly = TRUE)) {
-      stop("Please install RColorBrewer to add color attribute.", call. = FALSE)
-    }
+    
     subd <- d[, colnames(d) %in% c("Variable", "pvalue", "Shape")]
     colnames(groups)[2] <- "Color"
     dg <- merge(subd, groups, by="Variable")
     dg$Color <- factor(dg$Color)
-
+    
     #Order variables according to group
     dg_order <- dg[order(dg$Color, dg$Variable), ]
     dg_order$pos_index <- seq.int(nrow(dg_order))
-
+    
     #Set up dataframe with color and position info
     maxRows <- by(dg_order, dg_order$Color, function(x) x[which.max(x$pos_index),])
     minRows <- by(dg_order, dg_order$Color, function(x) x[which.min(x$pos_index),])
@@ -66,13 +65,20 @@ eman <- function(d, ewas=TRUE, groups, line, title=NULL, file="eman", hgt=7, wi=
     }
     lims$av <- (lims$posmin + lims$posmax)/2
     lims$shademap <- rep(c("shade_ebebeb","shade_fffff"), each=1)
-
+    
     #Set up color palette
-    getPalette = colorRampPalette(brewer.pal(11, "Spectral"))
     ncolors <- nlevels(lims$Color)
-    newcols <- c(getPalette(ncolors), "#EBEBEB", "#FFFFFF")
+    if(morecolors==TRUE){
+      if (!requireNamespace(c("RColorBrewer"), quietly = TRUE)) {
+        stop("Please install RColorBrewer to add color attribute.", call. = FALSE)
+      }
+      getPalette = colorRampPalette(brewer.pal(11, "Spectral"))
+      newcols <- c(getPalette(ncolors), "#EBEBEB", "#FFFFFF")
+    } else {
+      newcols <-c(rep(x=c("#53868B", "#4D4D4D"), length.out=ncolors, each=1), "#EBEBEB", "#FFFFFF")
+    }
     names(newcols) <-c(levels(factor(lims$Color)), levels(factor(lims$shademap)))
-
+ 
     #Start plotting
     p <- ggplot() + geom_rect(data = lims, aes(xmin = posmin-.5, xmax = posmax+.5, ymin = 0, ymax = Inf, fill=factor(shademap)), alpha = 0.5)
     #Add shape info if available
@@ -86,13 +92,13 @@ eman <- function(d, ewas=TRUE, groups, line, title=NULL, file="eman", hgt=7, wi=
     p <- p + scale_colour_manual(name = "Color",values = newcols, guides(alpha=FALSE)) + scale_fill_manual(name = "Color",values = newcols, guides(alpha=FALSE)) 
     p <- p + theme(axis.text.x=element_text(angle=90), panel.grid.minor.x = element_blank(), panel.grid.major.x=element_blank(), axis.title.x=element_blank(), legend.position="bottom", legend.title=element_blank())
   }
-
+  
   #Add title and y axis title
   p <- p + ggtitle(title) + ylab(expression(paste("-log"[10], "(p-value)", sep="")))
-
+  
   #Add pvalue threshold line
   if(!missing(line)){
-  p <- p + geom_hline(yintercept = -log10(line), colour="red")
+    p <- p + geom_hline(yintercept = -log10(line), colour="red")
   }
   print(paste("Saving plot to ", file, ".png", sep=""))
   ggsave(p, filename=paste(file, ".png", sep=""), dpi=res, units="in", height=hgt, width=wi)

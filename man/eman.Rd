@@ -4,8 +4,8 @@
 \alias{eman}
 \title{eman}
 \usage{
-eman(d, ewas = TRUE, groups, line, title = NULL, file = "eman", hgt = 7,
-  wi = 12, res = 300)
+eman(d, ewas = TRUE, groups, line, title = NULL, morecolors = FALSE,
+  file = "eman", hgt = 7, wi = 12, res = 300)
 }
 \arguments{
 \item{d}{data frame, if ewas=FALSE columns one and two must be Variable and pvalue, Shape is optional 3rd column}
@@ -17,6 +17,8 @@ eman(d, ewas = TRUE, groups, line, title = NULL, file = "eman", hgt = 7,
 \item{line}{optional pvalue threshold to draw red line at}
 
 \item{title}{optional string for plot title}
+
+\item{morecolors}{boolean, expand color palette, requires RColorBrewer package, default FALSE}
 
 \item{file}{file name of saved image}
 
@@ -36,5 +38,5 @@ Dependencies: ggplot2
 Suggested: RColorBrewer
 }
 \examples{
-eman(d, ewas=TRUE, groups, line, title=NULL, file="eman", hgt=7, wi=12, res=300 )
+eman(d, ewas=TRUE, groups, line, title=NULL, morecolors=FALSE, file="eman", hgt=7, wi=12, res=300 )
 }
