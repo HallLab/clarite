@@ -3246,9 +3246,8 @@ global manhattan_plot_choosefile_1
 manhattan_plot_choosefile_1= StringVar()
 manhattan_plot_choosefile_1.set("No File Chosen")
 
-groups_file_button = Button(f3_right_frame,text="Choose Groups File", command= ewas1_file_chosen)
+groups_file_button = Button(f3_right_frame,text="Choose Groups File ++", command= ewas1_file_chosen)
 groups_file_button.grid(row=1, column=0)
-
 manhattan_plot_choosefile_1_label = Label(f3_right_frame, textvariable=manhattan_plot_choosefile_1,font=("Comfortaa", 14))
 manhattan_plot_choosefile_1_label.grid(row=1, column=1)
 
@@ -3310,6 +3309,30 @@ plot_resolution_label_entry_box  = Entry(f3_right_frame, textvariable=man_res_of
 plot_resolution_label_entry_box.grid(row=6, column=1)
 
 
+
+
+moreColorsVar_label = Label(f3_right_frame, text="Plot Colors: ",font=("Comfortaa", 14))
+moreColorsVar_label.grid(row=7, column=0)
+
+moreColorsVar = tk.StringVar()
+moreColorVar_choices = ("Standard Colors", "Expanded Colors")
+moreColorsVar.set("Select")
+
+moreColorsVar_menu = tk.OptionMenu(f3_right_frame, moreColorsVar, *moreColorVar_choices)
+moreColorsVar_menu.grid(row=7, column=1)
+
+
+
+
+ewas_output_Var_label = Label(f3_right_frame, text="EWAS output: ",font=("Comfortaa", 14))
+ewas_output_Var_label.grid(row=8, column=0)
+
+ewas_output_Var = tk.StringVar()
+ewas_output_Var_choices = ("Yes", "No")
+ewas_output_Var.set("Select")
+
+ewas_output_Var_menu = tk.OptionMenu(f3_right_frame, ewas_output_Var, *ewas_output_Var_choices)
+ewas_output_Var_menu.grid(row=8, column=1)
 
 
 
