@@ -7,9 +7,9 @@
 ewas(cat = NULL, cont = NULL, y, cov = NULL, regress, adjust)
 }
 \arguments{
-\item{cat}{data frame containing categorical variables with first column as IID}
+\item{cat}{data frame containing categorical variables with first column as ID}
 
-\item{cont}{data frame containing continuous variables with first column as IID}
+\item{cont}{data frame containing continuous variables with first column as ID}
 
 \item{y}{name of response variable}
 

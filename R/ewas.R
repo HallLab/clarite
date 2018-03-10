@@ -1,8 +1,8 @@
 #' ewas
 #'
 #' Run environment-wide association study
-#' @param cat data frame containing categorical variables with first column as IID
-#' @param cont data frame containing continuous variables with first column as IID
+#' @param cat data frame containing categorical variables with first column as ID
+#' @param cont data frame containing continuous variables with first column as ID
 #' @param y name of response variable
 #' @param cov vector containing names of covariates
 #' @param regress family for the regression model as specified in glm, linear or logisitic
@@ -14,7 +14,7 @@
 
 ewas <- function(cat=NULL, cont=NULL, y, cov=NULL, regress, adjust){
   if (!requireNamespace("lmtest", quietly = TRUE)) {
-    stop("Please install gvlma package to use this function.", call. = FALSE)
+    stop("Please install lmtest package to use this function.", call. = FALSE)
   }
   if(missing(y)){
     stop("Please specify either 'continuous' or 'categorical' type for predictor variables")
@@ -24,7 +24,7 @@ ewas <- function(cat=NULL, cont=NULL, y, cov=NULL, regress, adjust){
   }
 
   ###Continuous###
-  #Regress over columns != IID, y, covariates, or categorical variables
+  #Regress over columns != ID, y, covariates, or categorical variables
   regress_cont <- function(d, fmla, cols, rtype){
     mco <- lapply(d[, !(colnames(d) %in% cols)], function (x) do.call("glm", list(as.formula(fmla), family=as.name(rtype), data=as.name("d"))))
     sco <- lapply(mco, function (x) summary(x))
@@ -36,12 +36,12 @@ ewas <- function(cat=NULL, cont=NULL, y, cov=NULL, regress, adjust){
                                                                                   x$coefficients[2,4]))))))
     prco <- data.frame(names = gsub("\\.length.x.residuals.","", row.names(rco)), rco, row.names = NULL)
     names(prco) <- c("Variable", "N", "Converged", "Beta", "SE", "Variable_pvalue")
-    prco$Sort <- ifelse(prca$Converged==TRUE, prco$Variable_pvalue, NA)
+    prco$Sort <- ifelse(prco$Converged==TRUE, prco$Variable_pvalue, NA)
     return(prco)
   }
 
   ###Categorical###
-  #Regress over columns != IID, y, covariates, or continuous variables
+  #Regress over columns != ID, y, covariates, or continuous variables
   regress_cat <- function(d, fmla, cols, rtype){
     mca <- lapply(d[, !(colnames(d) %in% cols)], function (x) do.call("glm", list(as.formula(fmla), family=as.name(rtype), data=as.name("d"))))
     red <- lapply(d[,!(colnames(d) %in% cols)], function(x) glm(as.formula(gsub("x\\+", "", fmla)), data=d[!is.na(x), ], family=rtype))
@@ -63,26 +63,26 @@ ewas <- function(cat=NULL, cont=NULL, y, cov=NULL, regress, adjust){
 
   #Run Regressions
   if(!is.null(cat) & !is.null(cont)){
-    if(is.element('IID', names(cat))==FALSE | is.element('IID', names(cont))==FALSE){
-      stop("Please add IID to 'cat' and/or 'cont' as column 1")
+    if(is.element('ID', names(cat))==FALSE | is.element('ID', names(cont))==FALSE){
+      stop("Please add ID to 'cat' and/or 'cont' as column 1")
     }
     cat <- as.data.frame(sapply(cat, factor))
-    cont$IID <- factor(cont$IID)
+    cont$ID <- factor(cont$ID)
     if(sum(sapply(cont[, -1],is.numeric))!=ncol(cont)-1){
       stop("Please make sure that all values in 'cont' are numeric")
     }
-    d <- merge(cat, cont, by="IID", all=TRUE)
+    d <- merge(cat, cont, by="ID", all=TRUE)
 
-    if(dim(cont[, !(colnames(cont) %in% c("IID", cov, y))])[2]>0){
-      rcont <- regress_cont(d=d, fmla=fmla, cols=c("IID", cov, y, names(cat)), rtype=regress)
+    if(dim(cont[, !(colnames(cont) %in% c("ID", cov, y))])[2]>0){
+      rcont <- regress_cont(d=d, fmla=fmla, cols=c("ID", cov, y, names(cat)), rtype=regress)
       rcont$LRT_pvalue <- NA
       rcont$Diff_AIC <- NA
     } else {
       rcont <- NULL
       print("No continuous variables to run regressions on")
     }
-    if(dim(cat[, !(colnames(cat) %in% c("IID", cov, y))])[2]>0){
-      rcat <- regress_cat(d=d, fmla=fmla, cols=c("IID", cov, y, names(cont)), rtype=regress)
+    if(dim(cat[, !(colnames(cat) %in% c("ID", cov, y))])[2]>0){
+      rcat <- regress_cat(d=d, fmla=fmla, cols=c("ID", cov, y, names(cont)), rtype=regress)
     } else {
       rcat <- NULL
       print("No categorical variables to run regressions on")
@@ -91,21 +91,21 @@ ewas <- function(cat=NULL, cont=NULL, y, cov=NULL, regress, adjust){
     fres <- rbind(rcont, rcat)
 
   } else if(is.null(cat) & !is.null(cont)){
-    if(is.element('IID', names(cont))==FALSE){
-      stop("Please add IID 'cont' as column 1")
+    if(is.element('ID', names(cont))==FALSE){
+      stop("Please add ID 'cont' as column 1")
     }
-    cont$IID <- factor(cont$IID)
+    cont$ID <- factor(cont$ID)
     if(sum(sapply(cont[, -1],is.numeric))!=ncol(cont)-1){
       stop("Please make sure that all values in 'cont' are numeric")
     }
-    fres <- regress_cont(d=cont, fmla=fmla, cols=c("IID", cov, y), rtype=regress)
+    fres <- regress_cont(d=cont, fmla=fmla, cols=c("ID", cov, y), rtype=regress)
 
   } else if(is.null(cont) & !is.null(cat)){
-    if(is.element('IID', names(cat))==FALSE){
-      stop("Please add IID to 'cat' as column 1")
+    if(is.element('ID', names(cat))==FALSE){
+      stop("Please add ID to 'cat' as column 1")
     }
     d <- as.data.frame(sapply(cat, factor))
-    fres <- regress_cat(d=d, fmla=fmla, cols=c("IID", cov, y, names(cont)), rtype=regress)
+    fres <- regress_cat(d=d, fmla=fmla, cols=c("ID", cov, y, names(cont)), rtype=regress)
   }
 
   fres <- as.data.frame(lapply(fres, unlist))
