@@ -28,11 +28,18 @@ import shlex
 global time_stamp
 time_stamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
+
+if not os.path.exists("Logs"):
+    os.makedirs("Logs")
+
+if not os.path.exists("R/gui_generated_scripts"):
+    os.makedirs("R/gui_generated_scripts")
+
+if not os.path.exists("datacleaner_Output"):
+    os.makedirs("datacleaner_Output")
+
 global log_file_name
-log_file_name = time_stamp + "-"'logs.txt'
-
-
-
+log_file_name = "Logs/" + time_stamp + "-"'logs.txt'
 
 
 
@@ -110,7 +117,7 @@ def sample_file_chosen():
 
 	global sample_file_name 
 	sample_file_name = tkFileDialog.askopenfilename()
-	sampleFilter1.set("File: " + sample_file_name)
+	rowfilter1.set("File: " + sample_file_name)
 
 
 	with open(log_file_name, 'a') as g:
@@ -382,22 +389,23 @@ def get_check():
 	proc = subprocess.call(['Rscript','r/gui_generated_scripts/get_check1.R'], shell=False,stdout=s_out, stderr=s_out)
 
 	refresh_logs()
-def sample_keep():
-	f = open('r/sample_keep.R','r')
+
+def min_n():
+	f = open('r/min_n.R','r')
 	filedata = f.read()
 	f.close()
 
-	file_output_path = "write.table(newdata,"+ "file" + "=" + '"datacleaner_Output/sample_keep_out.txt",' + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
+	file_output_path = "write.table(newdata,"+ "file" + "=" + '"datacleaner_Output/min_n_out.txt",' + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
 
-	lower_bound = "a1 = " + str(sample_keep_var.get())
+	lower_bound = "a1 = " + str(min_n_var.get())
 	newdata = filedata
 
 	
-	f = open('r/gui_generated_scripts/sample_keep1.R','w')
+	f = open('r/gui_generated_scripts/min_n1.R','w')
 	f.write(newdata)
 	f.write(final + '\n')
 	f.write(lower_bound + '\n')
-	f.write("newdata <- sample_keep(a0, a1)"+ '\n')
+	f.write("newdata <- min_n(a0, a1)"+ '\n')
 	f.write(file_output_path + '\n')
 
 
@@ -412,16 +420,16 @@ def sample_keep():
 		g.write("Lower Bound: " + lower_bound + '\n' +'\n' )
 
 	s_out = open(log_file_name, "a")
-	proc = subprocess.call(['Rscript','r/gui_generated_scripts/sample_keep1.R'], shell=False,stdout=s_out, stderr=s_out)
+	proc = subprocess.call(['Rscript','r/gui_generated_scripts/min_n1.R'], shell=False,stdout=s_out, stderr=s_out)
 
 	refresh_logs()
 
-def transform_list():
-	f = open('r/transform_list.R','r')
+def transvar():
+	f = open('r/transvar.R','r')
 	filedata = f.read()
 	f.close()
 
-	file_output_path = "write.table(newdata,"+ "file" + "=" + '"datacleaner_Output/transform_list.txt",' + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
+	file_output_path = "write.table(newdata,"+ "file" + "=" + '"datacleaner_Output/transvar.txt",' + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
 
 	argument_1 = "a1 = read.delim('/Users/deven/desktop/it.txt', header=TRUE)"
 	a1 = "a1 = read.delim('" + global_transform_key_dictionary + A0_2
@@ -429,11 +437,11 @@ def transform_list():
 	newdata = filedata
 
 	
-	f = open('r/gui_generated_scripts/transform_list1.R','w')
+	f = open('r/gui_generated_scripts/transvar1.R','w')
 	f.write(newdata)
 	f.write(final + '\n')
 	f.write(a1 + '\n')
-	f.write("newdata <- transform_list(a0, a1)"+ '\n')
+	f.write("newdata <- transvar(a0, a1)"+ '\n')
 	f.write(file_output_path + '\n')
 
 
@@ -446,7 +454,7 @@ def transform_list():
 		g.write("Variable Specific Transformation Function Called" + '\n' + '\n')
 
 	s_out = open(log_file_name, "a")
-	proc = subprocess.call(['Rscript','r/gui_generated_scripts/transform_list1.R'], shell=False,stdout=s_out, stderr=s_out)
+	proc = subprocess.call(['Rscript','r/gui_generated_scripts/transvar1.R'], shell=False,stdout=s_out, stderr=s_out)
 
 	refresh_logs()
 
@@ -861,18 +869,18 @@ def sample_size():
 	refresh_logs()
 
 
-def get_levels():
-	f = open('r/get_levels.R','r')
+def get_uniq():
+	f = open('r/get_uniq.R','r')
 	filedata = f.read()
 	f.close()
-	file_output_path = "write.table(newdata,"+ "file" + "=" + '"datacleaner_Output/get_levels_out.txt",' + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
+	file_output_path = "write.table(newdata,"+ "file" + "=" + '"datacleaner_Output/get_uniq_out.txt",' + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
 
 	newdata = filedata
 
-	f = open('r/gui_generated_scripts/get_levels1.R','w')
+	f = open('r/gui_generated_scripts/get_uniq1.R','w')
 	f.write(newdata)
 	f.write(final + '\n')
-	f.write("newdata <- get_levels(a0)"+ '\n')
+	f.write("newdata <- get_uniq(a0)"+ '\n')
 	f.write(file_output_path + '\n')
 
 
@@ -884,27 +892,27 @@ def get_levels():
 	
 	s_out = open(log_file_name, "a")
 	
-	proc = subprocess.call(['Rscript','r/gui_generated_scripts/get_levels1.R'], shell=False, stdout=s_out, stderr=s_out)
+	proc = subprocess.call(['Rscript','r/gui_generated_scripts/get_uniq1.R'], shell=False, stdout=s_out, stderr=s_out)
 
 	refresh_logs()
 
 
-def outliers():
-	f = open('r/outliers.R','r')
+def outlier_impact():
+	f = open('r/outlier_impact.R','r')
 	filedata = f.read()
 	f.close()
 
-	file_output_path = "write.table(newdata,"+ "file" + "=" + '"datacleaner_Output/outlisers.txt",' + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
+	file_output_path = "write.table(newdata,"+ "file" + "=" + '"datacleaner_Output/outlier_impact_out.txt",' + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
 
 	threshold_val = "a1 = " + str(find_outliers_var.get())
 	newdata = filedata
 
 
-	f = open('r/gui_generated_scripts/outliers1.R','w')
+	f = open('r/gui_generated_scripts/outlier_impact1.R','w')
 	f.write(newdata)
 	f.write(final + '\n')
 	f.write(threshold_val + '\n')
-	f.write("newdata <- outliers(a0,a1)"+ '\n')
+	f.write("newdata <- outlier_impact(a0,a1)"+ '\n')
 	f.write(file_output_path + '\n')
 
 	f.close()
@@ -914,7 +922,7 @@ def outliers():
 
 	s_out = open(log_file_name, "a")
 	
-	proc = subprocess.call(['Rscript','r/gui_generated_scripts/outliers1.R'], shell=False, stdout=s_out, stderr=s_out)
+	proc = subprocess.call(['Rscript','r/gui_generated_scripts/outlier_impact1.R'], shell=False, stdout=s_out, stderr=s_out)
 
 	refresh_logs()
 
@@ -1368,11 +1376,11 @@ class StartPage(Frame):
 # 		get_check_button = Button(self,text="Find Ambiguous Variables", command= lambda:controller.show_frame(AmbiguousProgram))
 # 		get_check_button.pack(pady=(0,15))
 
-# 		sample_keep_button = Button(self,text="Keep N Samples", command= lambda:controller.show_frame(SampleKeepProgram))
-# 		sample_keep_button.pack(pady=(0,15))
+# 		min_n_button = Button(self,text="Keep N Samples", command= lambda:controller.show_frame(SampleKeepProgram))
+# 		min_n_button.pack(pady=(0,15))
 
-# 		transform_list_button = Button(self,text="Transform Data", command= lambda:controller.show_frame(TransformData))
-# 		transform_list_button.pack(pady=(0,40))
+# 		transvar_button = Button(self,text="Transform Data", command= lambda:controller.show_frame(TransformData))
+# 		transvar_button.pack(pady=(0,40))
 
 
 # 		global choose_filter_file_name 
@@ -1412,7 +1420,7 @@ class StartPage(Frame):
 # 		choose_key_dictionary.pack(pady=(0,20))	
 
 
-# 		transform_data_button = Button(self,text="Variable Specific Transformation", command = transform_list)
+# 		transform_data_button = Button(self,text="Variable Specific Transformation", command = transvar)
 # 		transform_data_button.pack(pady=(0,40))
 
 # 		back = Button(self,text="Back", command= lambda:controller.show_frame(FilterData))
@@ -1466,8 +1474,8 @@ class StartPage(Frame):
 # 		correlations_button = Button(self,text="Correlations", command= lambda:controller.show_frame(FindCorrelationsProgram))
 # 		correlations_button.pack(pady=(0,20))
 
-# 		get_levels_button = Button(self,text="Get Unique Values", command= get_levels)
-# 		get_levels_button.pack(pady=(0,20))
+# 		get_uniq_button = Button(self,text="Get Unique Values", command= get_uniq)
+# 		get_uniq_button.pack(pady=(0,20))
 
 # 		sample_size_button = Button(self,text="Sample Size", command= sample_size)
 # 		sample_size_button.pack(pady=(0,20))
@@ -1913,16 +1921,16 @@ class StartPage(Frame):
 # 		label.config(fg="cyan4")
 
 
-# 		global sample_keep_var
-# 		sample_keep_var= StringVar()
-# 		sample_keep_var.set("")
+# 		global min_n_var
+# 		min_n_var= StringVar()
+# 		min_n_var.set("")
 
-# 		sample_keep_var_label = Label(self, text="Min # of Samples per Variable",font=("Comfortaa", 14))
-# 		sample_keep_var_label.pack()
-# 		sample_keep_var_label_entry_box  = Entry(self, textvariable=sample_keep_var, width=15, bg="alice blue")
-# 		sample_keep_var_label_entry_box.pack(pady=(0,20))
+# 		min_n_var_label = Label(self, text="Min # of Samples per Variable",font=("Comfortaa", 14))
+# 		min_n_var_label.pack()
+# 		min_n_var_label_entry_box  = Entry(self, textvariable=min_n_var, width=15, bg="alice blue")
+# 		min_n_var_label_entry_box.pack(pady=(0,20))
 
-# 		get_check_button = Button(self,text="Keep N Samples", command= sample_keep)
+# 		get_check_button = Button(self,text="Keep N Samples", command= min_n)
 # 		get_check_button.pack(pady=(0,40))
 
 
@@ -2045,7 +2053,7 @@ n.add(f3,text="Association")
 #     value = selected_general_option.get()
 
 #     if value == "Get Unique Values":
-#     	get_levels()
+#     	get_uniq()
 #     	refresh_logs()
 
 #     if value == "Sample Size":
@@ -2056,7 +2064,7 @@ n.add(f3,text="Association")
 
 
 
-def get_levels_popup():
+def get_uniq_popup():
 	toplevel = Toplevel()
 	toplevel.geometry("245x205")
 
@@ -2066,7 +2074,7 @@ def get_levels_popup():
 	label1.config(fg="cyan4")
 	label1.pack(fill=X)
 
-	run_levels_button=Button(toplevel,text="Run", command=get_levels)
+	run_levels_button=Button(toplevel,text="Run", command=get_uniq)
 	run_levels_button.pack(fill=X)
 	# toplevel.destroy()
 
@@ -2101,9 +2109,9 @@ l1.pack(fill=X)
 
 
 
-Get_Levels = Button(left_frame,text="Get Unique Values", command= get_levels_popup)
-Get_Levels.pack(padx=(75,0))
-Get_Levels.config(width = 13)
+get_uniq_button = Button(left_frame,text="Get Unique Values", command= get_uniq_popup)
+get_uniq_button.pack(padx=(75,0))
+get_uniq_button.config(width = 13)
 
 
 Sample_Size = Button(left_frame,text="Sample Size", command= sample_size_popup)
@@ -2298,7 +2306,7 @@ def outliers_popup():
 	find_outliers_var_label_entry_box.grid(row=1, column=1)
 
 
-	get_check_button = Button(toplevel,text="Outlier Impact", command= outliers)
+	get_check_button = Button(toplevel,text="Outlier Impact", command= outlier_impact)
 	get_check_button.grid(row=2, column=0,columnspan=2)
 
 
@@ -2675,11 +2683,11 @@ def colfilter_popup():
 
 def sample_filter():
 
-	f = open('r/samplefilter.R','r')
+	f = open('r/rowfilter.R','r')
 	filedata = f.read()
 	f.close()
 
-	file_output_path = "write.table(newdata,"+ "file" + "=" + '"datacleaner_Output/samplefilter_out.txt",' + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
+	file_output_path = "write.table(newdata,"+ "file" + "=" + '"datacleaner_Output/rowfilter_out.txt",' + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
 
 
 	a0_1 = "a1 = read.delim('"
@@ -2688,11 +2696,11 @@ def sample_filter():
 
 	newdata = filedata
 	
-	f = open('r/gui_generated_scripts/samplefilter1.R','w')
+	f = open('r/gui_generated_scripts/rowfilter1.R','w')
 	f.write(newdata)
 	f.write(final + '\n')
 	f.write(argument_1 + '\n')
-	f.write("newdata <- samplefilter(a0, a1, FALSE)"+ '\n')
+	f.write("newdata <- rowfilter(a0, a1, FALSE)"+ '\n')
 	f.write(file_output_path + '\n')
 
 
@@ -2707,13 +2715,13 @@ def sample_filter():
 		g.write("File: " + sample_file_name + '\n'+'\n' )
 	
 	s_out = open(log_file_name, "a")
-	proc = subprocess.call(['Rscript','r/gui_generated_scripts/samplefilter1.R'], shell=False,stdout=s_out, stderr=s_out)
+	proc = subprocess.call(['Rscript','r/gui_generated_scripts/rowfilter1.R'], shell=False,stdout=s_out, stderr=s_out)
 
 	refresh_logs()
 
 
 
-def samplefilter_popup():
+def rowfilter_popup():
 
 	toplevel = Toplevel()
 	toplevel.geometry("300x235")
@@ -2724,11 +2732,11 @@ def samplefilter_popup():
 	label1.config(fg="cyan4")
 
 
-	global sampleFilter1
-	sampleFilter1= StringVar()
-	sampleFilter1.set("No File Chosen")
-	sampleFilter1_label = Label(toplevel, textvariable=sampleFilter1,font=("Comfortaa", 14))
-	sampleFilter1_label.grid(row=1, column=1)
+	global rowfilter1
+	rowfilter1= StringVar()
+	rowfilter1.set("No File Chosen")
+	rowfilter1_label = Label(toplevel, textvariable=rowfilter1,font=("Comfortaa", 14))
+	rowfilter1_label.grid(row=1, column=1)
 
 
 	upload_columns_button = Button(toplevel,text="Choose File", command= sample_file_chosen)
@@ -2838,7 +2846,7 @@ def get_categorical_popup():
 
 
 
-def sample_keep_subgroups_popup():
+def min_cat_n_popup():
 
 	toplevel = Toplevel()
 	toplevel.geometry("245x205")
@@ -2850,18 +2858,41 @@ def sample_keep_subgroups_popup():
 	label.config(fg="cyan4")
 
 
-	global sample_keep_var
-	sample_keep_var= StringVar()
-	sample_keep_var.set("")
+	global min_cat_n_var
+	min_cat_n_var= StringVar()
+	min_cat_n_var.set("")
 
-	sample_keep_var_label = Label(toplevel, text="Min Samples per Category",font=("Comfortaa", 14))
-	sample_keep_var_label.grid(row=1, column=0)
-	sample_keep_var_label_entry_box  = Entry(toplevel, textvariable=sample_keep_var, width=15, bg="alice blue")
-	sample_keep_var_label_entry_box.grid(row=1, column=1)
+	min_cat_n_var_label = Label(toplevel, text="Min Samples per Category",font=("Comfortaa", 14))
+	min_cat_n_var_label.grid(row=1, column=0)
+	min_cat_n_var_label_entry_box  = Entry(toplevel, textvariable=min_cat_n_var, width=15, bg="alice blue")
+	min_cat_n_var_label_entry_box.grid(row=1, column=1)
 
-	get_check_button = Button(toplevel,text="Run", command= sample_keep)
+	get_check_button = Button(toplevel,text="Run", command= min_cat_n)
 	get_check_button.grid(row=2, column=0,columnspan=2)
 
+def min_n_popup():
+
+	toplevel = Toplevel()
+	toplevel.geometry("245x205")
+
+
+	label = Label(toplevel, text="Min # of Samples")
+	label.grid(row=0, column=0, columnspan=2)
+	label.config(font=("Comfortaa", 20))
+	label.config(fg="cyan4")
+
+
+	global min_n_var
+	min_n_var= StringVar()
+	min_n_var.set("")
+
+	min_n_var_label = Label(toplevel, text="Min # of Samples",font=("Comfortaa", 14))
+	min_n_var_label.grid(row=1, column=0)
+	min_n_var_label_entry_box  = Entry(toplevel, textvariable=min_n_var, width=15, bg="alice blue")
+	min_n_var_label_entry_box.grid(row=1, column=1)
+
+	get_check_button = Button(toplevel,text="Run", command= min_n)
+	get_check_button.grid(row=2, column=0,columnspan=2)
 
 
 
@@ -2880,7 +2911,7 @@ def remove_outliers_popup():
 	run_levels_button.pack(fill=X)
 	# toplevel.destroy()
 
-def transform_list_popup():
+def transvar_popup():
 
 	toplevel = Toplevel()
 	toplevel.geometry("245x205")
@@ -2891,11 +2922,13 @@ def transform_list_popup():
 	label1.config(fg="cyan4")
 	label1.pack(fill=X)
 
-	run_levels_button=Button(toplevel,text="Run", command=transform_list)
+	run_levels_button=Button(toplevel,text="Run", command=transvar)
 	run_levels_button.pack(fill=X)
 	# toplevel.destroy()
 
 
+def min_cat_n():
+	print("min_cat_n_called")
 
 
 ###****************************QC*******************************************###
@@ -2914,15 +2947,15 @@ f2_l1.pack(padx=(75,0))
 f2_l1.config(fg="cyan4")
 f2_l1.pack(fill=X)
 
-#sample_keep, get_binary, get_continuous, get_categorical, get_check
+#min_n, get_binary, get_continuous, get_categorical, get_check
 
 Colfilter = Button(f2_left_frame,text="Variable Filter", command= colfilter_popup)
 Colfilter.pack(padx=(75,0))
 Colfilter.config(width = 13)
 
-Samplefilter = Button(f2_left_frame,text="Sample Filter", command= samplefilter_popup)
-Samplefilter.pack(padx=(75,0))
-Samplefilter.config(width = 13)
+rowfilter = Button(f2_left_frame,text="Sample Filter", command= rowfilter_popup)
+rowfilter.pack(padx=(75,0))
+rowfilter.config(width = 13)
 
 get_continuous_button = Button(f2_left_frame,text="Get Continuous", command= get_continuous_popup)
 get_continuous_button.pack(padx=(75,0))
@@ -2948,9 +2981,15 @@ f2_l2.pack(fill=X)
 
 
 
-sample_keep_subgroups_button = Button(f2,text="Min Category Size", command= sample_keep_subgroups_popup)
-sample_keep_subgroups_button.pack(padx=(0,0))
-sample_keep_subgroups_button.config(width = 13)
+min_cat_n_button = Button(f2,text="Min Category Size", command= min_cat_n_popup)
+min_cat_n_button.pack(padx=(0,0))
+min_cat_n_button.config(width = 13)
+
+
+min_n_button = Button(f2,text="Min # of Samples", command= min_n_popup)
+min_n_button.pack(padx=(0,0))
+min_n_button.config(width = 13)
+
 
 
 
@@ -2971,9 +3010,9 @@ remove_outliers_button = Button(f2_right_frame,text="Remove Outliers", command= 
 remove_outliers_button.pack(padx=(0,75))
 remove_outliers_button.config(width = 13)
 
-transform_list_button = Button(f2_right_frame,text="Variable Specific Transformation", command= transform_list_popup)
-transform_list_button.pack(padx=(0,75))
-transform_list_button.config(width = 13)
+transvar_button = Button(f2_right_frame,text="Variable Specific Transformation", command= transvar_popup)
+transvar_button.pack(padx=(0,75))
+transvar_button.config(width = 13)
 
 
 
@@ -2992,7 +3031,7 @@ transform_list_button.config(width = 13)
 # 	label1.config(fg="cyan4")
 # 	label1.pack(fill=X)
 
-# 	run_levels_button=Button(toplevel,text="Run", command=transform_list)
+# 	run_levels_button=Button(toplevel,text="Run", command=transvar)
 # 	run_levels_button.pack(fill=X)
 # 	# toplevel.destroy()
 
@@ -3021,16 +3060,16 @@ label.config(font=("Comfortaa", 20))
 label.config(fg="cyan4")
 
 
-# global sample_keep_var
-# sample_keep_var= StringVar()
-# sample_keep_var.set("")
+# global min_n_var
+# min_n_var= StringVar()
+# min_n_var.set("")
 
-# sample_keep_var_label = Label(f3_left_frame, text="Min Samples per Variable",font=("Comfortaa", 14))
-# sample_keep_var_label.grid(row=1, column=0)
-# sample_keep_var_label_entry_box  = Entry(f3_left_frame, textvariable=sample_keep_var, width=15, bg="alice blue")
-# sample_keep_var_label_entry_box.grid(row=1, column=1)
+# min_n_var_label = Label(f3_left_frame, text="Min Samples per Variable",font=("Comfortaa", 14))
+# min_n_var_label.grid(row=1, column=0)
+# min_n_var_label_entry_box  = Entry(f3_left_frame, textvariable=min_n_var, width=15, bg="alice blue")
+# min_n_var_label_entry_box.grid(row=1, column=1)
 
-# get_check_button = Button(f3_left_frame,text="Keep N Samples", command= sample_keep)
+# get_check_button = Button(f3_left_frame,text="Keep N Samples", command= min_n)
 # get_check_button.grid(row=2, column=0,columnspan=2)
 
 
