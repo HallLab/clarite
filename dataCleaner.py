@@ -25,25 +25,26 @@ from random import randint
 import datetime
 import shlex
 
+
+from PIL import ImageTk
+IN_WIDTH = 19
+IN_HEIGHT = 18
+
+
+
 global time_stamp
 time_stamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 
 if not os.path.exists("Logs"):
     os.makedirs("Logs")
-
-if not os.path.exists("R/gui_generated_scripts"):
-    os.makedirs("R/gui_generated_scripts")
-
-if not os.path.exists("datacleaner_Output"):
-    os.makedirs("datacleaner_Output")
+if not os.path.exists("R/GUI_Scripts"):
+    os.makedirs("R/GUI_Scripts")
+if not os.path.exists("GUI_Output"):
+    os.makedirs("GUI_Output")
 
 global log_file_name
 log_file_name = "Logs/" + time_stamp + "-"'logs.txt'
-
-
-
-
 with open(log_file_name, 'w') as global_log:
 	global_log.write("LIVE LOG REPORT - PROGRAM OPENED :  " + datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y") + '\n')
 	global_log.write("LOGS INPUT VALUES, STDOUT, STDERR, R SCRIPT & FUNC CALLS (GUI PROGRAM)"+'\n'+'\n')
@@ -62,6 +63,10 @@ IDCOLUMN = "a0$IID <- paste(""id"", row.names(a0), sep=""_"")"
 global_file_prefix = "emptyPrefix"
 
 
+GLOBAL_OUTPUT_DIRECTORY = "GUI_Output"
+
+
+GLOBAL_OUTPUT_DIRECTORY_FORMATTED = ""
 ###***************************************************************************************###
    		###************************** Start Program ***********************###
 
@@ -81,14 +86,57 @@ def choose_start_file():
 	with open(log_file_name, 'a') as g:
 		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
 		g.write("File Chosen: "+ global_start_file_path + '\n')
+		g.write("Output Folder: "+ GLOBAL_OUTPUT_DIRECTORY + '\n')
 
 		if os.path.splitext(os.path.basename(global_start_file_path))[0] != "":
 			if global_file_prefix == "emptyPrefix":
-				global_file_prefix = os.path.splitext(os.path.basename(global_start_file_path))[0]
+				global_file_prefix = os.path.splitext(os.path.basename(global_start_file_path))[0] + "_"
+				global GLOBAL_OUTPUT_DIRECTORY_FORMATTED 
+				GLOBAL_OUTPUT_DIRECTORY_FORMATTED = "'" + GLOBAL_OUTPUT_DIRECTORY  + "/" + global_file_prefix
 		print(global_file_prefix)
 	refresh_logs()
 
+def output_directory_change():
+	global GLOBAL_OUTPUT_DIRECTORY
+	GLOBAL_OUTPUT_DIRECTORY = str(change_output_directory_var.get())
+	choose_directory_file_name.set("Output Folder:  " + GLOBAL_OUTPUT_DIRECTORY)
 	
+	with open(log_file_name, 'a') as g:
+		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
+		g.write("Output Folder Changed: "+ GLOBAL_OUTPUT_DIRECTORY + '\n')
+	refresh_logs()
+
+	if not os.path.exists(GLOBAL_OUTPUT_DIRECTORY):
+    		os.makedirs(GLOBAL_OUTPUT_DIRECTORY)
+
+	global GLOBAL_OUTPUT_DIRECTORY_FORMATTED 
+	GLOBAL_OUTPUT_DIRECTORY_FORMATTED = "'" + GLOBAL_OUTPUT_DIRECTORY  + "/" + global_file_prefix
+	o_toplevel.destroy()
+def choose_output_directory():
+
+	global o_toplevel 
+	o_toplevel = Toplevel()
+	o_toplevel.geometry("255x215")
+
+	label1 = Label(o_toplevel,bg="white",text = "Change Output Folder")
+	label1.grid(row=0, column=0, columnspan=2)
+	label1.config(font=("Comfortaa", 18))
+	label1.config(fg="cyan4")
+
+
+	global change_output_directory_var
+	change_output_directory_var= StringVar()
+	change_output_directory_var.set("")
+
+	change_output_directory_var_label = Label(o_toplevel, text="Output Folder Name",font=("Comfortaa", 14))
+	change_output_directory_var_label.grid(row=1, column=0)
+	change_output_directory_var_label_entry_box  = Entry(o_toplevel, textvariable=change_output_directory_var, width=15, bg="alice blue")
+	change_output_directory_var_label_entry_box.grid(row=1, column=1)
+
+
+	change_button = Button(o_toplevel,text="Change", command= output_directory_change)
+	change_button.grid(row=2, column=0,columnspan=2)
+
 ##Dialogue Function
 def dialogue_file_dictionary():
 	global global_recode_key_dictionary
@@ -178,7 +226,7 @@ def ewas2_file_chosen():
 # 4) Example)   old_R_file.R ----->  new_R_file1.R
 # 5) This new R file is the one that is processed/run using SubProcess Python Program
 
-# 6) Output is stored at images, pdf, textdocuments in directory datacleaner_Output
+# 6) Output is stored at images, pdf, textdocuments in directory GUI_Output
 ###***************************************************************************************###
 
 
@@ -196,7 +244,7 @@ def recode_missing():
 			
 			fileclean_rows = file.read()
 			fileclean_rows = fileclean_rows.replace("\t" + str(missing_val.get()), "\t"+str(missing_val_replacement.get()))
-			with open('datacleaner_Output/recode_missing_out.txt', 'w') as file:
+			with open('GUI_Output/recode_missing_out.txt', 'w') as file:
 				file.write(fileclean_rows)
 			with open(log_file_name, 'a') as g:
 				g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
@@ -236,7 +284,7 @@ def recode_key():
 			print(x)
 			fileclean_rows = fileclean_rows.replace('\t'+str(x), "\tNA")
 
-		with open('datacleaner_Output/recode_key_out.txt', 'w') as file:
+		with open('GUI_Output/recode_key_out.txt', 'w') as file:
 			file.write(fileclean_rows)
 
 
@@ -255,11 +303,11 @@ def get_binary():
 
 	newdata = filedata
 
-	f = open('r/gui_generated_scripts/get_binary1.R','w')
+	f = open('r/GUI_Scripts/get_binary1.R','w')
 	f.write(newdata)
 	f.write(final + '\n')
 	f.write("newdata <- get_binary(a0, 2)"+ '\n')
-	file_output_path = "write.table(newdata,"+ "file" + "=" + '"datacleaner_Output/binary_var_out.txt",' + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
+	file_output_path = "write.table(newdata,"+ "file" + "=" + GLOBAL_OUTPUT_DIRECTORY_FORMATTED +  "Binary.txt" + "'," + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
 
 
 
@@ -275,7 +323,7 @@ def get_binary():
 	
 
 	s_out = open(log_file_name, "a")
-	proc = subprocess.call(['Rscript','r/gui_generated_scripts/get_binary1.R'], shell=False,stdout=s_out, stderr=s_out)
+	proc = subprocess.call(['Rscript','r/GUI_Scripts/get_binary1.R'], shell=False,stdout=s_out, stderr=s_out)
 
 	refresh_logs()
 
@@ -285,11 +333,11 @@ def get_continuous():
 	f.close()
 
 	lower_bound = "a1 = " + str(continuous_var.get())
-	file_output_path = "write.table(newdata,"+ "file" + "=" + '"datacleaner_Output/continuous_var_out.txt",' + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
+	file_output_path = "write.table(newdata,"+ "file" + "=" + GLOBAL_OUTPUT_DIRECTORY_FORMATTED +  "Continuous" + str(continuous_var.get()) +".txt" + "'," + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
 
 	newdata = filedata
 
-	f = open('r/gui_generated_scripts/get_continuous1.R','w')
+	f = open('r/GUI_Scripts/get_continuous1.R','w')
 
 	f.write(newdata)
 	f.write(final + '\n')
@@ -311,7 +359,7 @@ def get_continuous():
 
 
 	s_out = open(log_file_name, "a")
-	proc = subprocess.call(['Rscript','r/gui_generated_scripts/get_continuous1.R'], shell=False,stdout=s_out, stderr=s_out)
+	proc = subprocess.call(['Rscript','r/GUI_Scripts/get_continuous1.R'], shell=False,stdout=s_out, stderr=s_out)
 
 	refresh_logs()
 
@@ -319,7 +367,7 @@ def get_categorical():
 	f = open('r/get_categorical.R','r')
 	filedata = f.read()
 	f.close()
-	file_output_path = "write.table(newdata,"+ "file" + "=" + '"datacleaner_Output/get_categorical_out.txt",' + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
+	file_output_path = "write.table(newdata,"+ "file" + "=" + GLOBAL_OUTPUT_DIRECTORY_FORMATTED +  "Categorical"+str(categorical1.get())+"_" +str(categorical2.get())+".txt" + "'," + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
 
 	lower_bound = "a1 = " + str(categorical1.get())
 	upper_bound = "a2 = " + str(categorical2.get())
@@ -327,7 +375,7 @@ def get_categorical():
 	newdata = filedata
 
 	
-	f = open('r/gui_generated_scripts/get_categorical1.R','w')
+	f = open('r/GUI_Scripts/get_categorical1.R','w')
 	f.write(newdata)
 	f.write(final + '\n')
 	f.write(lower_bound + '\n')
@@ -349,7 +397,7 @@ def get_categorical():
 
 
 	s_out = open(log_file_name, "a")
-	proc = subprocess.call(['Rscript','r/gui_generated_scripts/get_categorical1.R'], shell=False,stdout=s_out, stderr=s_out)
+	proc = subprocess.call(['Rscript','r/GUI_Scripts/get_categorical1.R'], shell=False,stdout=s_out, stderr=s_out)
 
 	refresh_logs()
 
@@ -358,14 +406,14 @@ def get_check():
 	filedata = f.read()
 	f.close()
 
-	file_output_path = "write.table(newdata,"+ "file" + "=" + '"datacleaner_Output/get_check_out.txt",' + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
+	file_output_path = "write.table(newdata,"+ "file" + "=" + GLOBAL_OUTPUT_DIRECTORY_FORMATTED +  "Ambiguous"+str(ambiguous1.get()) +"_"+str(ambiguous2.get()) +".txt" +"',"+ "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
 
 	lower_bound = "a1 = " + str(ambiguous1.get())
 	upper_bound = "a2 = " + str(ambiguous2.get())
 
 	newdata = filedata
 	
-	f = open('r/gui_generated_scripts/get_check1.R','w')
+	f = open('r/GUI_Scripts/get_check1.R','w')
 	f.write(newdata)
 	f.write(final + '\n')
 	f.write(lower_bound + '\n')
@@ -386,7 +434,7 @@ def get_check():
 		g.write("Upper Bound: " + upper_bound + '\n' +'\n' )
 	
 	s_out = open(log_file_name, "a")
-	proc = subprocess.call(['Rscript','r/gui_generated_scripts/get_check1.R'], shell=False,stdout=s_out, stderr=s_out)
+	proc = subprocess.call(['Rscript','r/GUI_Scripts/get_check1.R'], shell=False,stdout=s_out, stderr=s_out)
 
 	refresh_logs()
 
@@ -395,13 +443,13 @@ def min_n():
 	filedata = f.read()
 	f.close()
 
-	file_output_path = "write.table(newdata,"+ "file" + "=" + '"datacleaner_Output/min_n_out.txt",' + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
+	file_output_path = "write.table(newdata,"+ "file" + "=" + GLOBAL_OUTPUT_DIRECTORY_FORMATTED +  "MinSamples.txt" + "'," + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
 
 	lower_bound = "a1 = " + str(min_n_var.get())
 	newdata = filedata
 
 	
-	f = open('r/gui_generated_scripts/min_n1.R','w')
+	f = open('r/GUI_Scripts/min_n1.R','w')
 	f.write(newdata)
 	f.write(final + '\n')
 	f.write(lower_bound + '\n')
@@ -420,7 +468,7 @@ def min_n():
 		g.write("Lower Bound: " + lower_bound + '\n' +'\n' )
 
 	s_out = open(log_file_name, "a")
-	proc = subprocess.call(['Rscript','r/gui_generated_scripts/min_n1.R'], shell=False,stdout=s_out, stderr=s_out)
+	proc = subprocess.call(['Rscript','r/GUI_Scripts/min_n1.R'], shell=False,stdout=s_out, stderr=s_out)
 
 	refresh_logs()
 
@@ -429,7 +477,7 @@ def transvar():
 	filedata = f.read()
 	f.close()
 
-	file_output_path = "write.table(newdata,"+ "file" + "=" + '"datacleaner_Output/transvar.txt",' + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
+	file_output_path = "write.table(newdata,"+ "file" + "=" + GLOBAL_OUTPUT_DIRECTORY_FORMATTED +  "Transformation.txt" + "'," + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
 
 	argument_1 = "a1 = read.delim('/Users/deven/desktop/it.txt', header=TRUE)"
 	a1 = "a1 = read.delim('" + global_transform_key_dictionary + A0_2
@@ -437,7 +485,7 @@ def transvar():
 	newdata = filedata
 
 	
-	f = open('r/gui_generated_scripts/transvar1.R','w')
+	f = open('r/GUI_Scripts/transvar1.R','w')
 	f.write(newdata)
 	f.write(final + '\n')
 	f.write(a1 + '\n')
@@ -454,7 +502,7 @@ def transvar():
 		g.write("Variable Specific Transformation Function Called" + '\n' + '\n')
 
 	s_out = open(log_file_name, "a")
-	proc = subprocess.call(['Rscript','r/gui_generated_scripts/transvar1.R'], shell=False,stdout=s_out, stderr=s_out)
+	proc = subprocess.call(['Rscript','r/GUI_Scripts/transvar1.R'], shell=False,stdout=s_out, stderr=s_out)
 
 	refresh_logs()
 
@@ -547,7 +595,7 @@ def remove_outliers():
             def compile_row_string(a_row):
                 return str(a_row).strip("']").strip("['").strip("(").strip(")").replace(" ","\t").replace("'","").replace(",", "")
 
-            with open('datacleaner_Output/remove_outliers.txt', 'w') as f:
+            with open('GUI_Output/remove_outliers.txt', 'w') as f:
                 for row in r:
 		    #print row
                     f.write(compile_row_string(row)+'\n')
@@ -555,9 +603,6 @@ def remove_outliers():
             return True
 
         write_matrix_to_textfile(matrix)
-
-
-
 
 ###***************************************************************************************###
    		###********************** Visualize Data Functions *******************###
@@ -569,8 +614,7 @@ def histogram():
 	filedata = f.read()
 	f.close()
 
-	# file_output_path = "write.table(newdata,"+ "file" + "=" + '"datacleaner_Output/histogram_plot.txt",' + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
-
+	# file_output_path = "write.table(newdata,"+ "file" + "=" + '"GUI_Output/histogram_plot.txt",' + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
 
 
 	#dafault values for the above variables
@@ -585,7 +629,7 @@ def histogram():
 	newdata = filedata
 
 
-	f = open('r/gui_generated_scripts/hist_plot1.R','w')
+	f = open('r/GUI_Scripts/hist_plot1.R','w')
 	f.write(GGPLOT_LIBRARY + '\n')
 	f.write(GRIDEXTRA_LIBRARY + '\n')
 	f.write(newdata)
@@ -597,7 +641,7 @@ def histogram():
 	f.write(height_of_plot + '\n')
 	f.write(resolution_of_plot + '\n')
 	f.write("quartz()" + '\n')
-	f.write("hist_plot(a0, a1, file='datacleaner_Output/hist_plot_out', a2, a3, a4, a5, a6)" + '\n')
+	f.write("hist_plot(a0, a1, file=" + GLOBAL_OUTPUT_DIRECTORY_FORMATTED +  "Histogram" + "'," + "a2, a3, a4, a5, a6)" + '\n')
 
 	f.close()
 
@@ -615,7 +659,7 @@ def histogram():
 		g.write("Resolution of Plot: " + str(h6.get()) + '\n' +'\n' )
 	
 	s_out = open(log_file_name, "a")
-	proc = subprocess.call(['Rscript','r/gui_generated_scripts/hist_plot1.R'], shell=False,stdout=s_out, stderr=s_out)
+	proc = subprocess.call(['Rscript','r/GUI_Scripts/hist_plot1.R'], shell=False,stdout=s_out, stderr=s_out)
 
 	refresh_logs()
 
@@ -637,7 +681,7 @@ def boxplot():
 	resolution_of_plot = "a6 = " + str(bx6.get())
 
 
-	f = open('r/gui_generated_scripts/box_plot1.R','w')
+	f = open('r/GUI_Scripts/box_plot1.R','w')
 	f.write(GGPLOT_LIBRARY + '\n')
 	f.write(GRIDEXTRA_LIBRARY + '\n')
 	f.write(newdata)
@@ -649,7 +693,7 @@ def boxplot():
 	f.write(height_of_plot + '\n')
 	f.write(resolution_of_plot + '\n')
 	f.write("quartz()" + '\n')
-	f.write("box_plot(a0, a1, file='datacleaner_Output/boxplot_out', a2, a3, a4, a5, a6)" + '\n')
+	f.write("box_plot(a0, a1, file=" + GLOBAL_OUTPUT_DIRECTORY_FORMATTED +  "BoxPlot" + "'," + "a2, a3, a4, a5, a6)" + '\n')
 
 	f.close()
 
@@ -665,7 +709,7 @@ def boxplot():
 		g.write("Resolution of Plot: " + str(bx6.get()) + '\n' +'\n' )
 	
 	s_out = open(log_file_name, "a")
-	proc = subprocess.call(['Rscript','r/gui_generated_scripts/box_plot1.R'], shell=False,stdout=s_out, stderr=s_out)
+	proc = subprocess.call(['Rscript','r/GUI_Scripts/box_plot1.R'], shell=False,stdout=s_out, stderr=s_out)
 
 	refresh_logs()
 
@@ -685,7 +729,7 @@ def qqplot():
 	resolution_of_plot = "a6 = " + str(qq6.get())
 
 
-	f = open('r/gui_generated_scripts/qq_plot1.R','w')
+	f = open('r/GUI_Scripts/qq_plot1.R','w')
 	f.write(GGPLOT_LIBRARY + '\n')
 	f.write(GRIDEXTRA_LIBRARY + '\n')
 	f.write(newdata)
@@ -697,7 +741,7 @@ def qqplot():
 	f.write(height_of_plot + '\n')
 	f.write(resolution_of_plot + '\n')
 	f.write("quartz()" + '\n')
-	f.write("qq_plot(a0, a1, file='datacleaner_Output/boxplot_out', a2, a3, a4, a5, a6)" + '\n')
+	f.write("qqplot(a0, a1, file=" + GLOBAL_OUTPUT_DIRECTORY_FORMATTED +  "QQPlot" + "'," + "a2, a3, a4, a5, a6)" + '\n')
 
 	f.close()
 
@@ -713,7 +757,7 @@ def qqplot():
 		g.write("Resolution of Plot: " + str(qq6.get()) + '\n' +'\n' )
 	
 	s_out = open(log_file_name, "a")
-	proc = subprocess.call(['Rscript','r/gui_generated_scripts/qq_plot1.R'], shell=False,stdout=s_out, stderr=s_out)
+	proc = subprocess.call(['Rscript','r/GUI_Scripts/qq_plot1.R'], shell=False,stdout=s_out, stderr=s_out)
 
 	refresh_logs()
 
@@ -737,7 +781,7 @@ def barplot():
 
 
 
-	f = open('r/gui_generated_scripts/bar_plot1.R','w')
+	f = open('r/GUI_Scripts/bar_plot1.R','w')
 	f.write(GGPLOT_LIBRARY + '\n')
 	f.write(GRIDEXTRA_LIBRARY + '\n')
 	f.write(newdata)
@@ -749,7 +793,7 @@ def barplot():
 	f.write(height_of_plot + '\n')
 	f.write(resolution_of_plot + '\n')
 	f.write("quartz()" + '\n')
-	f.write("bar_plot(a0, a1, file='datacleaner_Output/barplot_out', a2, a3, a4, a5, a6)" + '\n')
+	f.write("bar_plot(a0, a1, file=" + GLOBAL_OUTPUT_DIRECTORY_FORMATTED +  "BarPlot" + "'," + "a2, a3, a4, a5, a6)" + '\n')
 
 
 	f.close()
@@ -768,7 +812,7 @@ def barplot():
 	
 	s_out = open(log_file_name, "a")
 	
-	proc = subprocess.call(['Rscript','r/gui_generated_scripts/bar_plot1.R'], shell=False, stdout=s_out, stderr=s_out)
+	proc = subprocess.call(['Rscript','r/GUI_Scripts/bar_plot1.R'], shell=False, stdout=s_out, stderr=s_out)
 
 	refresh_logs()
 
@@ -781,11 +825,11 @@ def frequency_table():
 	filedata = f.read()
 	f.close()
 
-	file_output_path = "write.table(newdata,"+ "file" + "=" + '"datacleaner_Output/freq_tables_out.txt",' + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
+	file_output_path = "write.table(newdata,"+ "file" + "=" + GLOBAL_OUTPUT_DIRECTORY_FORMATTED +  "Freq.txt" + "'," + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
 
 	newdata = filedata
 
-	f = open('r/gui_generated_scripts/freq_tables1.R','w')
+	f = open('r/GUI_Scripts/freq_tables1.R','w')
 	f.write(newdata)
 	f.write(final + '\n')
 	f.write("newdata <- freq_tables(a0)"+ '\n')
@@ -801,29 +845,27 @@ def frequency_table():
 
 	s_out = open(log_file_name, "a")
 	
-	proc = subprocess.call(['Rscript','r/gui_generated_scripts/freq_tables1.R'], shell=False, stdout=s_out, stderr=s_out)
+	proc = subprocess.call(['Rscript','r/GUI_Scripts/freq_tables1.R'], shell=False, stdout=s_out, stderr=s_out)
 
 	refresh_logs()
+
 def correlations():
 	f = open('r/correlations.R','r')
 	filedata = f.read()
 	f.close()
 
-	file_output_path = "write.table(newdata,"+ "file" + "=" + '"datacleaner_Output/correlations_out.txt",' + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
+	file_output_path = "write.table(newdata,"+ "file" + "=" + GLOBAL_OUTPUT_DIRECTORY_FORMATTED +  "Correlations"+ str(find_correlations_var.get()) + ".txt" + "'," + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
 
 	threshold_val = "a1 = " + str(find_correlations_var.get())
 	newdata = filedata
 
 
-	f = open('r/gui_generated_scripts/correlations1.R','w')
+	f = open('r/GUI_Scripts/correlations1.R','w')
 	f.write(newdata)
 	f.write(final + '\n')
 	f.write(threshold_val+ '\n')
 	f.write("newdata <- correlations(a0,a1)"+ '\n')
 	f.write(file_output_path + '\n')
-
-
-
 
 	f.close()
 	
@@ -834,7 +876,7 @@ def correlations():
 	
 	s_out = open(log_file_name, "a")
 	
-	proc = subprocess.call(['Rscript','r/gui_generated_scripts/correlations1.R'], shell=False, stdout=s_out, stderr=s_out)
+	proc = subprocess.call(['Rscript','r/GUI_Scripts/correlations1.R'], shell=False, stdout=s_out, stderr=s_out)
 
 	refresh_logs()
 	
@@ -843,11 +885,11 @@ def sample_size():
 	filedata = f.read()
 	f.close()
 
-	file_output_path = "write.table(newdata,"+ "file" + "=" + '"datacleaner_Output/sample_size_out.txt",' + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
+	file_output_path = "write.table(newdata,"+ "file" + "=" + GLOBAL_OUTPUT_DIRECTORY_FORMATTED +  "SampleSize.txt" + "'," + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
 
 	newdata = filedata
 
-	f = open('r/gui_generated_scripts/sample_size1.R','w')
+	f = open('r/GUI_Scripts/sample_size1.R','w')
 	f.write(newdata)
 	f.write(final + '\n')
 	f.write("newdata <- sample_size(a0)"+ '\n')
@@ -864,20 +906,21 @@ def sample_size():
 	
 	s_out = open(log_file_name, "a")
 	
-	proc = subprocess.call(['Rscript','r/gui_generated_scripts/sample_size1.R'], shell=False, stdout=s_out, stderr=s_out)
+	proc = subprocess.call(['Rscript','r/GUI_Scripts/sample_size1.R'], shell=False, stdout=s_out, stderr=s_out)
 
 	refresh_logs()
 
 
 def get_uniq():
+
 	f = open('r/get_uniq.R','r')
 	filedata = f.read()
 	f.close()
-	file_output_path = "write.table(newdata,"+ "file" + "=" + '"datacleaner_Output/get_uniq_out.txt",' + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
+	file_output_path = "write.table(newdata,"+ "file" + "=" + GLOBAL_OUTPUT_DIRECTORY_FORMATTED + "Unique.txt" + "'," + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
 
 	newdata = filedata
 
-	f = open('r/gui_generated_scripts/get_uniq1.R','w')
+	f = open('r/GUI_Scripts/get_uniq1.R','w')
 	f.write(newdata)
 	f.write(final + '\n')
 	f.write("newdata <- get_uniq(a0)"+ '\n')
@@ -892,7 +935,7 @@ def get_uniq():
 	
 	s_out = open(log_file_name, "a")
 	
-	proc = subprocess.call(['Rscript','r/gui_generated_scripts/get_uniq1.R'], shell=False, stdout=s_out, stderr=s_out)
+	proc = subprocess.call(['Rscript','r/GUI_Scripts/get_uniq1.R'], shell=False, stdout=s_out, stderr=s_out)
 
 	refresh_logs()
 
@@ -902,13 +945,13 @@ def outlier_impact():
 	filedata = f.read()
 	f.close()
 
-	file_output_path = "write.table(newdata,"+ "file" + "=" + '"datacleaner_Output/outlier_impact_out.txt",' + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
+	file_output_path = "write.table(newdata,"+ "file" + "=" + GLOBAL_OUTPUT_DIRECTORY_FORMATTED +  "OutlierImpact"+ str(find_outliers_var.get())+ ".txt" + "'," + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
 
 	threshold_val = "a1 = " + str(find_outliers_var.get())
 	newdata = filedata
 
 
-	f = open('r/gui_generated_scripts/outlier_impact1.R','w')
+	f = open('r/GUI_Scripts/outlier_impact1.R','w')
 	f.write(newdata)
 	f.write(final + '\n')
 	f.write(threshold_val + '\n')
@@ -922,7 +965,7 @@ def outlier_impact():
 
 	s_out = open(log_file_name, "a")
 	
-	proc = subprocess.call(['Rscript','r/gui_generated_scripts/outlier_impact1.R'], shell=False, stdout=s_out, stderr=s_out)
+	proc = subprocess.call(['Rscript','r/GUI_Scripts/outlier_impact1.R'], shell=False, stdout=s_out, stderr=s_out)
 
 	refresh_logs()
 
@@ -931,11 +974,11 @@ def chisq_tests():
 	filedata = f.read()
 	f.close()
 	
-	file_output_path = "write.table(newdata,"+ "file" + "=" + '"datacleaner_Output/chisq_tests_out.txt",' + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
+	file_output_path = "write.table(newdata,"+ "file" + "=" + GLOBAL_OUTPUT_DIRECTORY_FORMATTED +  "chisq.txt" + "'," + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
 
 	newdata = filedata
 
-	f = open('r/gui_generated_scripts/chisq_tests1.R','w')
+	f = open('r/GUI_Scripts/chisq_tests1.R','w')
 	f.write(newdata)
 	f.write(final + '\n')
 	# f.write(threshold_val + '\n')
@@ -949,11 +992,1359 @@ def chisq_tests():
 	
 	s_out = open(log_file_name, "a")
 	
-	proc = subprocess.call(['Rscript','r/gui_generated_scripts/chisq_tests1.R'], shell=False, stdout=s_out, stderr=s_out)
+	proc = subprocess.call(['Rscript','r/GUI_Scripts/chisq_tests1.R'], shell=False, stdout=s_out, stderr=s_out)
 
 	refresh_logs()
+
+
+#Variable Filter - colfilter()
+def col_filter():
+
+	f = open('r/colfilter.R','r')
+	filedata = f.read()
+	f.close()
+
+	file_output_path = "write.table(newdata,"+ "file" + "=" + GLOBAL_OUTPUT_DIRECTORY_FORMATTED +  "VariableFiltered.txt" + "'," + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
+
+
+	a0_1 = "a1 = read.delim('"
+	argument_1 = a0_1 + column_file_name+ A0_2
+
+
+	newdata = filedata
+	
+	f = open('r/GUI_Scripts/colfilter1.R','w')
+	f.write(newdata)
+	f.write(final + '\n')
+	f.write(argument_1 + '\n')
+	f.write("newdata <- colfilter(a0, a1, FALSE)"+ '\n')
+	f.write(file_output_path + '\n')
+
+	f.close()
+	
+	with open(log_file_name, 'a') as g:
+		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
+
+		g.write("Filter Columns Called" + '\n')
+		g.write("File: " + column_file_name + '\n'+'\n' )
+	
+	s_out = open(log_file_name, "a")
+	proc = subprocess.call(['Rscript','r/GUI_Scripts/colfilter1.R'], shell=False,stdout=s_out, stderr=s_out)
+
+	refresh_logs()
+
+#Sample Filter - rowfilter
+def sample_filter():
+
+	f = open('r/rowfilter.R','r')
+	filedata = f.read()
+	f.close()
+
+	file_output_path = "write.table(newdata,"+ "file" + "=" + GLOBAL_OUTPUT_DIRECTORY_FORMATTED +  "SampleFiltered.txt" + "'," + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
+
+	a0_1 = "a1 = read.delim('"
+	argument_1 = a0_1 + sample_file_name + A0_2
+
+	newdata = filedata
+	
+	f = open('r/GUI_Scripts/rowfilter1.R','w')
+	f.write(newdata)
+	f.write(final + '\n')
+	f.write(argument_1 + '\n')
+	f.write("newdata <- rowfilter(a0, a1, FALSE)"+ '\n')
+	f.write(file_output_path + '\n')
+
+
+	f.close()
+	
+	with open(log_file_name, 'a') as g:
+		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
+
+		g.write("Filter Samples Called" + '\n')
+		g.write("File: " + sample_file_name + '\n'+'\n' )
+	
+	s_out = open(log_file_name, "a")
+	proc = subprocess.call(['Rscript','r/GUI_Scripts/rowfilter1.R'], shell=False,stdout=s_out, stderr=s_out)
+
+	refresh_logs()
+
+#EWAS
+def ewas():
+
+	f = open('r/ewas.R','r')
+	filedata = f.read()
+	f.close()
+
+	file_output_path = "write.table(newdata,"+ "file" + "=" + GLOBAL_OUTPUT_DIRECTORY_FORMATTED +  "ewas.txt" + "'," + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
+
+
+	a0_1 = "a1 = read.delim('"
+	argument_1 = a0_1 + global_ewas_filename_1 + A0_2
+
+	a0_2 = "a2 = read.delim('"
+	argument_2 = a0_2 + global_ewas_filename_2 + A0_2
+
+
+	argument_3 = "a3 = " + "'" + str(phenotype_var.get()) + "'"
+
+	argument_4 = "a4 <- " + "c(" + global_covariate_string + ")"
+
+	argument_5 = "a5 = " + "'" + str(regressionVar.get()) + "'"
+
+	if str(correctionVar.get()) == "Both":
+		argument_6 = "a6 <- " + "c(" + "'Bonferroni'" + "," + "'Fdr')"
+	else:
+		argument_6 = "a6 <- " + "c(" + "'" + str(correctionVar.get()) + "'" + ")"
+
+
+	newdata = filedata
+	
+	f = open('r/GUI_Scripts/ewas1.R','w')
+	f.write(newdata)
+	# f.write(final + '\n')
+	f.write(argument_1 + '\n')
+	f.write(argument_2 + '\n')
+	f.write(argument_3 + '\n')
+	f.write(argument_4 + '\n')
+	f.write(argument_5 + '\n')
+	f.write(argument_6 + '\n')
+
+	f.write("newdata <- ewas(a1,a2,a3,a4,a5,a6)"+ '\n')
+	f.write(file_output_path + '\n')
+
+
+	f.close()
+	
+
+	with open(log_file_name, 'a') as g:
+		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
+
+		g.write("EWAS Called" + '\n')
+
+	
+	s_out = open(log_file_name, "a")
+	proc = subprocess.call(['Rscript','r/GUI_Scripts/ewas1.R'], shell=False,stdout=s_out, stderr=s_out)
+
+	refresh_logs()
+
+
 ###***************************************************************************************###
-   		###*************************** GUI CLASS BELOW **************************###
+   		###*************************** GUI PROGRAM BELOW **************************###
+###***************************************************************************************###
+
+root = Tk()
+root.geometry("880x705")
+root.title('CLARITE')
+n = ttk.Notebook(root)
+
+#Title of Program
+title_label = Label(root,bg="white",text = "CLeaning to Analysis: Reproducibility-based Interface for Traits and Exposures (CLARITE)")
+title_label.config(font=("Comfortaa", 20))
+title_label.pack(pady=15)
+title_label.config(fg="cyan4")
+title_label.pack(fill=X)
+
+
+place_holder = Label(root, text="")
+place_holder.config(font=("Comfortaa", 14))
+place_holder.pack()
+place_holder_2 = Label(root, text="")
+place_holder_2.config(font=("Comfortaa", 14))
+place_holder_2.pack()
+place_holder_3 = Label(root, text="")
+place_holder_3.config(font=("Comfortaa", 14))
+place_holder_3.pack()
+
+
+
+#Choose Initial File
+global choose_start_file_name
+choose_start_file_name= StringVar()
+choose_start_file_name.set("Start by Choosing a Data File")
+choose_file = Button(root,text="Choose File", command= choose_start_file)
+choose_file.place(x=281,y=47)
+
+choose_file_label = Label(root, textvariable=choose_start_file_name)
+choose_file_label.config(font=("Comfortaa", 14))
+choose_file_label.place(x=390,y=53)
+
+
+
+global choose_directory_file_name
+choose_directory_file_name= StringVar()
+choose_directory_file_name.set("Output Folder:  " + GLOBAL_OUTPUT_DIRECTORY)
+
+#Choose Output Directory
+output_directory_label = Label(root,bg="white",textvariable=choose_directory_file_name)
+output_directory_label.config(font=("Comfortaa", 13))
+output_directory_label.config(fg="black")
+output_directory_label.place(x=390,y=86)
+
+choose_file = Button(root,text="Change", command= choose_output_directory)
+choose_file.place(x=281,y=81)
+
+
+
+
+
+#Creates the three tabs
+f1 = Frame(n,width=300,height=300)
+f2 = Frame(n,width=300,height=300)
+f3 = Frame(n,width=300,height=300)
+n.add(f1,text="Descriptive")
+n.add(f2,text="Quality Control")
+n.add(f3,text="Association")
+
+
+
+###***************************************************************************************###
+   		###*************************** GUI PROGRAM  **************************###
+###******************************Descriptive - General**********************************************###
+###***************************************************************************************###
+def get_uniq_popup():
+	toplevel = Toplevel()
+	toplevel.geometry("245x205")
+
+	label1 = Label(toplevel,bg="white",text = "Get Unique Values")
+	label1.config(font=("Comfortaa", 18))
+	label1.pack(pady=(0,15))
+	label1.config(fg="cyan4")
+	label1.pack(fill=X)
+
+	run_levels_button=Button(toplevel,text="Run", command=get_uniq)
+	run_levels_button.pack(fill=X)
+	# toplevel.destroy()
+
+def sample_size_popup():
+	toplevel = Toplevel()
+	toplevel.geometry("245x205")
+
+	label1 = Label(toplevel,bg="white",text = "Sample Size")
+	label1.config(font=("Comfortaa", 18))
+	label1.pack(pady=(0,15))
+	label1.config(fg="cyan4")
+	label1.pack(fill=X)
+
+	run_levels_button=Button(toplevel,text="Run", command=sample_size)
+	run_levels_button.pack(fill=X)
+	# toplevel.destroy()
+
+
+###***************************************************************************************###
+#Creating the buttons for the left section of Frame One
+left_frame = Frame(f1)
+left_frame.pack(side=LEFT)
+right_frame = Frame(f1)
+right_frame.pack(side=RIGHT)
+
+l1 = Label(left_frame,bg="white",text = "General")
+l1.config(font=("Comfortaa", 20))
+l1.pack(pady=(0,5))
+l1.pack(padx=(75,0))
+l1.config(fg="cyan4")
+l1.pack(fill=X)
+
+get_uniq_button = Button(left_frame,text="Get Unique Values", command= get_uniq_popup)
+get_uniq_button.pack(padx=(75,0))
+get_uniq_button.config(width = 13)
+
+Sample_Size = Button(left_frame,text="Sample Size", command= sample_size_popup)
+Sample_Size.pack(padx=(75,0))
+Sample_Size.config(width = 13)
+
+
+
+
+###***************************************************************************************###
+   		###*************************** GUI PROGRAM  **************************###
+###******************************Descriptive - Categorical**********************************************###
+###***************************************************************************************###
+def frequency_table_popup():
+
+	toplevel = Toplevel()
+	toplevel.geometry("245x205")
+
+	label1 = Label(toplevel,bg="white",text = "Frequency Table")
+	label1.config(font=("Comfortaa", 18))
+	label1.pack(pady=(0,15))
+	label1.config(fg="cyan4")
+	label1.pack(fill=X)
+
+	run_levels_button=Button(toplevel,text="Run", command=frequency_table)
+	run_levels_button.pack(fill=X)
+
+def bar_plot_popup():
+
+	toplevel = Toplevel()
+	toplevel.geometry("300x235")
+
+	label1 = Label(toplevel,bg="white",text = "Bar Plot")
+	label1.grid(row=0, column=0, columnspan=2)
+	label1.config(font=("Comfortaa", 18))
+	label1.config(fg="cyan4")
+
+	
+	global bp1
+	bp1= StringVar()
+	bp1.set("")
+
+	global bp2
+	bp2= StringVar()
+	bp2.set("")
+
+	global bp3
+	bp3= StringVar()
+	bp3.set("")
+
+	global bp4
+	bp4= StringVar()
+	bp4.set("")
+
+	global bp5
+	bp5= StringVar()
+	bp5.set("")
+
+	global bp6
+	bp6= StringVar()
+	bp6.set("")
+
+	plots_label = Label(toplevel, text="Plots Per Page",font=("Comfortaa", 14))
+	plots_label.grid(row=1, column=0)
+
+	plots_labelentry_box  = Entry(toplevel, textvariable=bp1, width=15, bg="alice blue")
+	plots_labelentry_box.grid(row=1, column=1)
+
+	row_label = Label(toplevel, text="Rows Per Page",font=("Comfortaa", 14))
+	row_label.grid(row=2, column=0)
+	row_label_entry_box  = Entry(toplevel, textvariable=bp2, width=15, bg="alice blue")
+	row_label_entry_box.grid(row=2, column=1)
+
+	column_label = Label(toplevel, text="Columns Per Page",font=("Comfortaa", 14))
+	column_label.grid(row=3, column=0)
+	column_label_entry_box  = Entry(toplevel, textvariable=bp3, width=15, bg="alice blue")
+	column_label_entry_box.grid(row=3, column=1)
+
+	width_label = Label(toplevel, text="Width of Plot",font=("Comfortaa", 14))
+	width_label.grid(row=4, column=0)
+	width_label_entry_box  = Entry(toplevel, textvariable=bp4, width=15, bg="alice blue")
+	width_label_entry_box.grid(row=4, column=1)
+
+	height_label = Label(toplevel, text="Height of Plot",font=("Comfortaa", 14))
+	height_label.grid(row=5, column=0)
+	height_label_entry_box  = Entry(toplevel, textvariable=bp5, width=15, bg="alice blue")
+	height_label_entry_box.grid(row=5, column=1)
+
+	resolution_label = Label(toplevel, text="Resolution of Plot",font=("Comfortaa", 14))
+	resolution_label.grid(row=6, column=0)
+	resolution_label_entry_box  = Entry(toplevel, textvariable=bp6, width=15, bg="alice blue")
+	resolution_label_entry_box.grid(row=6, column=1)
+
+
+	run_barplot_button=Button(toplevel,text="Run", command=barplot, width=13)
+	run_barplot_button.grid(row=7, column=0,columnspan=2)
+
+
+def chi_square_popup():
+
+	toplevel = Toplevel()
+	toplevel.geometry("245x205")
+
+	label1 = Label(toplevel,bg="white",text = "Chi-squared Test")
+	label1.config(font=("Comfortaa", 18))
+	label1.pack(pady=(0,15))
+	label1.config(fg="cyan4")
+	label1.pack(fill=X)
+
+	run_levels_button=Button(toplevel,text="Run", command=chisq_tests)
+	run_levels_button.pack(fill=X)
+
+
+###***************************************************************************************###
+#Creating the buttons for the middle section of Frame One
+l2 = Label(f1,bg="white",text = "Categorical")
+l2.config(font=("Comfortaa", 20))
+l2.pack(pady=(55,5))
+l2.config(fg="cyan4")
+l2.pack(fill=X)
+
+frequency_table_button = Button(f1,text="Frequency Table", command= frequency_table_popup)
+frequency_table_button.pack(padx=(0,0))
+frequency_table_button.config(width = 13)
+
+chi_square_test_button = Button(f1,text="Chi-squared Test", command= chi_square_popup)
+chi_square_test_button.pack(padx=(0,0))
+chi_square_test_button.config(width = 13)
+
+bar_plot_button = Button(f1,text="Bar Plot", command= bar_plot_popup)
+bar_plot_button.pack(padx=(0,0))
+bar_plot_button.config(width = 13)
+
+
+
+
+###***************************************************************************************###
+   		###*************************** GUI PROGRAM  **************************###
+###******************************Descriptive - Continuous**********************************************###
+###***************************************************************************************###
+def correlations_popup():
+
+	toplevel = Toplevel()
+	toplevel.geometry("325x215")
+
+	label1 = Label(toplevel,bg="white",text = "Correlations")
+	label1.grid(row=0, column=0, columnspan=2)
+	label1.config(font=("Comfortaa", 18))
+	label1.config(fg="cyan4")
+
+
+
+	global find_correlations_var
+	find_correlations_var= StringVar()
+	find_correlations_var.set("")
+
+	find_correlations_var_label = Label(toplevel, text="Correlation Threshold",font=("Comfortaa", 14))
+	find_correlations_var_label.grid(row=1, column=0)
+	find_correlations_var_label_entry_box  = Entry(toplevel, textvariable=find_correlations_var, width=15, bg="alice blue")
+	find_correlations_var_label_entry_box.grid(row=1, column=1)
+
+
+	get_check_button = Button(toplevel,text="Correlations", command= correlations)
+	get_check_button.grid(row=2, column=0,columnspan=2)
+
+
+
+def outliers_popup():
+
+	toplevel = Toplevel()
+	toplevel.geometry("255x215")
+
+	label1 = Label(toplevel,bg="white",text = "Outlier Impact")
+	label1.grid(row=0, column=0, columnspan=2)
+	label1.config(font=("Comfortaa", 18))
+	label1.config(fg="cyan4")
+
+
+	global find_outliers_var
+	find_outliers_var= StringVar()
+	find_outliers_var.set("")
+
+	find_outliers_var_label = Label(toplevel, text="SD From Mean",font=("Comfortaa", 14))
+	find_outliers_var_label.grid(row=1, column=0)
+	find_outliers_var_label_entry_box  = Entry(toplevel, textvariable=find_outliers_var, width=15, bg="alice blue")
+	find_outliers_var_label_entry_box.grid(row=1, column=1)
+
+
+	get_check_button = Button(toplevel,text="Outlier Impact", command= outlier_impact)
+	get_check_button.grid(row=2, column=0,columnspan=2)
+
+
+
+def box_plot_popup():
+
+	toplevel = Toplevel()
+	toplevel.geometry("300x235")
+
+	label1 = Label(toplevel,bg="white",text = "Box Plot")
+	label1.grid(row=0, column=0, columnspan=2)
+	label1.config(font=("Comfortaa", 18))
+	label1.config(fg="cyan4")
+
+	
+	global bx1
+	bx1= StringVar()
+	bx1.set("")
+
+	global bx2
+	bx2= StringVar()
+	bx2.set("")
+
+	global bx3
+	bx3= StringVar()
+	bx3.set("")
+
+	global bx4
+	bx4= StringVar()
+	bx4.set("")
+
+	global bx5
+	bx5= StringVar()
+	bx5.set("")
+
+	global bx6
+	bx6= StringVar()
+	bx6.set("")
+
+	plots_label = Label(toplevel, text="Plots Per Page",font=("Comfortaa", 14))
+	plots_label.grid(row=1, column=0)
+	plots_labelentry_box  = Entry(toplevel, textvariable=bx1, width=15, bg="alice blue")
+	plots_labelentry_box.grid(row=1, column=1)
+
+	row_label = Label(toplevel, text="Rows Per Page",font=("Comfortaa", 14))
+	row_label.grid(row=2, column=0)
+	row_label_entry_box  = Entry(toplevel, textvariable=bx2, width=15, bg="alice blue")
+	row_label_entry_box.grid(row=2, column=1)
+
+	column_label = Label(toplevel, text="Columns Per Page",font=("Comfortaa", 14))
+	column_label.grid(row=3, column=0)
+	column_label_entry_box  = Entry(toplevel, textvariable=bx3, width=15, bg="alice blue")
+	column_label_entry_box.grid(row=3, column=1)
+
+	width_label = Label(toplevel, text="Width of Plot",font=("Comfortaa", 14))
+	width_label.grid(row=4, column=0)
+	width_label_entry_box  = Entry(toplevel, textvariable=bx4, width=15, bg="alice blue")
+	width_label_entry_box.grid(row=4, column=1)
+
+	height_label = Label(toplevel, text="Height of Plot",font=("Comfortaa", 14))
+	height_label.grid(row=5, column=0)
+	height_label_entry_box  = Entry(toplevel, textvariable=bx5, width=15, bg="alice blue")
+	height_label_entry_box.grid(row=5, column=1)
+
+	resolution_label = Label(toplevel, text="Resolution of Plot",font=("Comfortaa", 14))
+	resolution_label.grid(row=6, column=0)
+	resolution_label_entry_box  = Entry(toplevel, textvariable=bx6, width=15, bg="alice blue")
+	resolution_label_entry_box.grid(row=6, column=1)
+
+
+	box_plot_button = Button(toplevel,text="Run", command= boxplot)
+	box_plot_button.grid(row=7, column=0,columnspan=2)
+
+
+
+def histogram_popup():
+
+	toplevel = Toplevel()
+	toplevel.geometry("300x235")
+
+	label1 = Label(toplevel,bg="white",text = "Histogram")
+	label1.grid(row=0, column=0, columnspan=2)
+	label1.config(font=("Comfortaa", 18))
+	label1.config(fg="cyan4")
+
+
+	plots_label = Label(toplevel, text="Plots Per Page",font=("Comfortaa", 14))
+	plots_label.grid(row=1, column=0)
+
+
+	global h1
+	h1= StringVar()
+	h1.set("")
+
+	global h2
+	h2= StringVar()
+	h2.set("")
+
+	global h3
+	h3= StringVar()
+	h3.set("")
+
+	global h4
+	h4= StringVar()
+	h4.set("")
+
+	global h5
+	h5= StringVar()
+	h5.set("")
+
+	global h6
+	h6= StringVar()
+	h6.set("")
+
+
+	plots_label = Label(toplevel, text="Plots Per Page",font=("Comfortaa", 14))
+	plots_label.grid(row=1, column=0)
+	plots_labelentry_box  = Entry(toplevel, textvariable=h1, width=15, bg="alice blue")
+	plots_labelentry_box.grid(row=1, column=1)
+
+	row_label = Label(toplevel, text="Rows Per Page",font=("Comfortaa", 14))
+	row_label.grid(row=2, column=0)
+	row_label_entry_box  = Entry(toplevel, textvariable=h2, width=15, bg="alice blue")
+	row_label_entry_box.grid(row=2, column=1)
+
+	column_label = Label(toplevel, text="Columns Per Page",font=("Comfortaa", 14))
+	column_label.grid(row=3, column=0)
+	column_label_entry_box  = Entry(toplevel, textvariable=h3, width=15, bg="alice blue")
+	column_label_entry_box.grid(row=3, column=1)
+
+	width_label = Label(toplevel, text="Width of Plot",font=("Comfortaa", 14))
+	width_label.grid(row=4, column=0)
+	width_label_entry_box  = Entry(toplevel, textvariable=h4, width=15, bg="alice blue")
+	width_label_entry_box.grid(row=4, column=1)
+
+	height_label = Label(toplevel, text="Height of Plot",font=("Comfortaa", 14))
+	height_label.grid(row=5, column=0)
+	height_label_entry_box  = Entry(toplevel, textvariable=h5, width=15, bg="alice blue")
+	height_label_entry_box.grid(row=5, column=1)
+
+	resolution_label = Label(toplevel, text="Resolution of Plot",font=("Comfortaa", 14))
+	resolution_label.grid(row=6, column=0)
+	resolution_label_entry_box  = Entry(toplevel, textvariable=h6, width=15, bg="alice blue")
+	resolution_label_entry_box.grid(row=6, column=1)
+
+
+	histogram_button2 = Button(toplevel,text="Run", command= histogram, width=12)
+	histogram_button2.grid(row=7, column=0,columnspan=2)
+
+
+def qq_plot_popup():
+
+	toplevel = Toplevel()
+	toplevel.geometry("300x235")
+
+	label1 = Label(toplevel,bg="white",text = "QQ Plot")
+	label1.grid(row=0, column=0, columnspan=2)
+	label1.config(font=("Comfortaa", 18))
+	label1.config(fg="cyan4")
+
+
+	global qq1
+	qq1= StringVar()
+	qq1.set("")
+
+	global qq2
+	qq2= StringVar()
+	qq2.set("")
+
+	global qq3
+	qq3= StringVar()
+	qq3.set("")
+
+	global qq4
+	qq4= StringVar()
+	qq4.set("")
+
+	global qq5
+	qq5= StringVar()
+	qq5.set("")
+
+	global qq6
+	qq6= StringVar()
+	qq6.set("")
+
+
+	plots_label = Label(toplevel, text="Plots Per Page",font=("Comfortaa", 14))
+	plots_label.grid(row=1, column=0)
+	plots_labelentry_box  = Entry(toplevel, textvariable=qq1, width=15, bg="alice blue")
+	plots_labelentry_box.grid(row=1, column=1)
+
+	row_label = Label(toplevel, text="Rows Per Page",font=("Comfortaa", 14))
+	row_label.grid(row=2, column=0)
+	row_label_entry_box  = Entry(toplevel, textvariable=qq2, width=15, bg="alice blue")
+	row_label_entry_box.grid(row=2, column=1)
+
+	column_label = Label(toplevel, text="Columns Per Page",font=("Comfortaa", 14))
+	column_label.grid(row=3, column=0)
+	column_label_entry_box  = Entry(toplevel, textvariable=qq3, width=15, bg="alice blue")
+	column_label_entry_box.grid(row=3, column=1)
+
+	width_label = Label(toplevel, text="Width of Plot",font=("Comfortaa", 14))
+	width_label.grid(row=4, column=0)
+	width_label_entry_box  = Entry(toplevel, textvariable=qq4, width=15, bg="alice blue")
+	width_label_entry_box.grid(row=4, column=1)
+
+	height_label = Label(toplevel, text="Height of Plot",font=("Comfortaa", 14))
+	height_label.grid(row=5, column=0)
+	height_label_entry_box  = Entry(toplevel, textvariable=qq5, width=15, bg="alice blue")
+	height_label_entry_box.grid(row=5, column=1)
+
+	resolution_label = Label(toplevel, text="Resolution of Plot",font=("Comfortaa", 14))
+	resolution_label.grid(row=6, column=0)
+	resolution_label_entry_box  = Entry(toplevel, textvariable=qq6, width=15, bg="alice blue")
+	resolution_label_entry_box.grid(row=6, column=1)
+
+
+	qq_plot_button = Button(toplevel,text="Run", command= qqplot, width=12)
+	qq_plot_button.grid(row=7, column=0,columnspan=2)
+
+
+
+###***************************************************************************************###
+#Creating the buttons for the right section of Frame One
+l3 = Label(right_frame,bg="white",text = "Continuous")
+l3.config(font=("Comfortaa", 20))
+l3.pack(pady=(53,5))
+l3.pack(padx=(0,75))
+l3.config(fg="cyan4")
+l3.pack(fill=X)
+
+correlations_button = Button(right_frame,text="Correlations", command= correlations_popup)
+correlations_button.pack(padx=(0,75))
+correlations_button.config(width = 13)
+
+outliers_button = Button(right_frame,text="Outliers", command= outliers_popup)
+outliers_button.pack(padx=(0,75))
+outliers_button.config(width = 13)
+
+histogram_button = Button(right_frame,text="Histogram", command= histogram_popup)
+histogram_button.pack(padx=(0,75))
+histogram_button.config(width = 13)
+
+box_plot_button = Button(right_frame,text="Box Plot", command= box_plot_popup)
+box_plot_button.pack(side=LEFT)
+box_plot_button.config(width = 5)
+
+qq_pot_button = Button(right_frame,text="QQPlot", command= qq_plot_popup)
+qq_pot_button.pack(padx=(0,75))
+qq_pot_button.config(width = 5)
+
+
+
+
+###***************************************************************************************###
+   		###*************************** GUI PROGRAM  **************************###
+###******************************Quality Control - General**********************************************###
+###***************************************************************************************###
+
+def colfilter_popup():
+
+	toplevel = Toplevel()
+	toplevel.geometry("300x235")
+
+	label1 = Label(toplevel,bg="white",text = "Variable Filter")
+	label1.grid(row=0, column=0, columnspan=2)
+	label1.config(font=("Comfortaa", 18))
+	label1.config(fg="cyan4")
+
+
+	global cofilter1
+	cofilter1= StringVar()
+	cofilter1.set("No File Chosen")
+	cofilter1_label = Label(toplevel, textvariable=cofilter1,font=("Comfortaa", 14))
+	cofilter1_label.grid(row=1, column=1)
+
+
+	upload_columns_button = Button(toplevel,text="Choose File", command= column_file_chosen)
+	upload_columns_button.grid(row=1, column=0)
+
+	get_check_button = Button(toplevel,text="Run", command= col_filter)
+	get_check_button.grid(row=2, column=0,columnspan=2)
+
+
+
+def rowfilter_popup():
+
+	toplevel = Toplevel()
+	toplevel.geometry("300x235")
+
+	label1 = Label(toplevel,bg="white",text = "Sample Filter")
+	label1.grid(row=0, column=0, columnspan=2)
+	label1.config(font=("Comfortaa", 18))
+	label1.config(fg="cyan4")
+
+	global rowfilter1
+	rowfilter1= StringVar()
+	rowfilter1.set("No File Chosen")
+	rowfilter1_label = Label(toplevel, textvariable=rowfilter1,font=("Comfortaa", 14))
+	rowfilter1_label.grid(row=1, column=1)
+
+	upload_columns_button = Button(toplevel,text="Choose File", command= sample_file_chosen)
+	upload_columns_button.grid(row=1, column=0)
+	
+	get_check_button = Button(toplevel,text="Run", command= sample_filter)
+	get_check_button.grid(row=2, column=0,columnspan=2)
+
+
+def get_continuous_popup():
+
+	toplevel = Toplevel()
+	toplevel.geometry("300x235")
+
+	label = Label(toplevel, text="Get Continuous Variables")
+	label.grid(row=0, column=0, columnspan=2)
+	label.config(font=("Comfortaa", 20))
+	label.config(fg="cyan4")
+
+
+	global continuous_var
+	continuous_var= StringVar()
+	continuous_var.set("")
+
+	continuous_label = Label(toplevel, text="Min Values Considered Continuous",font=("Comfortaa", 14))
+	continuous_label.grid(row=1, column=0)
+	continuous_label_entry_box  = Entry(toplevel, textvariable=continuous_var, width=15, bg="alice blue")
+	continuous_label_entry_box.grid(row=1, column=1)
+
+
+	get_continuous_button = Button(toplevel,text="Get Continuous Variables", command= get_continuous)
+	get_continuous_button.grid(row=2, column=0,columnspan=2)
+
+
+#Get Ambiguous Popup
+def get_check_popup():
+
+
+	toplevel = Toplevel()
+	toplevel.geometry("300x235")
+
+	label1 = Label(toplevel,bg="white",text = "Get Ambiguous")
+	label1.grid(row=0, column=0, columnspan=2)
+	label1.config(font=("Comfortaa", 18))
+	label1.config(fg="cyan4")
+
+
+	global ambiguous1
+	ambiguous1= StringVar()
+	ambiguous1.set("")
+	ambiguous1_label = Label(toplevel, text="Min Levels Desired",font=("Comfortaa", 14))
+	ambiguous1_label.grid(row=1, column=0)
+	ambiguous1_label_entry_box  = Entry(toplevel, textvariable=ambiguous1, width=15, bg="alice blue")
+	ambiguous1_label_entry_box.grid(row=1, column=1)
+
+
+	global ambiguous2
+	ambiguous2= StringVar()
+	ambiguous2.set("")
+	ambiguous2_label = Label(toplevel, text="Max Levels Desired",font=("Comfortaa", 14))
+	ambiguous2_label.grid(row=2, column=0)
+	ambiguous2_label_entry_box  = Entry(toplevel, textvariable=ambiguous2, width=15, bg="alice blue")
+	ambiguous2_label_entry_box.grid(row=2, column=1)
+
+
+	get_check_button = Button(toplevel,text="Run", command= get_check)
+	get_check_button.grid(row=3, column=0,columnspan=2)
+
+
+
+def get_categorical_popup():
+
+	toplevel = Toplevel()
+	toplevel.geometry("300x235")
+
+	label1 = Label(toplevel,bg="white",text = "Get Categorical")
+	label1.grid(row=0, column=0, columnspan=2)
+	label1.config(font=("Comfortaa", 18))
+	label1.config(fg="cyan4")
+
+
+	global categorical1
+	categorical1= StringVar()
+	categorical1.set("")
+	categorical1_label = Label(toplevel, text="Min Values to be Considered Categorical",font=("Comfortaa", 14))
+	categorical1_label.grid(row=1, column=0)
+	categorical1_label_entry_box  = Entry(toplevel, textvariable=categorical1, width=15, bg="alice blue")
+	categorical1_label_entry_box.grid(row=1, column=1)
+
+
+	global categorical2
+	categorical2= StringVar()
+	categorical2.set("")
+	categorical2_label = Label(toplevel, text="Max Values to be Considered Categorical",font=("Comfortaa", 14))
+	categorical2_label.grid(row=2, column=0)
+	categorical2_label_entry_box  = Entry(toplevel, textvariable=categorical2, width=15, bg="alice blue")
+	categorical2_label_entry_box.grid(row=2, column=1)
+
+
+	run_get_categorical_button=Button(toplevel,text="Run", command=get_categorical, width=12)
+	run_get_categorical_button.grid(row=3, column=0,columnspan=2)
+
+
+
+
+###***************************************************************************************###
+#Creating the buttons for the left section of Frame TWO
+f2_left_frame = Frame(f2)
+f2_left_frame.pack(side=LEFT)
+f2_right_frame = Frame(f2)
+f2_right_frame.pack(side=RIGHT)
+
+
+f2_l1 = Label(f2_left_frame,bg="white",text = "General")
+f2_l1.config(font=("Comfortaa", 20))
+f2_l1.pack(pady=(0,5))
+f2_l1.pack(padx=(75,0))
+f2_l1.config(fg="cyan4")
+f2_l1.pack(fill=X)
+
+
+Colfilter = Button(f2_left_frame,text="Variable Filter", command= colfilter_popup)
+Colfilter.pack(padx=(75,0))
+Colfilter.config(width = 13)
+
+rowfilter = Button(f2_left_frame,text="Sample Filter", command= rowfilter_popup)
+rowfilter.pack(padx=(75,0))
+rowfilter.config(width = 13)
+
+get_continuous_button = Button(f2_left_frame,text="Get Continuous", command= get_continuous_popup)
+get_continuous_button.pack(padx=(75,0))
+get_continuous_button.config(width = 13)
+
+get_categorical_button = Button(f2_left_frame,text="Get Categorical", command= get_categorical_popup)
+get_categorical_button.pack(padx=(75,0))
+get_categorical_button.config(width = 13)
+
+get_check_button = Button(f2_left_frame,text="Get Ambiguous", command= get_check_popup)
+get_check_button.pack(padx=(75,0))
+get_check_button.config(width = 13)
+
+
+###***************************************************************************************###
+   		###*************************** GUI PROGRAM  **************************###
+###******************************Quality Control - Categorical**********************************************###
+###***************************************************************************************###
+def min_cat_n():
+	print("min_cat_n_called")
+
+
+def min_cat_n_popup():
+
+	toplevel = Toplevel()
+	toplevel.geometry("245x205")
+
+
+	label = Label(toplevel, text="Min Category Size")
+	label.grid(row=0, column=0, columnspan=2)
+	label.config(font=("Comfortaa", 20))
+	label.config(fg="cyan4")
+
+
+	global min_cat_n_var
+	min_cat_n_var= StringVar()
+	min_cat_n_var.set("")
+
+	min_cat_n_var_label = Label(toplevel, text="Min Samples per Category",font=("Comfortaa", 14))
+	min_cat_n_var_label.grid(row=1, column=0)
+	min_cat_n_var_label_entry_box  = Entry(toplevel, textvariable=min_cat_n_var, width=15, bg="alice blue")
+	min_cat_n_var_label_entry_box.grid(row=1, column=1)
+
+	get_check_button = Button(toplevel,text="Run", command= min_cat_n)
+	get_check_button.grid(row=2, column=0,columnspan=2)
+
+def min_n_popup():
+
+	toplevel = Toplevel()
+	toplevel.geometry("245x205")
+
+
+	label = Label(toplevel, text="Min # of Samples")
+	label.grid(row=0, column=0, columnspan=2)
+	label.config(font=("Comfortaa", 20))
+	label.config(fg="cyan4")
+
+
+	global min_n_var
+	min_n_var= StringVar()
+	min_n_var.set("")
+
+	min_n_var_label = Label(toplevel, text="Min # of Samples",font=("Comfortaa", 14))
+	min_n_var_label.grid(row=1, column=0)
+	min_n_var_label_entry_box  = Entry(toplevel, textvariable=min_n_var, width=15, bg="alice blue")
+	min_n_var_label_entry_box.grid(row=1, column=1)
+
+	get_check_button = Button(toplevel,text="Run", command= min_n)
+	get_check_button.grid(row=2, column=0,columnspan=2)
+
+
+###***************************************************************************************###
+#Creating the buttons for the middle section of Frame TWO
+f2_l2 = Label(f2,bg="white",text = "Categorical")
+f2_l2.config(font=("Comfortaa", 20))
+f2_l2.pack(pady=(51,5))
+f2_l2.config(fg="cyan4")
+f2_l2.pack(fill=X)
+
+
+min_cat_n_button = Button(f2,text="Min Category Size", command= min_cat_n_popup)
+min_cat_n_button.pack(padx=(0,0))
+min_cat_n_button.config(width = 13)
+
+
+min_n_button = Button(f2,text="Min # of Samples", command= min_n_popup)
+min_n_button.pack(padx=(0,0))
+min_n_button.config(width = 13)
+
+
+###***************************************************************************************###
+   		###*************************** GUI PROGRAM  **************************###
+###******************************Quality Control - Continuous**********************************************###
+###***************************************************************************************###
+def remove_outliers_popup():
+
+	toplevel = Toplevel()
+	toplevel.geometry("245x205")
+
+	label1 = Label(toplevel,bg="white",text = "Remove Outliers")
+	label1.config(font=("Comfortaa", 18))
+	label1.pack(pady=(0,15))
+	label1.config(fg="cyan4")
+	label1.pack(fill=X)
+
+	run_levels_button=Button(toplevel,text="Run", command=remove_outliers)
+	run_levels_button.pack(fill=X)
+	# toplevel.destroy()
+
+
+#Variable Specific Transformation Popup
+def transvar_popup():
+
+	toplevel = Toplevel()
+	toplevel.geometry("245x205")
+
+	label1 = Label(toplevel,bg="white",text = "Variable Specific Transformation")
+	label1.config(font=("Comfortaa", 18))
+	label1.pack(pady=(0,15))
+	label1.config(fg="cyan4")
+	label1.pack(fill=X)
+
+	run_levels_button=Button(toplevel,text="Run", command=transvar)
+	run_levels_button.pack(fill=X)
+
+
+
+
+###***************************************************************************************###
+#Creating the buttons for the right section of Frame TWO
+f2_l3 = Label(f2_right_frame,bg="white",text = "Continuous")
+f2_l3.config(font=("Comfortaa", 20))
+f2_l3.pack(pady=(0,5))
+f2_l3.pack(padx=(0,75))
+f2_l3.config(fg="cyan4")
+f2_l3.pack(fill=X)
+
+
+remove_outliers_button = Button(f2_right_frame,text="Remove Outliers", command= remove_outliers_popup)
+remove_outliers_button.pack(padx=(0,75))
+remove_outliers_button.config(width = 13)
+
+transvar_button = Button(f2_right_frame,text="Variable Specific Transformation", command= transvar_popup)
+transvar_button.pack(padx=(0,75))
+transvar_button.config(width = 13)
+
+
+
+
+###***************************************************************************************###
+   		###*************************** GUI PROGRAM  **************************###
+###****************************** Associations - EWAS  **********************************************###
+###***************************************************************************************###
+
+
+f3_left_frame = Frame(f3)
+f3_left_frame.pack(side=LEFT)
+f3_right_frame = Frame(f3)
+f3_right_frame.pack(side=RIGHT)
+
+label = Label(f3_left_frame, text="Environment-Wide Association Study")
+label.grid(row=0, column=0, columnspan=2)
+label.config(font=("Comfortaa", 20))
+label.config(fg="cyan4")
+
+
+
+
+###********************************GUI BOX Covariates***************************************###
+global listNodes_covariates 
+listNodes_covariates = Listbox(f3, width=16, height=3, font=("Helvetica", 12))
+listNodes_covariates.place(x=263,y=99)
+
+scrollbar_covariates  = Scrollbar(f3, orient="vertical")
+scrollbar_covariates.config(command=listNodes_covariates.yview)
+scrollbar_covariates.pack(side="right", fill="y")
+listNodes_covariates.config(yscrollcommand=scrollbar_covariates.set)
+
+global_covariate_string = ""
+def add_phenotype_to_list():
+	#Add the strig from entry box into the listNodes box
+	listNodes_covariates.insert(END, str(co_variates_var.get()))
+	#Moves the scroller down as more data is added to the box
+	listNodes_covariates.see(END)
+
+	#Concatenate all entry string into one string
+	global global_covariate_string
+	if not global_covariate_string:
+		global_covariate_string = global_covariate_string +  "'" + str(co_variates_var.get()) + "'"
+	else:
+		global_covariate_string = global_covariate_string + "," +"'" + str(co_variates_var.get()) + "'"
+	co_variates_var_label_entry_box.delete(0, 'end')
+
+
+#Covariate Variable 
+global co_variates_var
+co_variates_var= StringVar()
+co_variates_var.set("")
+global co_variates_var_label_entry_box  
+co_variates_var_label_entry_box = Entry(f3, textvariable=co_variates_var, width=15, bg="alice blue")
+co_variates_var_label_entry_box.place(x=262,y=146,width=76)
+
+#Add Button for covariate list
+add_phenotype_button = Button(f3,text="Add", command= add_phenotype_to_list)
+add_phenotype_button.place(x=338,y=146,width=45)
+
+co_variates_var_label = Label(f3, text="covariates",font=("Comfortaa", 14))
+co_variates_var_label.place(x=273,y=79)
+###***************************************************************************************###
+
+
+#file one upload
+global ewas_choosefile_1
+ewas_choosefile_1= StringVar()
+ewas_choosefile_1.set("No File Chosen")
+ewas_choosefile_1_label = Label(f3_left_frame, textvariable=ewas_choosefile_1,font=("Comfortaa", 14))
+ewas_choosefile_1_label.grid(row=1, column=1)
+upload_ewas1_button = Button(f3_left_frame,text="Choose Categorical file", command= ewas1_file_chosen)
+upload_ewas1_button.grid(row=1, column=0)
+
+
+#file two upload
+global ewas_choosefile_2
+ewas_choosefile_2= StringVar()
+ewas_choosefile_2.set("No File Chosen")
+ewas_choosefile_2_label = Label(f3_left_frame, textvariable=ewas_choosefile_2,font=("Comfortaa", 14))
+ewas_choosefile_2_label.grid(row=2, column=1)
+upload_ewas2_button = Button(f3_left_frame,text="Choose Continuous file", command= ewas2_file_chosen)
+upload_ewas2_button.grid(row=2, column=0)
+
+
+
+regression_label = Label(f3_left_frame, text="Regression : ",font=("Comfortaa", 14))
+regression_label.grid(row=3, column=0)
+
+correction_label = Label(f3_left_frame, text="Multiple Test Correction: ",font=("Comfortaa", 14))
+correction_label.grid(row=4, column=0)
+
+#Regression Drop Down Menu
+regressionVar = tk.StringVar()
+regression_choices = ("Linear", "Logistic")
+regressionVar.set("Select")
+regression_menu = tk.OptionMenu(f3_left_frame, regressionVar, *regression_choices)
+regression_menu.place(x=105,y=81)
+
+
+#Correction Drop Down Menu
+correctionVar = tk.StringVar()
+correction_choices = ("Bonferroni", "Fdr", "Both")
+correctionVar.set("Select")
+correction_menu = tk.OptionMenu(f3_left_frame, correctionVar, *correction_choices)
+correction_menu.place(x=105,y=105)
+
+
+#Phenotypes
+global phenotype_var
+phenotype_var= StringVar()
+phenotype_var.set("")
+phenotype_var_label = Label(f3_left_frame, text="Phenotype: ",font=("Comfortaa", 14))
+phenotype_var_label.grid(row=6, column=0)
+phenotype_var_label_entry_box  = Entry(f3, textvariable=phenotype_var, width=15, bg="alice blue")
+phenotype_var_label_entry_box.place(x=90,y=147)
+
+
+ewas_button = Button(f3,text="Run", command= ewas)
+ewas_button.place(x=90,y=173)
+ewas_button.config(width=13)
+
+
+#Formatting Purposes
+place_holder1 = Label(f3_left_frame, text="",font=("Comfortaa", 14))
+place_holder1.grid(row=5, column=3)
+place_holder2 = Label(f3_left_frame, text="",font=("Comfortaa", 14))
+place_holder2.grid(row=7, column=0)
+
+
+
+
+
+
+
+
+###***************************************************************************************###
+   		###*************************** GUI PROGRAM  **************************###
+###****************************** Associations - MPLOT  **********************************************###
+###***************************************************************************************###
+
+label = Label(f3_right_frame, text="Manhattan Plot")
+label.grid(row=0, column=0, columnspan=2)
+label.config(font=("Comfortaa", 20))
+label.config(fg="cyan4")
+
+
+
+#Groups File - Optional
+global manhattan_plot_choosefile_1
+manhattan_plot_choosefile_1= StringVar()
+manhattan_plot_choosefile_1.set("No File Chosen")
+groups_file_button = Button(f3_right_frame,text="Choose Groups File ++", command= ewas1_file_chosen)
+groups_file_button.grid(row=1, column=0)
+manhattan_plot_choosefile_1_label = Label(f3_right_frame, textvariable=manhattan_plot_choosefile_1,font=("Comfortaa", 14))
+manhattan_plot_choosefile_1_label.grid(row=1, column=1)
+
+
+#P value - Optional
+global p_value_threshold_var
+p_value_threshold_var= StringVar()
+p_value_threshold_var.set("")
+pvalue_threshold_label = Label(f3_right_frame, text="P Value Threshold ++: ",font=("Comfortaa", 14))
+pvalue_threshold_label.grid(row=2, column=0)
+pvalue_threshold_label_entry_box  = Entry(f3_right_frame, textvariable=p_value_threshold_var, width=15, bg="alice blue")
+pvalue_threshold_label_entry_box.grid(row=2, column=1)
+
+
+#Title - Optional
+global plot_title_var
+plot_title_var= StringVar()
+plot_title_var.set("")
+plot_title_label = Label(f3_right_frame, text="Plot Title ++: ",font=("Comfortaa", 14))
+plot_title_label.grid(row=3, column=0)
+plot_title_label_entry_box  = Entry(f3_right_frame, textvariable=plot_title_var, width=15, bg="alice blue")
+plot_title_label_entry_box.grid(row=3, column=1)
+
+
+
+global man_height_of_plot_var
+man_height_of_plot_var= StringVar()
+man_height_of_plot_var.set("")
+plot_height_label = Label(f3_right_frame, text="Height of Plot: ",font=("Comfortaa", 14))
+plot_height_label.grid(row=4, column=0)
+plot_height_label_entry_box  = Entry(f3_right_frame, textvariable=man_height_of_plot_var, width=15, bg="alice blue")
+plot_height_label_entry_box.grid(row=4, column=1)
+
+
+
+global man_width_of_plot_var
+man_width_of_plot_var= StringVar()
+man_width_of_plot_var.set("")
+plot_width_label = Label(f3_right_frame, text="Width of Plot: ",font=("Comfortaa", 14))
+plot_width_label.grid(row=5, column=0)
+plot_width_label_entry_box  = Entry(f3_right_frame, textvariable=man_width_of_plot_var, width=15, bg="alice blue")
+plot_width_label_entry_box.grid(row=5, column=1)
+
+
+
+global man_res_of_plot_var
+man_res_of_plot_var= StringVar()
+man_res_of_plot_var.set("")
+plot_resolution_label = Label(f3_right_frame, text="Resolution of Plot: ",font=("Comfortaa", 14))
+plot_resolution_label.grid(row=6, column=0)
+plot_resolution_label_entry_box  = Entry(f3_right_frame, textvariable=man_res_of_plot_var, width=15, bg="alice blue")
+plot_resolution_label_entry_box.grid(row=6, column=1)
+
+
+
+#Colors in Program
+moreColorsVar_label = Label(f3_right_frame, text="Plot Colors: ",font=("Comfortaa", 14))
+moreColorsVar_label.grid(row=7, column=0)
+moreColorsVar = tk.StringVar()
+moreColorVar_choices = ("Standard Colors", "Expanded Colors")
+moreColorsVar.set("Select")
+moreColorsVar_menu = tk.OptionMenu(f3_right_frame, moreColorsVar, *moreColorVar_choices)
+moreColorsVar_menu.grid(row=7, column=1)
+
+
+
+
+ewas_output_Var_label = Label(f3_right_frame, text="EWAS output: ",font=("Comfortaa", 14))
+ewas_output_Var_label.grid(row=8, column=0)
+
+ewas_output_Var = tk.StringVar()
+ewas_output_Var_choices = ("Yes", "No")
+ewas_output_Var.set("Select")
+
+ewas_output_Var_menu = tk.OptionMenu(f3_right_frame, ewas_output_Var, *ewas_output_Var_choices)
+ewas_output_Var_menu.grid(row=8, column=1)
+
+
+
+
+
+
+
+###***************************************************************************************###
+   		###*************************** Logging PROGRAM  **************************###
+###****************************** Logs all inputs & STDOUT/ERROR  **********************************************###
+###***************************************************************************************###
+
+def refresh_logs():
+
+	listNodes.delete(0,END)
+    	with open(log_file_name) as f:
+		for line in f:
+
+			listNodes.insert(END, str(line))
+
+	listNodes.see(END)
+
+def log_updater():
+
+
+	log_label = Label(root,bg="white",text = "Live Logs")
+	log_label.config(font=("Comfortaa", 15))
+	log_label.pack(pady=(5,0))
+	log_label.config(fg="black")
+	log_label.pack(fill=X)
+
+
+	frame = Frame(root)
+	frame.pack()
+
+	global listNodes 
+	listNodes = Listbox(frame, width=80, height=15, font=("Helvetica", 12))
+	listNodes.pack(side="left", fill="y")
+
+	scrollbar = Scrollbar(frame, orient="vertical")
+	scrollbar.config(command=listNodes.yview)
+	scrollbar.pack(side="right", fill="y")
+
+	listNodes.config(yscrollcommand=scrollbar.set)
+
+	refresh_logs()
+
+
+
+
+
+
+def instructions_popup(title, name_of_instr):
+
+	toplevel = Toplevel()
+	toplevel.geometry("410x435")
+
+	log_label = Label(toplevel,bg="white",text = title + " Instructions")
+	log_label.config(font=("Comfortaa", 15))
+	log_label.pack(pady=(5,0))
+	log_label.config(fg="cyan4")
+	log_label.pack(fill=X)
+
+
+	frame = Frame(root)
+	frame.pack()
+
+	global instructionNodes 
+	instructionNodes = Listbox(toplevel, width=66, height=5, font=("Helvetica", 12))
+	instructionNodes.pack(side="left", fill="y")
+
+	scrollbar = Scrollbar(toplevel, orient="vertical")
+	scrollbar.config(command=instructionNodes.yview)
+	scrollbar.pack(side="right", fill="y")
+
+	instructionNodes.config(yscrollcommand=scrollbar.set)
+
+	# instructionNodes.delete(0,END)
+
+
+    	with open(name_of_instr) as f:
+		for line in f:
+
+			instructionNodes.insert(END, str(line))
+
+	instructionNodes.see(END)
+
+
+
+
+
+
+grous_file_button = Button(root,width=IN_WIDTH, height = IN_HEIGHT,command= lambda: instructions_popup("Bar Plot", "man/bar_plot.Rd"))
+image = ImageTk.PhotoImage(file="instruction.png")
+grous_file_button.config(image=image)
+grous_file_button.image = image
+grous_file_button.pack()
+
+
+n.pack(fill=X)
+log_updater()
+root.mainloop()
+
+
+
+###***************************************************************************************###
+   		###*************************** OLD GUI CLASS BELOW **************************###
 ###***************************************************************************************###
 # class App(Tk):
 
@@ -986,32 +2377,32 @@ def chisq_tests():
 
 
 
-class StartPage(Frame):
-	def __init__(self,parent, controller):
-		Frame.__init__(self,parent)
+# class StartPage(Frame):
+# 	def __init__(self,parent, controller):
+# 		Frame.__init__(self,parent)
 
-		label = Label(self, text="Welcome to Data Cleaner")
-		label.config(width=200)
-		label.config(font=("Comfortaa", 35))
-		label.config(fg="cyan4")
+# 		label = Label(self, text="Welcome to Data Cleaner")
+# 		label.config(width=200)
+# 		label.config(font=("Comfortaa", 35))
+# 		label.config(fg="cyan4")
 
 
-		label.pack(pady=10)
+# 		label.pack(pady=10)
 
-		global choose_start_file_name
-		choose_start_file_name= StringVar()
-		choose_start_file_name.set("Start by Choosing a Data File")
+# 		global choose_start_file_name
+# 		choose_start_file_name= StringVar()
+# 		choose_start_file_name.set("Start by Choosing a Data File")
 
 		
-		choose_file_label = Label(self, textvariable=choose_start_file_name)
-		choose_file_label.config(font=("Comfortaa", 15))
-		choose_file_label.pack(pady=20)
+# 		choose_file_label = Label(self, textvariable=choose_start_file_name)
+# 		choose_file_label.config(font=("Comfortaa", 15))
+# 		choose_file_label.pack(pady=20)
 		
-		choose_file = Button(self,text="Chose File", command= choose_start_file)
-		choose_file.pack(pady=20)
+# 		choose_file = Button(self,text="Chose File", command= choose_start_file)
+# 		choose_file.pack(pady=20)
 
-		continue_button = Button(self,text="Continue", command= lambda:controller.show_frame(CheckPage))
-		continue_button.pack(pady=20)
+# 		continue_button = Button(self,text="Continue", command= lambda:controller.show_frame(CheckPage))
+# 		continue_button.pack(pady=20)
 		# self.button.pack(ipadx=10, ipady=10)
 
 
@@ -2009,1380 +3400,6 @@ class StartPage(Frame):
 # app.title('DataCleaner')
 # app.geometry("725x500")
 # app.mainloop()
-
-
-
-root = Tk()
-root.geometry("880x705")
-root.title('CLARITE')
-n = ttk.Notebook(root)
-
-
-title_label = Label(root,bg="white",text = "CLeaning to Analysis: Reproducibility-based Interface for Traits and Exposures (CLARITE)")
-title_label.config(font=("Comfortaa", 20))
-title_label.pack(pady=15)
-title_label.config(fg="cyan4")
-title_label.pack(fill=X)
-
-
-global choose_start_file_name
-choose_start_file_name= StringVar()
-choose_start_file_name.set("Start by Choosing a Data File")
-
-
-choose_file_label = Label(root, textvariable=choose_start_file_name)
-choose_file_label.config(font=("Comfortaa", 14))
-choose_file_label.pack(pady=5)
-
-
-choose_file = Button(root,text="Choose File", command= choose_start_file)
-choose_file.pack(pady=(0,35))
-
-
-f1 = Frame(n,width=300,height=300)
-f2 = Frame(n,width=300,height=300)
-f3 = Frame(n,width=300,height=300)
-
-n.add(f1,text="Descriptive")
-n.add(f2,text="Quality Control")
-n.add(f3,text="Association")
-
-###****************************General*******************************************###
-
-# def general_value_chosen(self, *args):
-#     value = selected_general_option.get()
-
-#     if value == "Get Unique Values":
-#     	get_uniq()
-#     	refresh_logs()
-
-#     if value == "Sample Size":
-#     	sample_size()
-#     	refresh_logs()
-
-
-
-
-
-def get_uniq_popup():
-	toplevel = Toplevel()
-	toplevel.geometry("245x205")
-
-	label1 = Label(toplevel,bg="white",text = "Get Unique Values")
-	label1.config(font=("Comfortaa", 18))
-	label1.pack(pady=(0,15))
-	label1.config(fg="cyan4")
-	label1.pack(fill=X)
-
-	run_levels_button=Button(toplevel,text="Run", command=get_uniq)
-	run_levels_button.pack(fill=X)
-	# toplevel.destroy()
-
-def sample_size_popup():
-	toplevel = Toplevel()
-	toplevel.geometry("245x205")
-
-	label1 = Label(toplevel,bg="white",text = "Sample Size")
-	label1.config(font=("Comfortaa", 18))
-	label1.pack(pady=(0,15))
-	label1.config(fg="cyan4")
-	label1.pack(fill=X)
-
-	run_levels_button=Button(toplevel,text="Run", command=sample_size)
-	run_levels_button.pack(fill=X)
-	# toplevel.destroy()
-
-
-
-left_frame = Frame(f1)
-left_frame.pack(side=LEFT)
-right_frame = Frame(f1)
-right_frame.pack(side=RIGHT)
-
-
-l1 = Label(left_frame,bg="white",text = "General")
-l1.config(font=("Comfortaa", 20))
-l1.pack(pady=(0,5))
-l1.pack(padx=(75,0))
-l1.config(fg="cyan4")
-l1.pack(fill=X)
-
-
-
-get_uniq_button = Button(left_frame,text="Get Unique Values", command= get_uniq_popup)
-get_uniq_button.pack(padx=(75,0))
-get_uniq_button.config(width = 13)
-
-
-Sample_Size = Button(left_frame,text="Sample Size", command= sample_size_popup)
-Sample_Size.pack(padx=(75,0))
-Sample_Size.config(width = 13)
-
-
-
-def frequency_table_popup():
-
-	toplevel = Toplevel()
-	toplevel.geometry("245x205")
-
-	label1 = Label(toplevel,bg="white",text = "Frequency Table")
-	label1.config(font=("Comfortaa", 18))
-	label1.pack(pady=(0,15))
-	label1.config(fg="cyan4")
-	label1.pack(fill=X)
-
-	run_levels_button=Button(toplevel,text="Run", command=frequency_table)
-	run_levels_button.pack(fill=X)
-	# toplevel.destroy()
-
-def bar_plot_popup():
-
-	toplevel = Toplevel()
-	toplevel.geometry("300x235")
-
-	label1 = Label(toplevel,bg="white",text = "Bar Plot")
-	label1.grid(row=0, column=0, columnspan=2)
-	label1.config(font=("Comfortaa", 18))
-	label1.config(fg="cyan4")
-
-	
-
-	global bp1
-	bp1= StringVar()
-	bp1.set("")
-
-	global bp2
-	bp2= StringVar()
-	bp2.set("")
-
-	global bp3
-	bp3= StringVar()
-	bp3.set("")
-
-	global bp4
-	bp4= StringVar()
-	bp4.set("")
-
-	global bp5
-	bp5= StringVar()
-	bp5.set("")
-
-	global bp6
-	bp6= StringVar()
-	bp6.set("")
-
-	plots_label = Label(toplevel, text="Plots Per Page",font=("Comfortaa", 14))
-	plots_label.grid(row=1, column=0)
-
-	plots_labelentry_box  = Entry(toplevel, textvariable=bp1, width=15, bg="alice blue")
-	plots_labelentry_box.grid(row=1, column=1)
-
-	row_label = Label(toplevel, text="Rows Per Page",font=("Comfortaa", 14))
-	row_label.grid(row=2, column=0)
-	row_label_entry_box  = Entry(toplevel, textvariable=bp2, width=15, bg="alice blue")
-	row_label_entry_box.grid(row=2, column=1)
-
-	column_label = Label(toplevel, text="Columns Per Page",font=("Comfortaa", 14))
-	column_label.grid(row=3, column=0)
-	column_label_entry_box  = Entry(toplevel, textvariable=bp3, width=15, bg="alice blue")
-	column_label_entry_box.grid(row=3, column=1)
-
-	width_label = Label(toplevel, text="Width of Plot",font=("Comfortaa", 14))
-	width_label.grid(row=4, column=0)
-	width_label_entry_box  = Entry(toplevel, textvariable=bp4, width=15, bg="alice blue")
-	width_label_entry_box.grid(row=4, column=1)
-
-	height_label = Label(toplevel, text="Height of Plot",font=("Comfortaa", 14))
-	height_label.grid(row=5, column=0)
-	height_label_entry_box  = Entry(toplevel, textvariable=bp5, width=15, bg="alice blue")
-	height_label_entry_box.grid(row=5, column=1)
-
-	resolution_label = Label(toplevel, text="Resolution of Plot",font=("Comfortaa", 14))
-	resolution_label.grid(row=6, column=0)
-	resolution_label_entry_box  = Entry(toplevel, textvariable=bp6, width=15, bg="alice blue")
-	resolution_label_entry_box.grid(row=6, column=1)
-
-
-	run_barplot_button=Button(toplevel,text="Run", command=barplot, width=13)
-	run_barplot_button.grid(row=7, column=0,columnspan=2)
-
-
-def chi_square_popup():
-
-	toplevel = Toplevel()
-	toplevel.geometry("245x205")
-
-	label1 = Label(toplevel,bg="white",text = "Chi-squared Test")
-	label1.config(font=("Comfortaa", 18))
-	label1.pack(pady=(0,15))
-	label1.config(fg="cyan4")
-	label1.pack(fill=X)
-
-	run_levels_button=Button(toplevel,text="Run", command=chisq_tests)
-	run_levels_button.pack(fill=X)
-	# toplevel.destroy()
-
-
-
-def categorical_value_chosen(self, *args):
-    value = selected_categorical_option.get()
-    print(value)
-
-
-l2 = Label(f1,bg="white",text = "Categorical")
-l2.config(font=("Comfortaa", 20))
-l2.pack(pady=(55,5))
-l2.config(fg="cyan4")
-l2.pack(fill=X)
-
-
-
-frequency_table_button = Button(f1,text="Frequency Table", command= frequency_table_popup)
-frequency_table_button.pack(padx=(0,0))
-frequency_table_button.config(width = 13)
-
-
-
-chi_square_test_button = Button(f1,text="Chi-squared Test", command= chi_square_popup)
-chi_square_test_button.pack(padx=(0,0))
-chi_square_test_button.config(width = 13)
-
-
-bar_plot_button = Button(f1,text="Bar Plot", command= bar_plot_popup)
-bar_plot_button.pack(padx=(0,0))
-bar_plot_button.config(width = 13)
-
-
-
-
-
-def correlations_popup():
-
-	toplevel = Toplevel()
-	toplevel.geometry("325x215")
-
-	label1 = Label(toplevel,bg="white",text = "Correlations")
-	label1.grid(row=0, column=0, columnspan=2)
-	label1.config(font=("Comfortaa", 18))
-	label1.config(fg="cyan4")
-
-
-
-	global find_correlations_var
-	find_correlations_var= StringVar()
-	find_correlations_var.set("")
-
-	find_correlations_var_label = Label(toplevel, text="Correlation Threshold",font=("Comfortaa", 14))
-	find_correlations_var_label.grid(row=1, column=0)
-	find_correlations_var_label_entry_box  = Entry(toplevel, textvariable=find_correlations_var, width=15, bg="alice blue")
-	find_correlations_var_label_entry_box.grid(row=1, column=1)
-
-
-
-	get_check_button = Button(toplevel,text="Correlations", command= correlations)
-	get_check_button.grid(row=2, column=0,columnspan=2)
-
-
-
-def outliers_popup():
-
-	toplevel = Toplevel()
-	toplevel.geometry("255x215")
-
-	label1 = Label(toplevel,bg="white",text = "Outlier Impact")
-	label1.grid(row=0, column=0, columnspan=2)
-	label1.config(font=("Comfortaa", 18))
-	label1.config(fg="cyan4")
-
-
-
-	global find_outliers_var
-	find_outliers_var= StringVar()
-	find_outliers_var.set("")
-
-	find_outliers_var_label = Label(toplevel, text="SD From Mean",font=("Comfortaa", 14))
-	find_outliers_var_label.grid(row=1, column=0)
-	find_outliers_var_label_entry_box  = Entry(toplevel, textvariable=find_outliers_var, width=15, bg="alice blue")
-	find_outliers_var_label_entry_box.grid(row=1, column=1)
-
-
-	get_check_button = Button(toplevel,text="Outlier Impact", command= outlier_impact)
-	get_check_button.grid(row=2, column=0,columnspan=2)
-
-
-
-def box_plot_popup():
-
-	toplevel = Toplevel()
-	toplevel.geometry("300x235")
-
-	label1 = Label(toplevel,bg="white",text = "Box Plot")
-	label1.grid(row=0, column=0, columnspan=2)
-	label1.config(font=("Comfortaa", 18))
-	label1.config(fg="cyan4")
-
-	
-	global bx1
-	bx1= StringVar()
-	bx1.set("")
-
-	global bx2
-	bx2= StringVar()
-	bx2.set("")
-
-	global bx3
-	bx3= StringVar()
-	bx3.set("")
-
-	global bx4
-	bx4= StringVar()
-	bx4.set("")
-
-	global bx5
-	bx5= StringVar()
-	bx5.set("")
-
-	global bx6
-	bx6= StringVar()
-	bx6.set("")
-
-
-
-	plots_label = Label(toplevel, text="Plots Per Page",font=("Comfortaa", 14))
-	plots_label.grid(row=1, column=0)
-	plots_labelentry_box  = Entry(toplevel, textvariable=bx1, width=15, bg="alice blue")
-	plots_labelentry_box.grid(row=1, column=1)
-
-	row_label = Label(toplevel, text="Rows Per Page",font=("Comfortaa", 14))
-	row_label.grid(row=2, column=0)
-	row_label_entry_box  = Entry(toplevel, textvariable=bx2, width=15, bg="alice blue")
-	row_label_entry_box.grid(row=2, column=1)
-
-	column_label = Label(toplevel, text="Columns Per Page",font=("Comfortaa", 14))
-	column_label.grid(row=3, column=0)
-	column_label_entry_box  = Entry(toplevel, textvariable=bx3, width=15, bg="alice blue")
-	column_label_entry_box.grid(row=3, column=1)
-
-	width_label = Label(toplevel, text="Width of Plot",font=("Comfortaa", 14))
-	width_label.grid(row=4, column=0)
-	width_label_entry_box  = Entry(toplevel, textvariable=bx4, width=15, bg="alice blue")
-	width_label_entry_box.grid(row=4, column=1)
-
-	height_label = Label(toplevel, text="Height of Plot",font=("Comfortaa", 14))
-	height_label.grid(row=5, column=0)
-	height_label_entry_box  = Entry(toplevel, textvariable=bx5, width=15, bg="alice blue")
-	height_label_entry_box.grid(row=5, column=1)
-
-	resolution_label = Label(toplevel, text="Resolution of Plot",font=("Comfortaa", 14))
-	resolution_label.grid(row=6, column=0)
-	resolution_label_entry_box  = Entry(toplevel, textvariable=bx6, width=15, bg="alice blue")
-	resolution_label_entry_box.grid(row=6, column=1)
-
-
-	box_plot_button = Button(toplevel,text="Run", command= boxplot)
-	box_plot_button.grid(row=7, column=0,columnspan=2)
-
-
-
-def histogram_popup():
-
-	toplevel = Toplevel()
-	toplevel.geometry("300x235")
-
-	label1 = Label(toplevel,bg="white",text = "Histogram")
-	label1.grid(row=0, column=0, columnspan=2)
-	label1.config(font=("Comfortaa", 18))
-	label1.config(fg="cyan4")
-
-	
-
-	plots_label = Label(toplevel, text="Plots Per Page",font=("Comfortaa", 14))
-	plots_label.grid(row=1, column=0)
-
-
-	global h1
-	h1= StringVar()
-	h1.set("")
-
-	global h2
-	h2= StringVar()
-	h2.set("")
-
-	global h3
-	h3= StringVar()
-	h3.set("")
-
-	global h4
-	h4= StringVar()
-	h4.set("")
-
-	global h5
-	h5= StringVar()
-	h5.set("")
-
-	global h6
-	h6= StringVar()
-	h6.set("")
-
-
-	plots_label = Label(toplevel, text="Plots Per Page",font=("Comfortaa", 14))
-	plots_label.grid(row=1, column=0)
-	plots_labelentry_box  = Entry(toplevel, textvariable=h1, width=15, bg="alice blue")
-	plots_labelentry_box.grid(row=1, column=1)
-
-	row_label = Label(toplevel, text="Rows Per Page",font=("Comfortaa", 14))
-	row_label.grid(row=2, column=0)
-	row_label_entry_box  = Entry(toplevel, textvariable=h2, width=15, bg="alice blue")
-	row_label_entry_box.grid(row=2, column=1)
-
-	column_label = Label(toplevel, text="Columns Per Page",font=("Comfortaa", 14))
-	column_label.grid(row=3, column=0)
-	column_label_entry_box  = Entry(toplevel, textvariable=h3, width=15, bg="alice blue")
-	column_label_entry_box.grid(row=3, column=1)
-
-	width_label = Label(toplevel, text="Width of Plot",font=("Comfortaa", 14))
-	width_label.grid(row=4, column=0)
-	width_label_entry_box  = Entry(toplevel, textvariable=h4, width=15, bg="alice blue")
-	width_label_entry_box.grid(row=4, column=1)
-
-	height_label = Label(toplevel, text="Height of Plot",font=("Comfortaa", 14))
-	height_label.grid(row=5, column=0)
-	height_label_entry_box  = Entry(toplevel, textvariable=h5, width=15, bg="alice blue")
-	height_label_entry_box.grid(row=5, column=1)
-
-	resolution_label = Label(toplevel, text="Resolution of Plot",font=("Comfortaa", 14))
-	resolution_label.grid(row=6, column=0)
-	resolution_label_entry_box  = Entry(toplevel, textvariable=h6, width=15, bg="alice blue")
-	resolution_label_entry_box.grid(row=6, column=1)
-
-
-	histogram_button2 = Button(toplevel,text="Run", command= histogram, width=12)
-	histogram_button2.grid(row=7, column=0,columnspan=2)
-
-
-
-
-def qq_plot_popup():
-
-	toplevel = Toplevel()
-	toplevel.geometry("300x235")
-
-	label1 = Label(toplevel,bg="white",text = "QQ Plot")
-	label1.grid(row=0, column=0, columnspan=2)
-	label1.config(font=("Comfortaa", 18))
-	label1.config(fg="cyan4")
-
-
-	global qq1
-	qq1= StringVar()
-	qq1.set("")
-
-	global qq2
-	qq2= StringVar()
-	qq2.set("")
-
-	global qq3
-	qq3= StringVar()
-	qq3.set("")
-
-	global qq4
-	qq4= StringVar()
-	qq4.set("")
-
-	global qq5
-	qq5= StringVar()
-	qq5.set("")
-
-	global qq6
-	qq6= StringVar()
-	qq6.set("")
-
-
-	plots_label = Label(toplevel, text="Plots Per Page",font=("Comfortaa", 14))
-	plots_label.grid(row=1, column=0)
-	plots_labelentry_box  = Entry(toplevel, textvariable=qq1, width=15, bg="alice blue")
-	plots_labelentry_box.grid(row=1, column=1)
-
-	row_label = Label(toplevel, text="Rows Per Page",font=("Comfortaa", 14))
-	row_label.grid(row=2, column=0)
-	row_label_entry_box  = Entry(toplevel, textvariable=qq2, width=15, bg="alice blue")
-	row_label_entry_box.grid(row=2, column=1)
-
-	column_label = Label(toplevel, text="Columns Per Page",font=("Comfortaa", 14))
-	column_label.grid(row=3, column=0)
-	column_label_entry_box  = Entry(toplevel, textvariable=qq3, width=15, bg="alice blue")
-	column_label_entry_box.grid(row=3, column=1)
-
-	width_label = Label(toplevel, text="Width of Plot",font=("Comfortaa", 14))
-	width_label.grid(row=4, column=0)
-	width_label_entry_box  = Entry(toplevel, textvariable=qq4, width=15, bg="alice blue")
-	width_label_entry_box.grid(row=4, column=1)
-
-	height_label = Label(toplevel, text="Height of Plot",font=("Comfortaa", 14))
-	height_label.grid(row=5, column=0)
-	height_label_entry_box  = Entry(toplevel, textvariable=qq5, width=15, bg="alice blue")
-	height_label_entry_box.grid(row=5, column=1)
-
-	resolution_label = Label(toplevel, text="Resolution of Plot",font=("Comfortaa", 14))
-	resolution_label.grid(row=6, column=0)
-	resolution_label_entry_box  = Entry(toplevel, textvariable=qq6, width=15, bg="alice blue")
-	resolution_label_entry_box.grid(row=6, column=1)
-
-
-	qq_plot_button = Button(toplevel,text="Run", command= qqplot, width=12)
-	qq_plot_button.grid(row=7, column=0,columnspan=2)
-
-
-def continuous_value_chosen(self, *args):
-    value = selected_continuous_option.get()
-    print(value)
-
-
-l3 = Label(right_frame,bg="white",text = "Continuous")
-l3.config(font=("Comfortaa", 20))
-l3.pack(pady=(53,5))
-l3.pack(padx=(0,75))
-l3.config(fg="cyan4")
-l3.pack(fill=X)
-
-
-
-correlations_button = Button(right_frame,text="Correlations", command= correlations_popup)
-correlations_button.pack(padx=(0,75))
-correlations_button.config(width = 13)
-
-outliers_button = Button(right_frame,text="Outliers", command= outliers_popup)
-outliers_button.pack(padx=(0,75))
-outliers_button.config(width = 13)
-
-histogram_button = Button(right_frame,text="Histogram", command= histogram_popup)
-histogram_button.pack(padx=(0,75))
-histogram_button.config(width = 13)
-
-box_plot_button = Button(right_frame,text="Box Plot", command= box_plot_popup)
-box_plot_button.pack(side=LEFT)
-box_plot_button.config(width = 5)
-
-
-qq_pot_button = Button(right_frame,text="QQPlot", command= qq_plot_popup)
-qq_pot_button.pack(padx=(0,75))
-qq_pot_button.config(width = 5)
-
-
-###****************************LOGS*******************************************###
-
-
-
-
-def refresh_logs():
-
-	listNodes.delete(0,END)
-    	with open(log_file_name) as f:
-		for line in f:
-
-			listNodes.insert(END, str(line))
-
-	listNodes.see(END)
-
-def log_updater():
-
-
-	log_label = Label(root,bg="white",text = "Live Logs")
-	log_label.config(font=("Comfortaa", 15))
-	log_label.pack(pady=(5,0))
-	log_label.config(fg="black")
-	log_label.pack(fill=X)
-
-
-	frame = Frame(root)
-	frame.pack()
-
-	global listNodes 
-	listNodes = Listbox(frame, width=80, height=15, font=("Helvetica", 12))
-	listNodes.pack(side="left", fill="y")
-
-	scrollbar = Scrollbar(frame, orient="vertical")
-	scrollbar.config(command=listNodes.yview)
-	scrollbar.pack(side="right", fill="y")
-
-	listNodes.config(yscrollcommand=scrollbar.set)
-
-	refresh_logs()
-
-
-
-def col_filter():
-
-	f = open('r/colfilter.R','r')
-	filedata = f.read()
-	f.close()
-
-	file_output_path = "write.table(newdata,"+ "file" + "=" + '"datacleaner_Output/colfilter_out.txt",' + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
-
-
-	a0_1 = "a1 = read.delim('"
-	argument_1 = a0_1 + column_file_name+ A0_2
-
-
-	newdata = filedata
-	
-	f = open('r/gui_generated_scripts/colfilter1.R','w')
-	f.write(newdata)
-	f.write(final + '\n')
-	f.write(argument_1 + '\n')
-	f.write("newdata <- colfilter(a0, a1, FALSE)"+ '\n')
-	f.write(file_output_path + '\n')
-
-
-
-	f.close()
-	
-
-	with open(log_file_name, 'a') as g:
-		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
-
-		g.write("Filter Columns Called" + '\n')
-		g.write("File: " + column_file_name + '\n'+'\n' )
-	
-	s_out = open(log_file_name, "a")
-	proc = subprocess.call(['Rscript','r/gui_generated_scripts/colfilter1.R'], shell=False,stdout=s_out, stderr=s_out)
-
-	refresh_logs()
-
-
-
-def colfilter_popup():
-
-	toplevel = Toplevel()
-	toplevel.geometry("300x235")
-
-	label1 = Label(toplevel,bg="white",text = "Variable Filter")
-	label1.grid(row=0, column=0, columnspan=2)
-	label1.config(font=("Comfortaa", 18))
-	label1.config(fg="cyan4")
-
-
-	global cofilter1
-	cofilter1= StringVar()
-	cofilter1.set("No File Chosen")
-	cofilter1_label = Label(toplevel, textvariable=cofilter1,font=("Comfortaa", 14))
-	cofilter1_label.grid(row=1, column=1)
-
-
-	upload_columns_button = Button(toplevel,text="Choose File", command= column_file_chosen)
-	upload_columns_button.grid(row=1, column=0)
-
-
-	get_check_button = Button(toplevel,text="Run", command= col_filter)
-	get_check_button.grid(row=2, column=0,columnspan=2)
-
-
-
-
-
-
-def sample_filter():
-
-	f = open('r/rowfilter.R','r')
-	filedata = f.read()
-	f.close()
-
-	file_output_path = "write.table(newdata,"+ "file" + "=" + '"datacleaner_Output/rowfilter_out.txt",' + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
-
-
-	a0_1 = "a1 = read.delim('"
-	argument_1 = a0_1 + sample_file_name + A0_2
-
-
-	newdata = filedata
-	
-	f = open('r/gui_generated_scripts/rowfilter1.R','w')
-	f.write(newdata)
-	f.write(final + '\n')
-	f.write(argument_1 + '\n')
-	f.write("newdata <- rowfilter(a0, a1, FALSE)"+ '\n')
-	f.write(file_output_path + '\n')
-
-
-
-	f.close()
-	
-
-	with open(log_file_name, 'a') as g:
-		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
-
-		g.write("Filter Samples Called" + '\n')
-		g.write("File: " + sample_file_name + '\n'+'\n' )
-	
-	s_out = open(log_file_name, "a")
-	proc = subprocess.call(['Rscript','r/gui_generated_scripts/rowfilter1.R'], shell=False,stdout=s_out, stderr=s_out)
-
-	refresh_logs()
-
-
-
-def rowfilter_popup():
-
-	toplevel = Toplevel()
-	toplevel.geometry("300x235")
-
-	label1 = Label(toplevel,bg="white",text = "Sample Filter")
-	label1.grid(row=0, column=0, columnspan=2)
-	label1.config(font=("Comfortaa", 18))
-	label1.config(fg="cyan4")
-
-
-	global rowfilter1
-	rowfilter1= StringVar()
-	rowfilter1.set("No File Chosen")
-	rowfilter1_label = Label(toplevel, textvariable=rowfilter1,font=("Comfortaa", 14))
-	rowfilter1_label.grid(row=1, column=1)
-
-
-	upload_columns_button = Button(toplevel,text="Choose File", command= sample_file_chosen)
-	upload_columns_button.grid(row=1, column=0)
-	
-
-	get_check_button = Button(toplevel,text="Run", command= sample_filter)
-	get_check_button.grid(row=2, column=0,columnspan=2)
-
-
-
-def get_continuous_popup():
-
-	toplevel = Toplevel()
-	toplevel.geometry("300x235")
-
-	label = Label(toplevel, text="Get Continuous Variables")
-	label.grid(row=0, column=0, columnspan=2)
-	label.config(font=("Comfortaa", 20))
-	label.config(fg="cyan4")
-
-
-	global continuous_var
-	continuous_var= StringVar()
-	continuous_var.set("")
-
-	continuous_label = Label(toplevel, text="Min Values Considered Continuous",font=("Comfortaa", 14))
-	continuous_label.grid(row=1, column=0)
-	continuous_label_entry_box  = Entry(toplevel, textvariable=continuous_var, width=15, bg="alice blue")
-	continuous_label_entry_box.grid(row=1, column=1)
-
-
-	get_continuous_button = Button(toplevel,text="Get Continuous Variables", command= get_continuous)
-	get_continuous_button.grid(row=2, column=0,columnspan=2)
-
-
-
-
-
-
-def get_check_popup():
-
-
-	toplevel = Toplevel()
-	toplevel.geometry("300x235")
-
-	label1 = Label(toplevel,bg="white",text = "Get Ambiguous")
-	label1.grid(row=0, column=0, columnspan=2)
-	label1.config(font=("Comfortaa", 18))
-	label1.config(fg="cyan4")
-
-
-	global ambiguous1
-	ambiguous1= StringVar()
-	ambiguous1.set("")
-	ambiguous1_label = Label(toplevel, text="Min Levels Desired",font=("Comfortaa", 14))
-	ambiguous1_label.grid(row=1, column=0)
-	ambiguous1_label_entry_box  = Entry(toplevel, textvariable=ambiguous1, width=15, bg="alice blue")
-	ambiguous1_label_entry_box.grid(row=1, column=1)
-
-
-	global ambiguous2
-	ambiguous2= StringVar()
-	ambiguous2.set("")
-	ambiguous2_label = Label(toplevel, text="Max Levels Desired",font=("Comfortaa", 14))
-	ambiguous2_label.grid(row=2, column=0)
-	ambiguous2_label_entry_box  = Entry(toplevel, textvariable=ambiguous2, width=15, bg="alice blue")
-	ambiguous2_label_entry_box.grid(row=2, column=1)
-
-
-	get_check_button = Button(toplevel,text="Run", command= get_check)
-	get_check_button.grid(row=3, column=0,columnspan=2)
-
-
-def get_categorical_popup():
-
-
-	toplevel = Toplevel()
-	toplevel.geometry("300x235")
-
-	label1 = Label(toplevel,bg="white",text = "Get Categorical")
-	label1.grid(row=0, column=0, columnspan=2)
-	label1.config(font=("Comfortaa", 18))
-	label1.config(fg="cyan4")
-
-
-	global categorical1
-	categorical1= StringVar()
-	categorical1.set("")
-	categorical1_label = Label(toplevel, text="Min Values to be Considered Categorical",font=("Comfortaa", 14))
-	categorical1_label.grid(row=1, column=0)
-	categorical1_label_entry_box  = Entry(toplevel, textvariable=categorical1, width=15, bg="alice blue")
-	categorical1_label_entry_box.grid(row=1, column=1)
-
-
-	global categorical2
-	categorical2= StringVar()
-	categorical2.set("")
-	categorical2_label = Label(toplevel, text="Max Values to be Considered Categorical",font=("Comfortaa", 14))
-	categorical2_label.grid(row=2, column=0)
-	categorical2_label_entry_box  = Entry(toplevel, textvariable=categorical2, width=15, bg="alice blue")
-	categorical2_label_entry_box.grid(row=2, column=1)
-
-
-	run_get_categorical_button=Button(toplevel,text="Run", command=get_categorical, width=12)
-	run_get_categorical_button.grid(row=3, column=0,columnspan=2)
-
-
-
-def min_cat_n_popup():
-
-	toplevel = Toplevel()
-	toplevel.geometry("245x205")
-
-
-	label = Label(toplevel, text="Min Category Size")
-	label.grid(row=0, column=0, columnspan=2)
-	label.config(font=("Comfortaa", 20))
-	label.config(fg="cyan4")
-
-
-	global min_cat_n_var
-	min_cat_n_var= StringVar()
-	min_cat_n_var.set("")
-
-	min_cat_n_var_label = Label(toplevel, text="Min Samples per Category",font=("Comfortaa", 14))
-	min_cat_n_var_label.grid(row=1, column=0)
-	min_cat_n_var_label_entry_box  = Entry(toplevel, textvariable=min_cat_n_var, width=15, bg="alice blue")
-	min_cat_n_var_label_entry_box.grid(row=1, column=1)
-
-	get_check_button = Button(toplevel,text="Run", command= min_cat_n)
-	get_check_button.grid(row=2, column=0,columnspan=2)
-
-def min_n_popup():
-
-	toplevel = Toplevel()
-	toplevel.geometry("245x205")
-
-
-	label = Label(toplevel, text="Min # of Samples")
-	label.grid(row=0, column=0, columnspan=2)
-	label.config(font=("Comfortaa", 20))
-	label.config(fg="cyan4")
-
-
-	global min_n_var
-	min_n_var= StringVar()
-	min_n_var.set("")
-
-	min_n_var_label = Label(toplevel, text="Min # of Samples",font=("Comfortaa", 14))
-	min_n_var_label.grid(row=1, column=0)
-	min_n_var_label_entry_box  = Entry(toplevel, textvariable=min_n_var, width=15, bg="alice blue")
-	min_n_var_label_entry_box.grid(row=1, column=1)
-
-	get_check_button = Button(toplevel,text="Run", command= min_n)
-	get_check_button.grid(row=2, column=0,columnspan=2)
-
-
-
-def remove_outliers_popup():
-
-	toplevel = Toplevel()
-	toplevel.geometry("245x205")
-
-	label1 = Label(toplevel,bg="white",text = "Remove Outliers")
-	label1.config(font=("Comfortaa", 18))
-	label1.pack(pady=(0,15))
-	label1.config(fg="cyan4")
-	label1.pack(fill=X)
-
-	run_levels_button=Button(toplevel,text="Run", command=remove_outliers)
-	run_levels_button.pack(fill=X)
-	# toplevel.destroy()
-
-def transvar_popup():
-
-	toplevel = Toplevel()
-	toplevel.geometry("245x205")
-
-	label1 = Label(toplevel,bg="white",text = "Variable Specific Transformation")
-	label1.config(font=("Comfortaa", 18))
-	label1.pack(pady=(0,15))
-	label1.config(fg="cyan4")
-	label1.pack(fill=X)
-
-	run_levels_button=Button(toplevel,text="Run", command=transvar)
-	run_levels_button.pack(fill=X)
-	# toplevel.destroy()
-
-
-def min_cat_n():
-	print("min_cat_n_called")
-
-
-###****************************QC*******************************************###
-
-
-f2_left_frame = Frame(f2)
-f2_left_frame.pack(side=LEFT)
-f2_right_frame = Frame(f2)
-f2_right_frame.pack(side=RIGHT)
-
-
-f2_l1 = Label(f2_left_frame,bg="white",text = "General")
-f2_l1.config(font=("Comfortaa", 20))
-f2_l1.pack(pady=(0,5))
-f2_l1.pack(padx=(75,0))
-f2_l1.config(fg="cyan4")
-f2_l1.pack(fill=X)
-
-#min_n, get_binary, get_continuous, get_categorical, get_check
-
-Colfilter = Button(f2_left_frame,text="Variable Filter", command= colfilter_popup)
-Colfilter.pack(padx=(75,0))
-Colfilter.config(width = 13)
-
-rowfilter = Button(f2_left_frame,text="Sample Filter", command= rowfilter_popup)
-rowfilter.pack(padx=(75,0))
-rowfilter.config(width = 13)
-
-get_continuous_button = Button(f2_left_frame,text="Get Continuous", command= get_continuous_popup)
-get_continuous_button.pack(padx=(75,0))
-get_continuous_button.config(width = 13)
-
-get_categorical_button = Button(f2_left_frame,text="Get Categorical", command= get_categorical_popup)
-get_categorical_button.pack(padx=(75,0))
-get_categorical_button.config(width = 13)
-
-get_check_button = Button(f2_left_frame,text="Get Ambiguous", command= get_check_popup)
-get_check_button.pack(padx=(75,0))
-get_check_button.config(width = 13)
-
-
-
-###*************************###
-
-f2_l2 = Label(f2,bg="white",text = "Categorical")
-f2_l2.config(font=("Comfortaa", 20))
-f2_l2.pack(pady=(51,5))
-f2_l2.config(fg="cyan4")
-f2_l2.pack(fill=X)
-
-
-
-min_cat_n_button = Button(f2,text="Min Category Size", command= min_cat_n_popup)
-min_cat_n_button.pack(padx=(0,0))
-min_cat_n_button.config(width = 13)
-
-
-min_n_button = Button(f2,text="Min # of Samples", command= min_n_popup)
-min_n_button.pack(padx=(0,0))
-min_n_button.config(width = 13)
-
-
-
-
-
-###*************************###
-
-
-f2_l3 = Label(f2_right_frame,bg="white",text = "Continuous")
-f2_l3.config(font=("Comfortaa", 20))
-f2_l3.pack(pady=(0,5))
-f2_l3.pack(padx=(0,75))
-f2_l3.config(fg="cyan4")
-f2_l3.pack(fill=X)
-
-
-
-remove_outliers_button = Button(f2_right_frame,text="Remove Outliers", command= remove_outliers_popup)
-remove_outliers_button.pack(padx=(0,75))
-remove_outliers_button.config(width = 13)
-
-transvar_button = Button(f2_right_frame,text="Variable Specific Transformation", command= transvar_popup)
-transvar_button.pack(padx=(0,75))
-transvar_button.config(width = 13)
-
-
-
-
-
-
-
-# def ewas_popup():
-
-# 	toplevel = Toplevel()
-# 	toplevel.geometry("245x205")
-
-# 	label1 = Label(toplevel,bg="white",text = "EWAS")
-# 	label1.config(font=("Comfortaa", 18))
-# 	label1.pack(pady=(0,15))
-# 	label1.config(fg="cyan4")
-# 	label1.pack(fill=X)
-
-# 	run_levels_button=Button(toplevel,text="Run", command=transvar)
-# 	run_levels_button.pack(fill=X)
-# 	# toplevel.destroy()
-
-
-
-
-###***************Associations**********###
-
-f3_left_frame = Frame(f3)
-f3_left_frame.pack(side=LEFT)
-f3_right_frame = Frame(f3)
-f3_right_frame.pack(side=RIGHT)
-
-
-# f3_l1 = Label(f3_left_frame,bg="white",text = "EWAS")
-# f3_l1.config(font=("Comfortaa", 20))
-# f3_l1.pack(pady=(0,5))
-# f3_l1.pack(padx=(75,0))
-# f3_l1.config(fg="cyan4")
-# f3_l1.pack(fill=X)
-
-
-label = Label(f3_left_frame, text="Environment-Wide Association Study")
-label.grid(row=0, column=0, columnspan=2)
-label.config(font=("Comfortaa", 20))
-label.config(fg="cyan4")
-
-
-# global min_n_var
-# min_n_var= StringVar()
-# min_n_var.set("")
-
-# min_n_var_label = Label(f3_left_frame, text="Min Samples per Variable",font=("Comfortaa", 14))
-# min_n_var_label.grid(row=1, column=0)
-# min_n_var_label_entry_box  = Entry(f3_left_frame, textvariable=min_n_var, width=15, bg="alice blue")
-# min_n_var_label_entry_box.grid(row=1, column=1)
-
-# get_check_button = Button(f3_left_frame,text="Keep N Samples", command= min_n)
-# get_check_button.grid(row=2, column=0,columnspan=2)
-
-
-
-
-def ewas():
-
-	f = open('r/ewas.R','r')
-	filedata = f.read()
-	f.close()
-
-	file_output_path = "write.table(newdata,"+ "file" + "=" + '"datacleaner_Output/ewas_out.txt",' + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
-
-
-	a0_1 = "a1 = read.delim('"
-	argument_1 = a0_1 + global_ewas_filename_1 + A0_2
-
-	a0_2 = "a2 = read.delim('"
-	argument_2 = a0_2 + global_ewas_filename_2 + A0_2
-
-
-	argument_3 = "a3 = " + "'" + str(phenotype_var.get()) + "'"
-
-	argument_4 = "a4 <- " + "c(" + global_covariate_string + ")"
-
-	argument_5 = "a5 = " + "'" + str(regressionVar.get()) + "'"
-
-	if str(correctionVar.get()) == "Both":
-		argument_6 = "a6 <- " + "c(" + "'Bonferroni'" + "," + "'Fdr')"
-	else:
-		argument_6 = "a6 <- " + "c(" + "'" + str(correctionVar.get()) + "'" + ")"
-
-
-	newdata = filedata
-	
-	f = open('r/gui_generated_scripts/ewas1.R','w')
-	f.write(newdata)
-	# f.write(final + '\n')
-	f.write(argument_1 + '\n')
-	f.write(argument_2 + '\n')
-	f.write(argument_3 + '\n')
-	f.write(argument_4 + '\n')
-	f.write(argument_5 + '\n')
-	f.write(argument_6 + '\n')
-
-	f.write("newdata <- ewas(a1,a2,a3,a4,a5,a6)"+ '\n')
-	f.write(file_output_path + '\n')
-
-
-
-	f.close()
-	
-
-	with open(log_file_name, 'a') as g:
-		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
-
-		g.write("EWAS Called" + '\n')
-
-	
-	s_out = open(log_file_name, "a")
-	proc = subprocess.call(['Rscript','r/gui_generated_scripts/ewas1.R'], shell=False,stdout=s_out, stderr=s_out)
-
-	refresh_logs()
-
-
-
-global listNodes_covariates 
-listNodes_covariates = Listbox(f3, width=16, height=3, font=("Helvetica", 12))
-listNodes_covariates.place(x=263,y=99)
-
-scrollbar_covariates  = Scrollbar(f3, orient="vertical")
-scrollbar_covariates.config(command=listNodes_covariates.yview)
-scrollbar_covariates.pack(side="right", fill="y")
-
-listNodes_covariates.config(yscrollcommand=scrollbar_covariates.set)
-
-
-
-
-global_covariate_string = ""
-def add_phenotype_to_list():
-	listNodes_covariates.insert(END, str(co_variates_var.get()))
-	listNodes_covariates.see(END)
-	global global_covariate_string
-
-	if not global_covariate_string:
-		global_covariate_string = global_covariate_string +  "'" + str(co_variates_var.get()) + "'"
-	else:
-		global_covariate_string = global_covariate_string + "," +"'" + str(co_variates_var.get()) + "'"
-	co_variates_var_label_entry_box.delete(0, 'end')
-
-
-
-
-
-
-global co_variates_var
-co_variates_var= StringVar()
-co_variates_var.set("")
-
-global co_variates_var_label_entry_box  
-co_variates_var_label_entry_box = Entry(f3, textvariable=co_variates_var, width=15, bg="alice blue")
-co_variates_var_label_entry_box.place(x=262,y=146,width=76)
-
-add_phenotype_button = Button(f3,text="Add", command= add_phenotype_to_list)
-add_phenotype_button.place(x=338,y=146,width=45)
-
-co_variates_var_label = Label(f3, text="covariates",font=("Comfortaa", 14))
-co_variates_var_label.place(x=273,y=79)
-
-
-
-
-
-
-global ewas_choosefile_1
-ewas_choosefile_1= StringVar()
-ewas_choosefile_1.set("No File Chosen")
-ewas_choosefile_1_label = Label(f3_left_frame, textvariable=ewas_choosefile_1,font=("Comfortaa", 14))
-ewas_choosefile_1_label.grid(row=1, column=1)
-
-
-upload_ewas1_button = Button(f3_left_frame,text="Choose Categorical file", command= ewas1_file_chosen)
-upload_ewas1_button.grid(row=1, column=0)
-
-
-
-global ewas_choosefile_2
-ewas_choosefile_2= StringVar()
-ewas_choosefile_2.set("No File Chosen")
-ewas_choosefile_2_label = Label(f3_left_frame, textvariable=ewas_choosefile_2,font=("Comfortaa", 14))
-ewas_choosefile_2_label.grid(row=2, column=1)
-
-
-upload_ewas2_button = Button(f3_left_frame,text="Choose Continuous file", command= ewas2_file_chosen)
-upload_ewas2_button.grid(row=2, column=0)
-
-
-
-regression_label = Label(f3_left_frame, text="Regression : ",font=("Comfortaa", 14))
-regression_label.grid(row=3, column=0)
-
-correction_label = Label(f3_left_frame, text="Multiple Test Correction: ",font=("Comfortaa", 14))
-correction_label.grid(row=4, column=0)
-
-
-regressionVar = tk.StringVar()
-regression_choices = ("Linear", "Logistic")
-regressionVar.set("Select")
-
-regression_menu = tk.OptionMenu(f3_left_frame, regressionVar, *regression_choices)
-regression_menu.place(x=105,y=81)
-# regressionVar.trace("w", regression_option_chosen)
-
-
-correctionVar = tk.StringVar()
-correction_choices = ("Bonferroni", "Fdr", "Both")
-correctionVar.set("Select")
-correction_menu = tk.OptionMenu(f3_left_frame, correctionVar, *correction_choices)
-correction_menu.place(x=105,y=105)
-# correctionVar.trace("w", correction_option_chosen)
-
-
-
-global phenotype_var
-phenotype_var= StringVar()
-phenotype_var.set("")
-
-phenotype_var_label = Label(f3_left_frame, text="Phenotype: ",font=("Comfortaa", 14))
-phenotype_var_label.grid(row=6, column=0)
-
-place_holder1 = Label(f3_left_frame, text="",font=("Comfortaa", 14))
-place_holder1.grid(row=5, column=3)
-
-place_holder2 = Label(f3_left_frame, text="",font=("Comfortaa", 14))
-place_holder2.grid(row=7, column=0)
-
-
-phenotype_var_label_entry_box  = Entry(f3, textvariable=phenotype_var, width=15, bg="alice blue")
-phenotype_var_label_entry_box.place(x=90,y=147)
-
-
-ewas_button = Button(f3,text="Run", command= ewas)
-ewas_button.place(x=90,y=173)
-ewas_button.config(width=13)
-
-
-
-
-# def regression_option_chosen(self, *args):
-#     value = regressionVar.get()
-#     print(value)
-
-# def correction_option_chosen(self, *args):
-#     value = correctionVar.get()
-#     print(value)
-
-
-
-
-label = Label(f3_right_frame, text="Manhattan Plot")
-label.grid(row=0, column=0, columnspan=2)
-label.config(font=("Comfortaa", 20))
-label.config(fg="cyan4")
-
-
-
-
-
-
-
-global manhattan_plot_choosefile_1
-manhattan_plot_choosefile_1= StringVar()
-manhattan_plot_choosefile_1.set("No File Chosen")
-
-groups_file_button = Button(f3_right_frame,text="Choose Groups File ++", command= ewas1_file_chosen)
-groups_file_button.grid(row=1, column=0)
-manhattan_plot_choosefile_1_label = Label(f3_right_frame, textvariable=manhattan_plot_choosefile_1,font=("Comfortaa", 14))
-manhattan_plot_choosefile_1_label.grid(row=1, column=1)
-
-
-
-
-global p_value_threshold_var
-p_value_threshold_var= StringVar()
-p_value_threshold_var.set("")
-
-pvalue_threshold_label = Label(f3_right_frame, text="P Value Threshold ++: ",font=("Comfortaa", 14))
-pvalue_threshold_label.grid(row=2, column=0)
-pvalue_threshold_label_entry_box  = Entry(f3_right_frame, textvariable=p_value_threshold_var, width=15, bg="alice blue")
-pvalue_threshold_label_entry_box.grid(row=2, column=1)
-
-
-
-global plot_title_var
-plot_title_var= StringVar()
-plot_title_var.set("")
-
-plot_title_label = Label(f3_right_frame, text="Plot Title ++: ",font=("Comfortaa", 14))
-plot_title_label.grid(row=3, column=0)
-plot_title_label_entry_box  = Entry(f3_right_frame, textvariable=plot_title_var, width=15, bg="alice blue")
-plot_title_label_entry_box.grid(row=3, column=1)
-
-
-
-
-global man_height_of_plot_var
-man_height_of_plot_var= StringVar()
-man_height_of_plot_var.set("")
-
-plot_height_label = Label(f3_right_frame, text="Height of Plot: ",font=("Comfortaa", 14))
-plot_height_label.grid(row=4, column=0)
-plot_height_label_entry_box  = Entry(f3_right_frame, textvariable=man_height_of_plot_var, width=15, bg="alice blue")
-plot_height_label_entry_box.grid(row=4, column=1)
-
-
-
-global man_width_of_plot_var
-man_width_of_plot_var= StringVar()
-man_width_of_plot_var.set("")
-
-plot_width_label = Label(f3_right_frame, text="Width of Plot: ",font=("Comfortaa", 14))
-plot_width_label.grid(row=5, column=0)
-plot_width_label_entry_box  = Entry(f3_right_frame, textvariable=man_width_of_plot_var, width=15, bg="alice blue")
-plot_width_label_entry_box.grid(row=5, column=1)
-
-
-
-global man_res_of_plot_var
-man_res_of_plot_var= StringVar()
-man_res_of_plot_var.set("")
-
-plot_resolution_label = Label(f3_right_frame, text="Resolution of Plot: ",font=("Comfortaa", 14))
-plot_resolution_label.grid(row=6, column=0)
-plot_resolution_label_entry_box  = Entry(f3_right_frame, textvariable=man_res_of_plot_var, width=15, bg="alice blue")
-plot_resolution_label_entry_box.grid(row=6, column=1)
-
-
-
-
-moreColorsVar_label = Label(f3_right_frame, text="Plot Colors: ",font=("Comfortaa", 14))
-moreColorsVar_label.grid(row=7, column=0)
-
-moreColorsVar = tk.StringVar()
-moreColorVar_choices = ("Standard Colors", "Expanded Colors")
-moreColorsVar.set("Select")
-
-moreColorsVar_menu = tk.OptionMenu(f3_right_frame, moreColorsVar, *moreColorVar_choices)
-moreColorsVar_menu.grid(row=7, column=1)
-
-
-
-
-ewas_output_Var_label = Label(f3_right_frame, text="EWAS output: ",font=("Comfortaa", 14))
-ewas_output_Var_label.grid(row=8, column=0)
-
-ewas_output_Var = tk.StringVar()
-ewas_output_Var_choices = ("Yes", "No")
-ewas_output_Var.set("Select")
-
-ewas_output_Var_menu = tk.OptionMenu(f3_right_frame, ewas_output_Var, *ewas_output_Var_choices)
-ewas_output_Var_menu.grid(row=8, column=1)
-
-
-
-
-
-n.pack(fill=X)
-log_updater()
-root.mainloop()
-
-
-
 
 
 
