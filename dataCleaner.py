@@ -201,6 +201,18 @@ def ewas2_file_chosen():
 	refresh_logs()
 
 
+def merge_data_choose_file():
+
+	global marge_data_file
+	marge_data_file = tkFileDialog.askopenfilename()
+	second_file_upload_merge.set("File: " + marge_data_file)
+	
+	with open(log_file_name, 'a') as g:
+		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
+		g.write("Second File Uploaded - Merge Data File: "+ marge_data_file + '\n')
+	refresh_logs()
+
+
 
 
 # def dialogue_file_recode_key():
@@ -1034,7 +1046,7 @@ def col_filter():
 	refresh_logs()
 
 #Sample Filter - rowfilter
-def sample_filter():
+def row_filter():
 
 	f = open('r/rowfilter.R','r')
 	filedata = f.read()
@@ -1045,13 +1057,21 @@ def sample_filter():
 	a0_1 = "a1 = read.delim('"
 	argument_1 = a0_1 + sample_file_name + A0_2
 
+
+	if str(rowfilterMenuVar.get()) == "True":
+		argument_2 = "a2 = FALSE"
+	else:
+		argument_2 = "a2 = TRUE"
+
+
 	newdata = filedata
 	
 	f = open('r/GUI_Scripts/rowfilter1.R','w')
 	f.write(newdata)
 	f.write(final + '\n')
 	f.write(argument_1 + '\n')
-	f.write("newdata <- rowfilter(a0, a1, FALSE)"+ '\n')
+	f.write(argument_2 + '\n')
+	f.write("newdata <- rowfilter(a0, a1, a2)"+ '\n')
 	f.write(file_output_path + '\n')
 
 
@@ -1211,8 +1231,18 @@ def get_uniq_popup():
 	label1.config(fg="cyan4")
 	label1.pack(fill=X)
 
+	grous_file_button = Button(toplevel,width=IN_WIDTH, height = IN_HEIGHT,command= lambda: instructions_popup("Get Unique Values", "man/get_uniq.Rd"))
+	image = ImageTk.PhotoImage(file="instruction.png")
+	grous_file_button.config(image=image)
+	grous_file_button.image = image
+	grous_file_button.place(x=210, y=0)
+
 	run_levels_button=Button(toplevel,text="Run", command=get_uniq)
 	run_levels_button.pack(fill=X)
+
+
+
+
 	# toplevel.destroy()
 
 def sample_size_popup():
@@ -1361,7 +1391,7 @@ def chi_square_popup():
 
 ###***************************************************************************************###
 #Creating the buttons for the middle section of Frame One
-l2 = Label(f1,bg="white",text = "Categorical")
+l2 = Label(f1,bg="white",text = "Categorical/Binary")
 l2.config(font=("Comfortaa", 20))
 l2.pack(pady=(55,5))
 l2.config(fg="cyan4")
@@ -1739,8 +1769,29 @@ def rowfilter_popup():
 	upload_columns_button = Button(toplevel,text="Choose File", command= sample_file_chosen)
 	upload_columns_button.grid(row=1, column=0)
 	
-	get_check_button = Button(toplevel,text="Run", command= sample_filter)
-	get_check_button.grid(row=2, column=0,columnspan=2)
+
+
+	global rowfilter2
+	rowfilter2= StringVar()
+	rowfilter2.set("")
+	rowfilter2_label = Label(toplevel, text="Exclude",font=("Comfortaa", 14))
+	rowfilter2_label.grid(row=2, column=0)
+
+
+	#Correction Drop Down Menu
+	global rowfilterMenuVar
+	rowfilterMenuVar = tk.StringVar()
+	rowfilterMenuVar_choices = ("True", "False")
+	rowfilterMenuVar.set("Select")
+	rowfilterMenuVar_choices = tk.OptionMenu(toplevel, rowfilterMenuVar, *rowfilterMenuVar_choices)
+	rowfilterMenuVar_choices.grid(row=2, column=1)
+
+
+
+
+
+	get_check_button = Button(toplevel,text="Run", command= row_filter)
+	get_check_button.grid(row=3, column=0,columnspan=2)
 
 
 def get_continuous_popup():
@@ -1836,8 +1887,99 @@ def get_categorical_popup():
 	run_get_categorical_button=Button(toplevel,text="Run", command=get_categorical, width=12)
 	run_get_categorical_button.grid(row=3, column=0,columnspan=2)
 
+def get_binary_popup():
+	toplevel = Toplevel()
+	toplevel.geometry("300x235")
+
+	label = Label(toplevel, text="Get Binary Variables")
+	label.grid(row=0, column=0, columnspan=2)
+	label.config(font=("Comfortaa", 20))
+	label.config(fg="cyan4")
 
 
+	get_binary_button = Button(toplevel,text="Run", command= get_binary)
+	get_binary_button.grid(row=1, column=0,columnspan=2)
+
+
+
+def sample_size_filter_popup():
+	toplevel = Toplevel()
+	toplevel.geometry("300x235")
+
+	label1 = Label(toplevel,bg="white",text = "Sample Size Filter")
+	label1.grid(row=0, column=0, columnspan=2)
+	label1.config(font=("Comfortaa", 18))
+	label1.config(fg="cyan4")
+
+
+	sample_size_filter_button = Button(toplevel,text="Run", command= sample_size)
+	sample_size_filter_button.grid(row=1, column=0,columnspan=2)
+
+
+	
+
+	
+def merge_data():
+	print("merge_data_called")
+
+
+def merge_variables_popup():
+	toplevel = Toplevel()
+	toplevel.geometry("300x235")
+
+	label1 = Label(toplevel,bg="white",text = "Merge Variables")
+	label1.grid(row=0, column=0, columnspan=2)
+	label1.config(font=("Comfortaa", 18))
+	label1.config(fg="cyan4")
+
+
+	choose_second_file_button = Button(toplevel,text="Choose File", command= merge_data_choose_file)
+	choose_second_file_button.grid(row=1, column=0)
+
+	global second_file_upload_merge
+	second_file_upload_merge= StringVar()
+	second_file_upload_merge.set("No File Chosen")
+	second_file_upload_merge_label = Label(toplevel, textvariable=second_file_upload_merge,font=("Choose File", 14))
+	second_file_upload_merge_label.grid(row=1, column=1)
+
+
+	global union_var
+	union_var= StringVar()
+	union_var.set("")
+	union_var_label = Label(toplevel, text="Union",font=("Comfortaa", 14))
+	union_var_label.grid(row=2, column=0)
+
+
+	#Correction Drop Down Menu
+	mergeVar = tk.StringVar()
+	mergeVar_choices = ("Add NA Values", "Intersect")
+	mergeVar.set("Select")
+	mergeVar_menu = tk.OptionMenu(toplevel, mergeVar, *mergeVar_choices)
+	mergeVar_menu.grid(row=2, column=1)
+
+
+	run_get_categorical_button=Button(toplevel,text="Run", command=merge_data, width=12)
+	run_get_categorical_button.grid(row=3, column=0,columnspan=2)
+
+
+def recode_missing_popup():
+	toplevel = Toplevel()
+	toplevel.geometry("300x235")
+
+	label1 = Label(toplevel,bg="white",text = "Get Categorical")
+	label1.grid(row=0, column=0, columnspan=2)
+	label1.config(font=("Comfortaa", 18))
+	label1.config(fg="cyan4")
+
+def specific_recode_missing_popup():
+	toplevel = Toplevel()
+	toplevel.geometry("300x235")
+
+	label1 = Label(toplevel,bg="white",text = "Get Categorical")
+	label1.grid(row=0, column=0, columnspan=2)
+	label1.config(font=("Comfortaa", 18))
+	label1.config(fg="cyan4")
+	
 
 ###***************************************************************************************###
 #Creating the buttons for the left section of Frame TWO
@@ -1874,6 +2016,31 @@ get_categorical_button.config(width = 13)
 get_check_button = Button(f2_left_frame,text="Get Ambiguous", command= get_check_popup)
 get_check_button.pack(padx=(75,0))
 get_check_button.config(width = 13)
+
+
+merge_variables_button = Button(f2_left_frame,text="Merge Variables", command= merge_variables_popup)
+merge_variables_button.pack(padx=(75,0))
+merge_variables_button.config(width = 13)
+
+
+get_binary_button = Button(f2_left_frame,text="Get Binary", command= get_binary_popup)
+get_binary_button.pack(padx=(75,0))
+get_binary_button.config(width = 13)
+
+sample_size_filter_button = Button(f2_left_frame,text="Sample Size Filter", command= sample_size_filter_popup)
+sample_size_filter_button.pack(padx=(75,0))
+sample_size_filter_button.config(width = 13)
+
+recode_missing_button = Button(f2_left_frame,text="Recode Missing", command= recode_missing_popup)
+recode_missing_button.pack(padx=(75,0))
+recode_missing_button.config(width = 13)
+
+
+specific_recode_missing_button = Button(f2_left_frame,text="Specific Recode Missing", command= specific_recode_missing_popup)
+specific_recode_missing_button.pack(padx=(75,0))
+specific_recode_missing_button.config(width = 13)
+
+
 
 
 ###***************************************************************************************###
@@ -1935,7 +2102,7 @@ def min_n_popup():
 
 ###***************************************************************************************###
 #Creating the buttons for the middle section of Frame TWO
-f2_l2 = Label(f2,bg="white",text = "Categorical")
+f2_l2 = Label(f2,bg="white",text = "Categorical/Binary")
 f2_l2.config(font=("Comfortaa", 20))
 f2_l2.pack(pady=(51,5))
 f2_l2.config(fg="cyan4")
@@ -2315,26 +2482,19 @@ def instructions_popup(title, name_of_instr):
 
 	instructionNodes.config(yscrollcommand=scrollbar.set)
 
-	# instructionNodes.delete(0,END)
-
-
     	with open(name_of_instr) as f:
 		for line in f:
 
 			instructionNodes.insert(END, str(line))
 
-	instructionNodes.see(END)
 
 
 
-
-
-
-grous_file_button = Button(root,width=IN_WIDTH, height = IN_HEIGHT,command= lambda: instructions_popup("Bar Plot", "man/bar_plot.Rd"))
-image = ImageTk.PhotoImage(file="instruction.png")
-grous_file_button.config(image=image)
-grous_file_button.image = image
-grous_file_button.pack()
+# grous_file_button = Button(root,width=IN_WIDTH, height = IN_HEIGHT,command= lambda: instructions_popup("Bar Plot", "man/bar_plot.Rd"))
+# image = ImageTk.PhotoImage(file="instruction.png")
+# grous_file_button.config(image=image)
+# grous_file_button.image = image
+# grous_file_button.pack()
 
 
 n.pack(fill=X)
