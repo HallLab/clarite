@@ -26,11 +26,12 @@ ewas <- function(cat=NULL, cont=NULL, y, cov=NULL, regress, adjust){
   ###Continuous###
   #Regress over columns != ID, y, covariates, or categorical variables
   regress_cont <- function(d, fmla, cols, rtype){
-    mco <- lapply(d[, !(colnames(d) %in% cols)], function (x) do.call("glm", list(as.formula(fmla), family=as.name(rtype), data=as.name("d"))))
-    sco <- lapply(mco, function (x) summary(x))
+    mco <- lapply(d[, !(colnames(d) %in% cols)], function (x) return(tryCatch(do.call("glm", list(as.formula(fmla), family=as.name(rtype), data=as.name("d"))), error=function(e) NULL)))
+    nmco<- mco[!sapply(mco, is.null)]
+    sco <- lapply(nmco, function (x) summary(x))
     #Grab sample size, beta, se beta, and pvalue
-    rco <- data.frame(t(as.data.frame(sapply(mco, function(x) as.data.frame(length(x$residuals))))),
-                      t(as.data.frame(sapply(mco, function(x) as.data.frame(x$converged)))),
+    rco <- data.frame(t(as.data.frame(sapply(nmco, function(x) as.data.frame(length(x$residuals))))),
+                      t(as.data.frame(sapply(nmco, function(x) as.data.frame(x$converged)))),
                       t(as.data.frame(sapply(sco, function(x) as.data.frame(cbind(x$coefficients[2,1],
                                                                                   x$coefficients[2,2],
                                                                                   x$coefficients[2,4]))))))
@@ -43,15 +44,17 @@ ewas <- function(cat=NULL, cont=NULL, y, cov=NULL, regress, adjust){
   ###Categorical###
   #Regress over columns != ID, y, covariates, or continuous variables
   regress_cat <- function(d, fmla, cols, rtype){
-    mca <- lapply(d[, !(colnames(d) %in% cols)], function (x) do.call("glm", list(as.formula(fmla), family=as.name(rtype), data=as.name("d"))))
-    red <- lapply(d[,!(colnames(d) %in% cols)], function(x) glm(as.formula(gsub("x\\+", "", fmla)), data=d[!is.na(x), ], family=rtype))
-    lrt <- mapply(function (x,y) anova(x,y, test="LRT"), x=mca, y=red, SIMPLIFY = FALSE)
+    mca <- lapply(d[, !(colnames(d) %in% cols)], function (x) return(tryCatch(do.call("glm", list(as.formula(fmla), family=as.name(rtype), data=as.name("d"))), error=function(e) NULL)))
+    red <- lapply(d[,!(colnames(d) %in% cols)], function(x) return(tryCatch(glm(as.formula(gsub("x\\+", "", fmla)), data=d[!is.na(x), ], family=rtype), error=function(e) NULL)))
+    nmca<- mca[!sapply(mca, is.null)]
+    nred<- red[!sapply(red, is.null)]
+    lrt <- mapply(function (x,y) anova(x,y, test="LRT"), x=nmca, y=nred, SIMPLIFY = FALSE)
     #Grab sample size, beta, se beta, and pvalue
-    rca <- data.frame(t(as.data.frame(sapply(mca, function(x) as.data.frame(length(x$residuals))))),
-                      t(as.data.frame(sapply(mca, function(x) as.data.frame(x$converged)))),
+    rca <- data.frame(t(as.data.frame(sapply(nmca, function(x) as.data.frame(length(x$residuals))))),
+                      t(as.data.frame(sapply(nmca, function(x) as.data.frame(x$converged)))),
                       "NA", "NA", "NA",
                       t(as.data.frame(sapply(lrt, function(x) as.data.frame(cbind(x$`Pr(>Chi)`[2]))))),
-                      t(as.data.frame(mapply(function (x,y) x$aic-y$aic, x=mca, y=red, SIMPLIFY = FALSE))))
+                      t(as.data.frame(mapply(function (x,y) x$aic-y$aic, x=nmca, y=nred, SIMPLIFY = FALSE))))
     prca <- data.frame(names = gsub("\\.length.x.residuals.","", row.names(rca)), rca, row.names = NULL)
     names(prca) <- c("Variable", "N", "Converged", "Beta", "SE", "Variable_pvalue", "LRT_pvalue", "Diff_AIC")
     prca$Sort <- ifelse(prca$Converged==TRUE, prca$LRT_pvalue, NA)
