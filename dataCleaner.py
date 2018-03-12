@@ -203,22 +203,41 @@ def ewas2_file_chosen():
 
 def merge_data_choose_file():
 
-	global marge_data_file
-	marge_data_file = tkFileDialog.askopenfilename()
-	second_file_upload_merge.set("File: " + marge_data_file)
+	global merge_data_file
+	merge_data_file = tkFileDialog.askopenfilename()
+	second_file_upload_merge.set("File: " + merge_data_file)
 	
 	with open(log_file_name, 'a') as g:
 		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
-		g.write("Second File Uploaded - Merge Data File: "+ marge_data_file + '\n')
+		g.write("Second File Uploaded - Merge Data File: "+ merge_data_file + '\n')
 	refresh_logs()
 
 
+def recode_missing_file_upload():
+
+	global key_recode_file
+	key_recode_file = tkFileDialog.askopenfilename()
+	recode_key_file_var.set("File: " + key_recode_file)
+	
+	with open(log_file_name, 'a') as g:
+		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
+		g.write("Recode Key File Uploaded- File: "+ key_recode_file + '\n')
+	refresh_logs()
 
 
-# def dialogue_file_recode_key():
-# 	global recode_key_file
-# 	recode_key_file = tkFileDialog.askopenfilename()
-# 	choose_file_label_name.set("Data File: " + recode_key_file)
+def upload_tranformation_file():
+
+	global transformation_file
+	transformation_file = tkFileDialog.askopenfilename()
+	transformation_file_var.set("File: " + transformation_file)
+	
+	with open(log_file_name, 'a') as g:
+		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
+		g.write("Transformation File Uploaded: " + transformation_file + '\n')
+	refresh_logs()
+
+	
+
 ###***************************************************************************************###
 
 
@@ -247,60 +266,71 @@ def merge_data_choose_file():
 ###***************************************************************************************###
 def recode_missing():
 
+	f = open('r/recode_missing.R','r')
+	filedata = f.read()
+	f.close()
+
+	newdata = filedata
+
+	argument_1 = "a1 = " + "'" + str(rc_specific_var.get()) + "'"
+
+	f = open('r/GUI_Scripts/recode_missing1.R','w')
+	f.write(newdata)
+	f.write(final + '\n')
+	f.write(argument_1 + '\n')
+
+	f.write("newdata <- recode_missing(a0, a1)"+ '\n')
+	file_output_path = "write.table(newdata,"+ "file" + "=" + GLOBAL_OUTPUT_DIRECTORY_FORMATTED +  "SpecificMiss.txt" + "'," + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
+
+	f.write(file_output_path+ '\n')
 
 
-	
-	if os.path.exists(global_start_file_path) == True:
-
-		with open(global_start_file_path, 'r') as file :
-			
-			fileclean_rows = file.read()
-			fileclean_rows = fileclean_rows.replace("\t" + str(missing_val.get()), "\t"+str(missing_val_replacement.get()))
-			with open('GUI_Output/recode_missing_out.txt', 'w') as file:
-				file.write(fileclean_rows)
-			with open(log_file_name, 'a') as g:
-				g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
-				g.write("Missing Values Replace Function Called" + '\n')
-				g.write("Missing Value: "+ str(missing_val.get()) + '\n')
-				g.write("Missing Value Replacement: "+ str(missing_val_replacement.get()) + '\n' + '\n')
-
-	else:
-
-		file_name.set("File Path Is Invalid: " + global_start_file_path)
-
-
-	refresh_logs()
-def recode_key():
-	iterator = 0
-	key_array = []
+	f.close()
 
 	with open(log_file_name, 'a') as g:
 		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
 
-		g.write("Missing Values Dictionary Function Called" + '\n')
+		g.write("Specific Recode Missing Function Called" + '\n' +'\n' )
+	
+
+	s_out = open(log_file_name, "a")
+	proc = subprocess.call(['Rscript','r/GUI_Scripts/recode_missing1.R'], shell=False,stdout=s_out, stderr=s_out)
+
 	refresh_logs()
-	dictionary = global_recode_key_dictionary
-
-	with open(dictionary, 'r') as file :
-		fileclean_rows = file.read().split()
-		for x in fileclean_rows:
-			iterator = iterator + 1
-			if iterator % 2 ==0 and iterator > 2:
-				key_array.append(x)
-				pass
-
-	with open(global_start_file_path, 'r') as file :
-		fileclean_rows = file.read()
-
-		for x in key_array:
-			print(x)
-			fileclean_rows = fileclean_rows.replace('\t'+str(x), "\tNA")
-
-		with open('GUI_Output/recode_key_out.txt', 'w') as file:
-			file.write(fileclean_rows)
 
 
+def recode_key():
 
+	f = open('r/recode_key.R','r')
+	filedata = f.read()
+	f.close()
+
+	newdata = filedata
+
+	argument_1 = "a1 = " + "'" + str(recode_key_file_var.get()) + "'"
+
+	f = open('r/GUI_Scripts/recode_key1.R','w')
+	f.write(newdata)
+	f.write(final + '\n')
+	f.write(argument_1 + '\n')
+
+	f.write("newdata <- recode_key(a0, a1)"+ '\n')
+	file_output_path = "write.table(newdata,"+ "file" + "=" + GLOBAL_OUTPUT_DIRECTORY_FORMATTED +  "StandardMiss.txt" + "'," + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
+
+	f.write(file_output_path+ '\n')
+
+	f.close()
+
+	with open(log_file_name, 'a') as g:
+		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
+
+		g.write("Recode Key Function Called" + '\n' +'\n' )
+	
+
+	s_out = open(log_file_name, "a")
+	proc = subprocess.call(['Rscript','r/GUI_Scripts/recode_key1.R'], shell=False,stdout=s_out, stderr=s_out)
+
+	refresh_logs()
 
 
 
@@ -492,7 +522,7 @@ def transvar():
 	file_output_path = "write.table(newdata,"+ "file" + "=" + GLOBAL_OUTPUT_DIRECTORY_FORMATTED +  "Transformation.txt" + "'," + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
 
 	argument_1 = "a1 = read.delim('/Users/deven/desktop/it.txt', header=TRUE)"
-	a1 = "a1 = read.delim('" + global_transform_key_dictionary + A0_2
+	a1 = "a1 = read.delim('" + str(transformation_file_var.get()) + A0_2
 
 	newdata = filedata
 
@@ -518,103 +548,9 @@ def transvar():
 
 	refresh_logs()
 
-def remove_outliers():
-
-	with open(log_file_name, 'a') as g:
-		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
-
-		g.write("Remove Outliers Function Called" + '\n'+ '\n' )
-	refresh_logs()
-	# input_file = outlier_file
-        matrix = []
-        # input_file = '/Users/deven/desktop/miss.txt'
-
-        ##Called within remove outliers
-
-        ##number is the number of clumns 
-        ##clean_rows(number)Returns a cleaned row of clean_rows to remove_ourliers where it is added to a matrix
-        ##This matrix is then passed to write_matrix_to_textfile, which writes the matrix to a file.
-        ##Remove Outliers 
-        def clean_rows(number):
-                crs = open(global_start_file_path, "r")
+# def remove_outliers():
 
 
-                multiplyer = 2.5
-
-                column_array = []
-                i = 0
-
-                header = ""
-
-                for columns in ( raw.strip().split() for raw in crs ):
-
-                        column_array.append(columns[number])
-
-                intlist = []
-                counter = []
-                for x in column_array:
-                        try:
-                                intlist.append(x)
-                                counter.append(float(x))
-                                #print(x)
-                        except ValueError:
-				print("VE")
-				#print(str(x) + "\tdo nothing")
-                                #intlist.append(x)
-
-                mean = sum(counter) / float(len(counter))
-                var  = sum(pow(x-mean,2) for x in counter) / (len(counter)-1)  # variance
-                std  = math.sqrt(var)  # standard deviation
-
-
-                cealing = mean + (multiplyer*std)
-                floor = mean - (multiplyer*std)
-
-
-
-                for x in range(len(intlist)):
-			try:
-				float(intlist[x])
-
-	                        if (float(intlist[x]) > cealing or float(intlist[x]) < floor) and x!=0:
-                                	intlist[x] = "NA"
-			except ValueError:
-				intlist[x] = intlist[x]
-
-		#print(intlist)
-                return(intlist)
-
-
-        #This reads in the file, counts the columns, and passes this to call clean_rows(x)
-        file = open(global_start_file_path, "r")
-        total_columns = file.readline().count('\t') + 1
-        file.close()
-
-        #Calls the clean_rows function and appends all rows to a matrix
-        ##CALL clean_rows(x)
-        for x in range(total_columns):
-		print(x)
-                matrix.append(clean_rows(x))
-
-
-        ##Writes Matrix to file
-        def write_matrix_to_textfile(a_matrix):
-            #print(a_matrix)
-            #r = np.transpose(a_matrix)
-	    r = zip(*matrix)
-            print(r)
-            #print(a_row)
-            def compile_row_string(a_row):
-                return str(a_row).strip("']").strip("['").strip("(").strip(")").replace(" ","\t").replace("'","").replace(",", "")
-
-            with open('GUI_Output/remove_outliers.txt', 'w') as f:
-                for row in r:
-		    #print row
-                    f.write(compile_row_string(row)+'\n')
-
-            return True
-
-        write_matrix_to_textfile(matrix)
 
 ###***************************************************************************************###
    		###********************** Visualize Data Functions *******************###
@@ -1088,6 +1024,47 @@ def row_filter():
 
 	refresh_logs()
 
+def merge_data():
+
+	f = open('r/merge_data.R','r')
+	filedata = f.read()
+	f.close()
+
+	file_output_path = "write.table(newdata,"+ "file" + "=" + GLOBAL_OUTPUT_DIRECTORY_FORMATTED +  "Merged.txt" + "'," + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
+
+	a0_1 = "a1 = read.delim('"
+	argument_1 = a0_1 + merge_data_file + A0_2
+
+
+	if str(mergeVar.get()) == "True":
+		argument_2 = "a2 = TRUE"
+
+	else:
+		argument_2 = "a2 = FALSE"
+
+
+	newdata = filedata
+	
+	f = open('r/GUI_Scripts/merge_data1.R','w')
+	f.write(newdata)
+	f.write('\n')
+	f.write(final + '\n')
+	f.write(argument_1 + '\n')
+	f.write(argument_2 + '\n')
+	f.write("newdata <- merge_data(a0, a1, a2)"+ '\n')
+	f.write(file_output_path + '\n')
+	f.close()
+
+	with open(log_file_name, 'a') as g:
+		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
+
+		g.write("Merge Data Called" + '\n')
+	
+	s_out = open(log_file_name, "a")
+	proc = subprocess.call(['Rscript','r/GUI_Scripts/merge_data1.R'], shell=False,stdout=s_out, stderr=s_out)
+
+	refresh_logs()
+
 #EWAS
 def ewas():
 
@@ -1146,6 +1123,41 @@ def ewas():
 	proc = subprocess.call(['Rscript','r/GUI_Scripts/ewas1.R'], shell=False,stdout=s_out, stderr=s_out)
 
 	refresh_logs()
+
+
+
+def remove_outliers():
+
+	f = open('r/remove_outliers.R','r')
+	filedata = f.read()
+	f.close()
+
+	file_output_path = "write.table(newdata,"+ "file" + "=" + GLOBAL_OUTPUT_DIRECTORY_FORMATTED +  "SampleFiltered.txt" + "'," + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
+
+	argument_1 = "a1 = " + str(remove_outliers_var.get()) 
+
+
+	newdata = filedata
+	
+	f = open('r/GUI_Scripts/remove_outliers1.R','w')
+	f.write(newdata)
+	f.write(final + '\n')
+	f.write(argument_1 + '\n')
+	f.write("newdata <- remove_outliers(a0, a1)"+ '\n')
+	f.write(file_output_path + '\n')
+
+	f.close()
+	
+	with open(log_file_name, 'a') as g:
+		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
+
+		g.write("Remove Outliers Called" + '\n')
+	
+	s_out = open(log_file_name, "a")
+	proc = subprocess.call(['Rscript','r/GUI_Scripts/remove_outliers1.R'], shell=False,stdout=s_out, stderr=s_out)
+
+	refresh_logs()
+
 
 
 ###***************************************************************************************###
@@ -1770,7 +1782,6 @@ def rowfilter_popup():
 	upload_columns_button.grid(row=1, column=0)
 	
 
-
 	global rowfilter2
 	rowfilter2= StringVar()
 	rowfilter2.set("")
@@ -1785,10 +1796,6 @@ def rowfilter_popup():
 	rowfilterMenuVar.set("Select")
 	rowfilterMenuVar_choices = tk.OptionMenu(toplevel, rowfilterMenuVar, *rowfilterMenuVar_choices)
 	rowfilterMenuVar_choices.grid(row=2, column=1)
-
-
-
-
 
 	get_check_button = Button(toplevel,text="Run", command= row_filter)
 	get_check_button.grid(row=3, column=0,columnspan=2)
@@ -1916,12 +1923,6 @@ def sample_size_filter_popup():
 	sample_size_filter_button.grid(row=1, column=0,columnspan=2)
 
 
-	
-
-	
-def merge_data():
-	print("merge_data_called")
-
 
 def merge_variables_popup():
 	toplevel = Toplevel()
@@ -1942,15 +1943,12 @@ def merge_variables_popup():
 	second_file_upload_merge_label = Label(toplevel, textvariable=second_file_upload_merge,font=("Choose File", 14))
 	second_file_upload_merge_label.grid(row=1, column=1)
 
-
-	global union_var
-	union_var= StringVar()
-	union_var.set("")
 	union_var_label = Label(toplevel, text="Union",font=("Comfortaa", 14))
 	union_var_label.grid(row=2, column=0)
 
 
 	#Correction Drop Down Menu
+	global mergeVar
 	mergeVar = tk.StringVar()
 	mergeVar_choices = ("Add NA Values", "Intersect")
 	mergeVar.set("Select")
@@ -1962,24 +1960,63 @@ def merge_variables_popup():
 	run_get_categorical_button.grid(row=3, column=0,columnspan=2)
 
 
+
+	
+#RecodeKey
 def recode_missing_popup():
 	toplevel = Toplevel()
 	toplevel.geometry("300x235")
 
-	label1 = Label(toplevel,bg="white",text = "Get Categorical")
+	label1 = Label(toplevel,bg="white",text = "Recode Missing")
 	label1.grid(row=0, column=0, columnspan=2)
 	label1.config(font=("Comfortaa", 18))
 	label1.config(fg="cyan4")
 
+
+	choose_key_file_button = Button(toplevel,text="Choose File", command= recode_missing_file_upload)
+	choose_key_file_button.grid(row=1, column=0)
+
+	global recode_key_file_var
+	recode_key_file_var= StringVar()
+	recode_key_file_var.set("No File Chosen")
+	recode_key_file_var_label = Label(toplevel, textvariable=recode_key_file_var,font=("Choose File", 14))
+	recode_key_file_var_label.grid(row=1, column=1)
+
+
+
+	rc_button=Button(toplevel,text="Run", command=recode_key, width=12)
+	rc_button.grid(row=2, column=0,columnspan=2)
+
+
+
+
+
+#Recode_Missing
 def specific_recode_missing_popup():
+
 	toplevel = Toplevel()
 	toplevel.geometry("300x235")
 
-	label1 = Label(toplevel,bg="white",text = "Get Categorical")
-	label1.grid(row=0, column=0, columnspan=2)
-	label1.config(font=("Comfortaa", 18))
-	label1.config(fg="cyan4")
-	
+	label = Label(toplevel, text="Recode Mising - Specific")
+	label.grid(row=0, column=0, columnspan=2)
+	label.config(font=("Comfortaa", 20))
+	label.config(fg="cyan4")
+
+
+	global rc_specific_var
+	rc_specific_var= StringVar()
+	rc_specific_var.set("")
+
+	rc_specific_var_label = Label(toplevel, text="Missing Value to Recode",font=("Comfortaa", 14))
+	rc_specific_var_label.grid(row=1, column=0)
+	rc_specific_var_label_entry_box  = Entry(toplevel, textvariable=rc_specific_var, width=15, bg="alice blue")
+	rc_specific_var_label_entry_box.grid(row=1, column=1)
+
+
+	rc_specific_button = Button(toplevel,text="Run", command= recode_missing)
+	rc_specific_button.grid(row=2, column=0,columnspan=2)
+
+
 
 ###***************************************************************************************###
 #Creating the buttons for the left section of Frame TWO
@@ -2123,38 +2160,58 @@ min_n_button.config(width = 13)
    		###*************************** GUI PROGRAM  **************************###
 ###******************************Quality Control - Continuous**********************************************###
 ###***************************************************************************************###
+
+
 def remove_outliers_popup():
 
 	toplevel = Toplevel()
-	toplevel.geometry("245x205")
+	toplevel.geometry("300x235")
 
-	label1 = Label(toplevel,bg="white",text = "Remove Outliers")
-	label1.config(font=("Comfortaa", 18))
-	label1.pack(pady=(0,15))
-	label1.config(fg="cyan4")
-	label1.pack(fill=X)
+	label = Label(toplevel, text="Remove Outliers")
+	label.grid(row=0, column=0, columnspan=2)
+	label.config(font=("Comfortaa", 20))
+	label.config(fg="cyan4")
 
-	run_levels_button=Button(toplevel,text="Run", command=remove_outliers)
-	run_levels_button.pack(fill=X)
-	# toplevel.destroy()
+
+	global remove_outliers_var
+	remove_outliers_var= StringVar()
+	remove_outliers_var.set("")
+
+	remove_outliers_var_label = Label(toplevel, text="SD From Mean",font=("Comfortaa", 14))
+	remove_outliers_var_label.grid(row=1, column=0)
+	remove_outliers_var_label_entry_box  = Entry(toplevel, textvariable=remove_outliers_var, width=15, bg="alice blue")
+	remove_outliers_var_label_entry_box.grid(row=1, column=1)
+
+
+	remove_outliers_var_button = Button(toplevel,text="Run", command= remove_outliers)
+	remove_outliers_var_button.grid(row=2, column=0,columnspan=2)
+
 
 
 #Variable Specific Transformation Popup
 def transvar_popup():
 
 	toplevel = Toplevel()
-	toplevel.geometry("245x205")
+	toplevel.geometry("300x235")
 
 	label1 = Label(toplevel,bg="white",text = "Variable Specific Transformation")
+	label1.grid(row=0, column=0, columnspan=2)
 	label1.config(font=("Comfortaa", 18))
-	label1.pack(pady=(0,15))
 	label1.config(fg="cyan4")
-	label1.pack(fill=X)
-
-	run_levels_button=Button(toplevel,text="Run", command=transvar)
-	run_levels_button.pack(fill=X)
 
 
+	choose_second_file_button = Button(toplevel,text="Choose File", command= upload_tranformation_file)
+	choose_second_file_button.grid(row=1, column=0)
+
+	global transformation_file_var
+	transformation_file_var= StringVar()
+	transformation_file_var.set("No File Chosen")
+	transformation_file_var_label = Label(toplevel, textvariable=transformation_file_var,font=("Choose File", 14))
+	transformation_file_var_label.grid(row=1, column=1)
+
+
+	transformation_button=Button(toplevel,text="Run", command=transvar)
+	transformation_button.grid(row=2, column=0, columnspan=2)
 
 
 ###***************************************************************************************###
