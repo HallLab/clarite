@@ -7,7 +7,7 @@
 #' @param cov vector containing names of covariates
 #' @param regress family for the regression model as specified in glm, linear or logisitic
 #' @param adjust p-value adjustment (bonferroni or fdr)
-#' @return data frame containing following fields Variable, Variable Type, Regression Type, Sample Size, SE, Beta, Variable p-value, LRT, AIC, adjusted p-value
+#' @return data frame containing following fields Variable, Sample Size, Converged, SE, Beta, Variable p-value, LRT, AIC, adjusted p-value
 #' @export
 #' @examples
 #' ewas(cat, cont, y, cov, regress, adjust)

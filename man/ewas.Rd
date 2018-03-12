@@ -20,7 +20,7 @@ ewas(cat = NULL, cont = NULL, y, cov = NULL, regress, adjust)
 \item{adjust}{p-value adjustment (bonferroni or fdr)}
 }
 \value{
-data frame containing following fields Variable, Variable Type, Regression Type, Sample Size, SE, Beta, Variable p-value, LRT, AIC, adjusted p-value
+data frame containing following fields Variable, Sample Size, Converged, SE, Beta, Variable p-value, LRT, AIC, adjusted p-value
 }
 \description{
 Run environment-wide association study
