@@ -15,7 +15,7 @@ hist_fun <- function(d, i, annotate) {
     stop("Please install ggplot2 and gridExtra to create visualization.", call. = FALSE)
   } else {
     packages = c("ggplot2", "gridExtra")
-    lapply(lapply(packages, library, character.only = TRUE))
+    lapply(packages, library, character.only = TRUE)
   }
 
   if(!missing(annotate)){

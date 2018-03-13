@@ -13,9 +13,6 @@
 #' ewas(cat, cont, y, cov, regress, adjust)
 
 ewas <- function(cat=NULL, cont=NULL, y, cov=NULL, regress, adjust){
-  if (!requireNamespace("lmtest", quietly = TRUE)) {
-    stop("Please install lmtest package to use this function.", call. = FALSE)
-  }
   if(missing(y)){
     stop("Please specify either 'continuous' or 'categorical' type for predictor variables")
   }

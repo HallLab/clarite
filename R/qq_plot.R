@@ -20,9 +20,8 @@ qq_plot <- function(d, n=12, file="plot", nrow=4, ncol=3, wi=13.5, hgt=12, res=3
     stop("Please install ggplot2 and gridExtra to create visualization.", call. = FALSE)
   } else {
     packages = c("ggplot2", "gridExtra")
-    lapply(lapply(packages, library, character.only = TRUE))
+    lapply(packages, library, character.only = TRUE)
   }
-
 
   if(is.element('ID', names(d))==FALSE){
     stop("Please add ID to dataframe as column 1")
