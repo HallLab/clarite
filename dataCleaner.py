@@ -2441,9 +2441,7 @@ def man_plot():
 	f.write(GGPLOT_LIBRARY + '\n')
 	f.write(GRIDEXTRA_LIBRARY + '\n')
 	if str(moreColorsVar.get()) != "Standard Colors":
-	f.write(RCOLORBREWER_LIBRARY + '\n')
-
-	
+		f.write(RCOLORBREWER_LIBRARY + '\n')
 	f.write(final + '\n')
 	f.write(argument_1 + '\n')
 	f.write(argument_2 + '\n')
