@@ -18,15 +18,18 @@
 #' multi_plot(d, n=6, file="plot", nrow=3, ncol=2, wi=13.5, hgt=9, res=210, type="hist-qq", annotate)
 
 multi_plot <- function(d, n=6, file="plot", nrow=3, ncol=2, wi=13.5, hgt=9, res=210, type, annotate) {
-  if (!requireNamespace(c("ggplot2", "gridExtra"), quietly = TRUE)) {
+  if (!requireNamespace(c("ggplot2", "gridExtra"), quietly = TRUE)==TRUE) {
     stop("Please install ggplot2 and gridExtra to create visualization.", call. = FALSE)
+  } else {
+    packages = c("ggplot2", "gridExtra")
+    lapply(lapply(packages, library, character.only = TRUE))
   }
 
 
   if(is.element('ID', names(d))==FALSE){
     stop("Please add ID to dataframe as column 1")
   }
-  
+
   d <- d[, -1]
 
   if(n > ncol(d)){
@@ -35,12 +38,12 @@ multi_plot <- function(d, n=6, file="plot", nrow=3, ncol=2, wi=13.5, hgt=9, res=
 
   if(missing(type)){
     stop("Please specify plot type")
-  }	
+  }
 
   iter <- ceiling(ncol(d)/n)
   k <- 1
   inc <- n
- 
+
   if(!missing(annotate)){
     #Add clinical lab information
     c <- setNames(data.frame(t(annotate[,-1])), annotate[,1])
@@ -70,7 +73,7 @@ multi_plot <- function(d, n=6, file="plot", nrow=3, ncol=2, wi=13.5, hgt=9, res=
       if(length(grep("qq", type))!=0){
 	q <- qq_fun(d=d, i=i)
       }
-      
+
       if(length(grep("hist-qq", type))!=0){
 	plots[[lst_indx]] <- grid.arrange(h, q, ncol=2)
       }
@@ -83,7 +86,7 @@ multi_plot <- function(d, n=6, file="plot", nrow=3, ncol=2, wi=13.5, hgt=9, res=
       if(length(grep("hist-box-qq", type))!=0){
         plots[[lst_indx]] <- grid.arrange(h, b, q, ncol=3)
       }
-      
+
       lst_indx <- lst_indx + 1
     }
 
@@ -91,7 +94,7 @@ multi_plot <- function(d, n=6, file="plot", nrow=3, ncol=2, wi=13.5, hgt=9, res=
     do.call("grid.arrange", c(plots, ncol=ncol))
     dev.off()
     print(paste("Printing image", j, "of", iter, sep=" "))
-    
+
     k <- inc + 1
     inc <- if(j==iter-1) ncol(d) else inc + n
     #Adjust height for last plot

@@ -17,15 +17,18 @@
 #' box_plot(d, n=12, file="plot", nrow=4, ncol=3, wi=13.5, hgt=12, res=210, annotate)
 
 box_plot <- function(d, n=12, file="plot", nrow=4, ncol=3, wi=13.5, hgt=12, res=300, annotate) {
-  if (!requireNamespace(c("ggplot2", "gridExtra"), quietly = TRUE)) {
+  if (!requireNamespace(c("ggplot2", "gridExtra"), quietly = TRUE)==TRUE) {
     stop("Please install ggplot2 and gridExtra to create visualization.", call. = FALSE)
+  } else {
+    packages = c("ggplot2", "gridExtra")
+    lapply(lapply(packages, library, character.only = TRUE))
   }
 
 
   if(is.element('ID', names(d))==FALSE){
     stop("Please add ID to dataframe as column 1")
   }
-  
+
   d <- d[, -1]
 
   if(n > ncol(d)){
@@ -35,7 +38,7 @@ box_plot <- function(d, n=12, file="plot", nrow=4, ncol=3, wi=13.5, hgt=12, res=
   iter <- ceiling(ncol(d)/n)
   k <- 1
   inc <- n
- 
+
   if(!missing(annotate)){
     #Add clinical lab information
     c <- setNames(data.frame(t(annotate[,-1])), annotate[,1])
@@ -44,27 +47,27 @@ box_plot <- function(d, n=12, file="plot", nrow=4, ncol=3, wi=13.5, hgt=12, res=
   }
 
   print("Starting boxplots")
-    
+
   for(j in 1:iter){
-    
+
     print(paste("Creating image", j, "of", iter, sep=" "))
     plots <- list()
     lst_indx <- 1
-      
+
     for(i in k:inc){
-      
+
       v <- names(d[i])
       smpls <- length(d[[v]][!is.na(d[[v]])])
       std <- sd(d[[i]], na.rm=TRUE)
       avg <- mean(d[[i]], na.rm=TRUE)
       sumstr <- paste("Sample Size = ", smpls, ", Std.Dev. = ", format(std, digits=4), sep="")
 
-      #Explicitly set aes to look in local environment due to bug in ggplot  
-      b <- ggplot(data=d, aes(x=factor(0), y=d[[v]]), environment=environment()) + geom_boxplot(width=0.5, outlier.shape=1, outlier.colour="red", fill="cadetblue4") 
-      b <- b + labs(y="Value") + theme(axis.text.x=element_blank(), axis.title.x=element_blank(), axis.ticks.x=element_blank(), plot.title=element_text(size=9), axis.title=element_text(size=8)) 
-      b <- b + stat_summary(fun.y=mean,geom="point", shape=18, colour="yellow") + guides(fill=FALSE) + ggtitle(bquote(atop(.(v), atop(.(sumstr), "")))) 
-          
-      if(!missing(annotate)){    
+      #Explicitly set aes to look in local environment due to bug in ggplot
+      b <- ggplot(data=d, aes(x=factor(0), y=d[[v]]), environment=environment()) + geom_boxplot(width=0.5, outlier.shape=1, outlier.colour="red", fill="cadetblue4")
+      b <- b + labs(y="Value") + theme(axis.text.x=element_blank(), axis.title.x=element_blank(), axis.ticks.x=element_blank(), plot.title=element_text(size=9), axis.title=element_text(size=8))
+      b <- b + stat_summary(fun.y=mean,geom="point", shape=18, colour="yellow") + guides(fill=FALSE) + ggtitle(bquote(atop(.(v), atop(.(sumstr), ""))))
+
+      if(!missing(annotate)){
         if(v %in% names(c)){
           #[1,] = normal min, [2,] = normal max, [3,] = physiological min, [4,] = physiological max
           if(!is.na(c[v][1,])){
@@ -86,12 +89,12 @@ box_plot <- function(d, n=12, file="plot", nrow=4, ncol=3, wi=13.5, hgt=12, res=
       plots[[lst_indx]] <- grid.arrange(b, ncol=1)
       lst_indx <- lst_indx + 1
     }
-      
+
     png(paste(file, "_boxplot_", j, ".png", sep=""), width=wi, height=hgt, units="in", res=210, pointsize=4)
     do.call("grid.arrange", c(plots, ncol=ncol))
     dev.off()
     print(paste("Printing image", j, "of", iter, sep=" "))
-      
+
     k <- inc + 1
     inc <- if(j==iter-1) ncol(d) else inc + n
     #Adjust height for last plot
@@ -100,7 +103,7 @@ box_plot <- function(d, n=12, file="plot", nrow=4, ncol=3, wi=13.5, hgt=12, res=
       hgt <- (hgt/nrow)*n_row
     }
   }
-    
+
     print("Finished creating boxplots")
 }
 

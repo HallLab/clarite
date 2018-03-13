@@ -11,8 +11,11 @@
 #' @examples
 #' box_fun(d, i, annotate)
 box_fun <- function(d, i, annotate) {
-  if (!requireNamespace(c("ggplot2", "gridExtra"), quietly = TRUE)) {
+  if (!requireNamespace(c("ggplot2", "gridExtra"), quietly = TRUE)==TRUE) {
     stop("Please install ggplot2 and gridExtra to create visualization.", call. = FALSE)
+  } else {
+    packages = c("ggplot2", "gridExtra")
+    lapply(lapply(packages, library, character.only = TRUE))
   }
 
   if(!missing(annotate)){
@@ -21,19 +24,19 @@ box_fun <- function(d, i, annotate) {
   } else {
     print("No annotations available")
   }
-      
+
   v <- names(d[i])
   smpls <- length(d[[v]][!is.na(d[[v]])])
   std <- sd(d[[i]], na.rm=TRUE)
   avg <- mean(d[[i]], na.rm=TRUE)
   sumstr <- paste("Sample Size = ", smpls, ", Std.Dev. = ", format(std, digits=4), sep="")
 
-  #Explicitly set aes to look in local environment due to bug in ggplot  
-  b <- ggplot(data=d, aes(x=factor(0), y=d[[v]]), environment=environment()) + geom_boxplot(width=0.5, outlier.shape=1, outlier.colour="red", fill="cadetblue4") 
-  b <- b + labs(y="Value") + theme(axis.text.x=element_blank(), axis.title.x=element_blank(), axis.ticks.x=element_blank(), plot.title=element_text(size=9), axis.title=element_text(size=8)) 
-  b <- b + stat_summary(fun.y=mean,geom="point", shape=18, colour="yellow") + guides(fill=FALSE) + ggtitle(bquote(atop(.(v), atop(.(sumstr), "")))) 
-          
-  if(!missing(annotate)){    
+  #Explicitly set aes to look in local environment due to bug in ggplot
+  b <- ggplot(data=d, aes(x=factor(0), y=d[[v]]), environment=environment()) + geom_boxplot(width=0.5, outlier.shape=1, outlier.colour="red", fill="cadetblue4")
+  b <- b + labs(y="Value") + theme(axis.text.x=element_blank(), axis.title.x=element_blank(), axis.ticks.x=element_blank(), plot.title=element_text(size=9), axis.title=element_text(size=8))
+  b <- b + stat_summary(fun.y=mean,geom="point", shape=18, colour="yellow") + guides(fill=FALSE) + ggtitle(bquote(atop(.(v), atop(.(sumstr), ""))))
+
+  if(!missing(annotate)){
     if(v %in% names(c)){
       #[1,] = normal min, [2,] = normal max, [3,] = physiological min, [4,] = physiological max
       if(!is.na(c[v][1,])){
@@ -54,5 +57,5 @@ box_fun <- function(d, i, annotate) {
   print(b)
   return(b)
 }
-      
+
 

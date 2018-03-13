@@ -11,8 +11,11 @@
 #' @examples
 #' hist_fun(d, i, annotate)
 hist_fun <- function(d, i, annotate) {
-  if (!requireNamespace(c("ggplot2", "gridExtra"), quietly = TRUE)) {
+  if (!requireNamespace(c("ggplot2", "gridExtra"), quietly = TRUE)==TRUE) {
     stop("Please install ggplot2 and gridExtra to create visualization.", call. = FALSE)
+  } else {
+    packages = c("ggplot2", "gridExtra")
+    lapply(lapply(packages, library, character.only = TRUE))
   }
 
   if(!missing(annotate)){
@@ -26,12 +29,12 @@ hist_fun <- function(d, i, annotate) {
   smpls <- length(d[[v]][!is.na(d[[v]])])
   std <- sd(d[[i]], na.rm=TRUE)
   sumstr <- paste("Sample Size = ", smpls, ", Std.Dev. = ", format(std, digits=4), sep="")
-      
-  #Explicitly set aes to look in local environment due to bug in ggplot  
-  h <- ggplot(data=d, aes(x=d[[v]]), environment=environment()) + labs(y="Count", x="Values") + geom_histogram(colour="white", fill=("cadetblue4")) 
+
+  #Explicitly set aes to look in local environment due to bug in ggplot
+  h <- ggplot(data=d, aes(x=d[[v]]), environment=environment()) + labs(y="Count", x="Values") + geom_histogram(colour="white", fill=("cadetblue4"))
   h <- h + ggtitle(bquote(atop(.(v), atop(.(sumstr), "")))) + theme(plot.title=element_text(size=9), axis.title=element_text(size=8))
 
-  if(!missing(annotate)){      
+  if(!missing(annotate)){
     if(v %in% names(c)){
       #[1,] = normal min, [2,] = normal max, [3,] = physiological min, [4,] = physiological max
       if(!is.na(c[v][1,])){
@@ -46,7 +49,7 @@ hist_fun <- function(d, i, annotate) {
       if(!is.na(c[v][4,])){
         h <- h + geom_vline(xintercept=c[v][4,], colour="red")
       }
-    } 
+    }
   }
 
   print(h)

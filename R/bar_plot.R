@@ -17,16 +17,19 @@
 
 
 bar_plot <- function(d, n=12, file="plot", nrow=4, ncol=3, wi=13.5, hgt=12, res=300) {
-  if (!requireNamespace(c("ggplot2", "gridExtra"), quietly = TRUE)) {
+  if (!requireNamespace(c("ggplot2", "gridExtra"), quietly = TRUE)==TRUE) {
     stop("Please install ggplot2 and gridExtra to create visualization.", call. = FALSE)
+  } else {
+    packages = c("ggplot2", "gridExtra")
+    lapply(lapply(packages, library, character.only = TRUE))
   }
 
   if(is.element('ID', names(d))==FALSE){
     stop("Please add ID to dataframe as column 1")
   }
- 
+
   d <- d[, -1]
- 
+
   if(n > ncol(d)){
     stop("Number of plots per page (", n, ") is larger than number of variables to plot (", ncol(d), ")")
   }
@@ -35,32 +38,32 @@ bar_plot <- function(d, n=12, file="plot", nrow=4, ncol=3, wi=13.5, hgt=12, res=
   k <- 1
   inc <- n
   print("Starting bar charts")
-    
+
   for(j in 1:iter){
-    
+
     print(paste("Creating image", j, "of", iter, sep=" "))
     plots <- list()
     lst_indx <- 1
-      
+
     for(i in k:inc){
-      
+
       v <- names(d[i])
       smpls <- length(d[[v]][!is.na(d[[v]])])
       sumstr <- paste("Sample Size = ", smpls, sep="")
-      
-      #Explicitly set aes to look in local environment due to bug in ggplot  
+
+      #Explicitly set aes to look in local environment due to bug in ggplot
       b <- ggplot(d, aes(x=factor(d[[v]])), environment=environment()) + geom_bar(fill="cadetblue4", colour="white", width=.5) + labs(x="Category", y="Count")
       b <- b + ggtitle(bquote(atop(.(v), atop(.(sumstr), ""))))
       print(b)
       plots[[lst_indx]] <- grid.arrange(b, ncol=1)
       lst_indx <- lst_indx + 1
     }
-      
+
     png(paste(file, "_barchart_", j, ".png", sep=""), width=wi, height=hgt, units="in", res=210, pointsize=4)
     do.call("grid.arrange", c(plots, ncol=ncol))
     dev.off()
     print(paste("Printing image", j, "of", iter, sep=" "))
-      
+
     k <- inc + 1
     inc <- if(j==iter-1) ncol(d) else inc + n
     #Adjust height for last plot
@@ -69,7 +72,7 @@ bar_plot <- function(d, n=12, file="plot", nrow=4, ncol=3, wi=13.5, hgt=12, res=
       hgt <- (hgt/nrow)*n_row
     }
   }
-    
+
     print("Finished creating barcharts")
 }
 

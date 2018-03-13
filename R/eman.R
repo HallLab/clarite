@@ -20,10 +20,12 @@
 #' eman(d, ewas=TRUE, groups, line, title=NULL, morecolors=FALSE, file="eman", hgt=7, wi=12, res=300 )
 
 eman <- function(d, ewas=TRUE, groups, line, title=NULL, morecolors=FALSE, file="eman", hgt=7, wi=12, res=300){
-  if (!requireNamespace(c("ggplot2"), quietly = TRUE)) {
+  if (!requireNamespace(c("ggplot2"), quietly = TRUE)==TRUE) {
     stop("Please install ggplot2 to create visualization.", call. = FALSE)
+  } else {
+    require("ggplot2")
   }
-  
+
   if(ewas==TRUE){
     if("Variable_pvalue" %in% names(d) & "LRT_pvalue" %in% names(d)){
       d$pvalue <- ifelse(!is.na(d$Variable_pvalue), d$Variable_pvalue, ifelse(!is.na(d$LRT_pvalue), d$LRT_pvalue, NA))
@@ -33,25 +35,25 @@ eman <- function(d, ewas=TRUE, groups, line, title=NULL, morecolors=FALSE, file=
       d$pvalue <- d$LRT_pvalue
     }
   }
-  
-  if(missing(groups)){  
+
+  if(missing(groups)){
     if("Shape" %in% names(d)){
       p <- ggplot() + geom_point(data=d, aes(x=factor(Variable), y=-log10(pvalue), shape=factor(Shape)))
       p <- p + theme(axis.text.x = element_text(angle=90), axis.title.x=element_blank(), legend.position="bottom", legend.title=element_blank())
     } else {
       p <- ggplot(d, aes(x=factor(Variable), y=-log10(pvalue))) + geom_point() + theme(axis.text.x = element_text(angle=90), axis.title.x=element_blank())
     }
-  } else { 
-    
+  } else {
+
     subd <- d[, colnames(d) %in% c("Variable", "pvalue", "Shape")]
     colnames(groups)[2] <- "Color"
     dg <- merge(subd, groups, by="Variable")
     dg$Color <- factor(dg$Color)
-    
+
     #Order variables according to group
     dg_order <- dg[order(dg$Color, dg$Variable), ]
     dg_order$pos_index <- seq.int(nrow(dg_order))
-    
+
     #Set up dataframe with color and position info
     maxRows <- by(dg_order, dg_order$Color, function(x) x[which.max(x$pos_index),])
     minRows <- by(dg_order, dg_order$Color, function(x) x[which.min(x$pos_index),])
@@ -65,12 +67,14 @@ eman <- function(d, ewas=TRUE, groups, line, title=NULL, morecolors=FALSE, file=
     }
     lims$av <- (lims$posmin + lims$posmax)/2
     lims$shademap <- rep(c("shade_ebebeb","shade_fffff"), each=1)
-    
+
     #Set up color palette
     ncolors <- nlevels(lims$Color)
     if(morecolors==TRUE){
-      if (!requireNamespace(c("RColorBrewer"), quietly = TRUE)) {
+      if (!requireNamespace(c("RColorBrewer"), quietly = TRUE)==TRUE) {
         stop("Please install RColorBrewer to add color attribute.", call. = FALSE)
+      }else {
+        require("RColorBrewer")
       }
       getPalette = colorRampPalette(brewer.pal(11, "Spectral"))
       newcols <- c(getPalette(ncolors), "#EBEBEB", "#FFFFFF")
@@ -78,7 +82,7 @@ eman <- function(d, ewas=TRUE, groups, line, title=NULL, morecolors=FALSE, file=
       newcols <-c(rep(x=c("#53868B", "#4D4D4D"), length.out=ncolors, each=1), "#EBEBEB", "#FFFFFF")
     }
     names(newcols) <-c(levels(factor(lims$Color)), levels(factor(lims$shademap)))
- 
+
     #Start plotting
     p <- ggplot() + geom_rect(data = lims, aes(xmin = posmin-.5, xmax = posmax+.5, ymin = 0, ymax = Inf, fill=factor(shademap)), alpha = 0.5)
     #Add shape info if available
@@ -88,14 +92,14 @@ eman <- function(d, ewas=TRUE, groups, line, title=NULL, morecolors=FALSE, file=
       p <- p + geom_point(data=dg_order, aes(x=pos_index, y=-log10(pvalue), color=Color))
     }
     p <- p + scale_x_continuous(breaks=lims$av, labels=lims$Color, expand=c(0,0))
-    p <- p + geom_rect(data = lims, aes(xmin = posmin-.5, xmax = posmax+.5, ymin = -Inf, ymax = 0, fill=Color), alpha = 1)  
-    p <- p + scale_colour_manual(name = "Color",values = newcols, guides(alpha=FALSE)) + scale_fill_manual(name = "Color",values = newcols, guides(alpha=FALSE)) 
+    p <- p + geom_rect(data = lims, aes(xmin = posmin-.5, xmax = posmax+.5, ymin = -Inf, ymax = 0, fill=Color), alpha = 1)
+    p <- p + scale_colour_manual(name = "Color",values = newcols, guides(alpha=FALSE)) + scale_fill_manual(name = "Color",values = newcols, guides(alpha=FALSE))
     p <- p + theme(axis.text.x=element_text(angle=90), panel.grid.minor.x = element_blank(), panel.grid.major.x=element_blank(), axis.title.x=element_blank(), legend.position="bottom", legend.title=element_blank())
   }
-  
+
   #Add title and y axis title
   p <- p + ggtitle(title) + ylab(expression(paste("-log"[10], "(p-value)", sep="")))
-  
+
   #Add pvalue threshold line
   if(!missing(line)){
     p <- p + geom_hline(yintercept = -log10(line), colour="red")
