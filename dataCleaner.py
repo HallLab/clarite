@@ -31,7 +31,6 @@ IN_WIDTH = 19
 IN_HEIGHT = 18
 
 
-
 global time_stamp
 time_stamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -89,10 +88,10 @@ def choose_start_file():
 		g.write("Output Folder: "+ GLOBAL_OUTPUT_DIRECTORY + '\n')
 
 		if os.path.splitext(os.path.basename(global_start_file_path))[0] != "":
-			if global_file_prefix == "emptyPrefix":
-				global_file_prefix = os.path.splitext(os.path.basename(global_start_file_path))[0] + "_"
-				global GLOBAL_OUTPUT_DIRECTORY_FORMATTED 
-				GLOBAL_OUTPUT_DIRECTORY_FORMATTED = "'" + GLOBAL_OUTPUT_DIRECTORY  + "/" + global_file_prefix
+			# if global_file_prefix == "emptyPrefix":
+			global_file_prefix = os.path.splitext(os.path.basename(global_start_file_path))[0] + "_"
+			global GLOBAL_OUTPUT_DIRECTORY_FORMATTED 
+			GLOBAL_OUTPUT_DIRECTORY_FORMATTED = "'" + GLOBAL_OUTPUT_DIRECTORY  + "/" + global_file_prefix
 		print(global_file_prefix)
 	refresh_logs()
 
@@ -178,8 +177,7 @@ def ewas1_file_chosen():
 
 	global global_ewas_filename_1
 	global_ewas_filename_1 = tkFileDialog.askopenfilename()
-	ewas_choosefile_1.set("File: " + global_ewas_filename_1)
-
+	ewas_choosefile_1.set("File: " + os.path.splitext(os.path.basename(global_ewas_filename_1))[0])
 
 	with open(log_file_name, 'a') as g:
 		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
@@ -191,8 +189,7 @@ def ewas2_file_chosen():
 
 	global global_ewas_filename_2
 	global_ewas_filename_2 = tkFileDialog.askopenfilename()
-	ewas_choosefile_2.set("File: " + global_ewas_filename_2)
-
+	ewas_choosefile_2.set("File: " + os.path.splitext(os.path.basename(global_ewas_filename_2))[0])
 
 
 	with open(log_file_name, 'a') as g:
@@ -236,7 +233,22 @@ def upload_tranformation_file():
 		g.write("Transformation File Uploaded: " + transformation_file + '\n')
 	refresh_logs()
 
+def optional_file_mplot():
+
+	global option_groups_file_mplot
+	option_groups_file_mplot = tkFileDialog.askopenfilename()
+	if option_groups_file_mplot != "":
+		manhattan_plot_choosefile.set("File Uploaded")
+	else:
+		manhattan_plot_choosefile.set("No File Chosen")
+
+	# manhattan_plot_choosefile.set("File: " + os.path.splitext(os.path.basename(option_groups_file_mplot))[0])
 	
+	with open(log_file_name, 'a') as g:
+		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
+		g.write("Optional Groups File Uploaded: " + option_groups_file_mplot + '\n')
+	refresh_logs()
+
 
 ###***************************************************************************************###
 
@@ -1804,7 +1816,7 @@ def rowfilter_popup():
 def get_continuous_popup():
 
 	toplevel = Toplevel()
-	toplevel.geometry("300x235")
+	toplevel.geometry("400x235")
 
 	label = Label(toplevel, text="Get Continuous Variables")
 	label.grid(row=0, column=0, columnspan=2)
@@ -1865,7 +1877,7 @@ def get_check_popup():
 def get_categorical_popup():
 
 	toplevel = Toplevel()
-	toplevel.geometry("300x235")
+	toplevel.geometry("440x235")
 
 	label1 = Label(toplevel,bg="white",text = "Get Categorical")
 	label1.grid(row=0, column=0, columnspan=2)
@@ -1995,7 +2007,7 @@ def recode_missing_popup():
 def specific_recode_missing_popup():
 
 	toplevel = Toplevel()
-	toplevel.geometry("300x235")
+	toplevel.geometry("310x235")
 
 	label = Label(toplevel, text="Recode Mising - Specific")
 	label.grid(row=0, column=0, columnspan=2)
@@ -2091,7 +2103,7 @@ def min_cat_n():
 def min_cat_n_popup():
 
 	toplevel = Toplevel()
-	toplevel.geometry("245x205")
+	toplevel.geometry("330x205")
 
 
 	label = Label(toplevel, text="Min Category Size")
@@ -2115,7 +2127,7 @@ def min_cat_n_popup():
 def min_n_popup():
 
 	toplevel = Toplevel()
-	toplevel.geometry("245x205")
+	toplevel.geometry("275x205")
 
 
 	label = Label(toplevel, text="Min # of Samples")
@@ -2255,9 +2267,10 @@ label.config(fg="cyan4")
 
 
 ###********************************GUI BOX Covariates***************************************###
+ychange = -55
 global listNodes_covariates 
-listNodes_covariates = Listbox(f3, width=16, height=3, font=("Helvetica", 12))
-listNodes_covariates.place(x=263,y=99)
+listNodes_covariates = Listbox(f3, width=19, height=3, font=("Helvetica", 12))
+listNodes_covariates.place(x=363,y=199+ ychange)
 
 scrollbar_covariates  = Scrollbar(f3, orient="vertical")
 scrollbar_covariates.config(command=listNodes_covariates.yview)
@@ -2286,14 +2299,16 @@ co_variates_var= StringVar()
 co_variates_var.set("")
 global co_variates_var_label_entry_box  
 co_variates_var_label_entry_box = Entry(f3, textvariable=co_variates_var, width=15, bg="alice blue")
-co_variates_var_label_entry_box.place(x=262,y=146,width=76)
+co_variates_var_label_entry_box.place(x=362,y=246+ ychange,width=76)
 
 #Add Button for covariate list
 add_phenotype_button = Button(f3,text="Add", command= add_phenotype_to_list)
-add_phenotype_button.place(x=338,y=146,width=45)
+add_phenotype_button.place(x=438,y=246+ ychange,width=45)
 
 co_variates_var_label = Label(f3, text="covariates",font=("Comfortaa", 14))
-co_variates_var_label.place(x=273,y=79)
+co_variates_var_label.place(x=383,y=179+ ychange)
+
+
 ###***************************************************************************************###
 
 
@@ -2318,10 +2333,10 @@ upload_ewas2_button.grid(row=2, column=0)
 
 
 
-regression_label = Label(f3_left_frame, text="Regression : ",font=("Comfortaa", 14))
+regression_label = Label(f3_left_frame, text="Regression ",font=("Comfortaa", 14))
 regression_label.grid(row=3, column=0)
 
-correction_label = Label(f3_left_frame, text="Multiple Test Correction: ",font=("Comfortaa", 14))
+correction_label = Label(f3_left_frame, text="Multiple Test Correction ",font=("Comfortaa", 14))
 correction_label.grid(row=4, column=0)
 
 #Regression Drop Down Menu
@@ -2329,7 +2344,7 @@ regressionVar = tk.StringVar()
 regression_choices = ("Linear", "Logistic")
 regressionVar.set("Select")
 regression_menu = tk.OptionMenu(f3_left_frame, regressionVar, *regression_choices)
-regression_menu.place(x=105,y=81)
+regression_menu.grid(row=3, column=1)
 
 
 #Correction Drop Down Menu
@@ -2337,32 +2352,28 @@ correctionVar = tk.StringVar()
 correction_choices = ("Bonferroni", "Fdr", "Both")
 correctionVar.set("Select")
 correction_menu = tk.OptionMenu(f3_left_frame, correctionVar, *correction_choices)
-correction_menu.place(x=105,y=105)
+correction_menu.grid(row=4, column=1)
 
 
 #Phenotypes
 global phenotype_var
 phenotype_var= StringVar()
 phenotype_var.set("")
-phenotype_var_label = Label(f3_left_frame, text="Phenotype: ",font=("Comfortaa", 14))
-phenotype_var_label.grid(row=6, column=0)
-phenotype_var_label_entry_box  = Entry(f3, textvariable=phenotype_var, width=15, bg="alice blue")
-phenotype_var_label_entry_box.place(x=90,y=147)
-
-
-ewas_button = Button(f3,text="Run", command= ewas)
-ewas_button.place(x=90,y=173)
-ewas_button.config(width=13)
+phenotype_var_label = Label(f3_left_frame, text="Phenotype ",font=("Comfortaa", 14))
+phenotype_var_label.grid(row=5, column=0)
+phenotype_var_label_entry_box  = Entry(f3_left_frame, textvariable=phenotype_var, width=15, bg="alice blue")
+phenotype_var_label_entry_box.grid(row=5, column=1)
+phenotype_var_label_entry_box.config(width=9)
 
 
 #Formatting Purposes
 place_holder1 = Label(f3_left_frame, text="",font=("Comfortaa", 14))
-place_holder1.grid(row=5, column=3)
-place_holder2 = Label(f3_left_frame, text="",font=("Comfortaa", 14))
-place_holder2.grid(row=7, column=0)
+place_holder1.grid(row=6, column=3)
 
 
-
+ewas_button = Button(f3_left_frame,text="Run", command= ewas)
+ewas_button.grid(row=7, column=0,columnspan=3)
+ewas_button.config(width=13)
 
 
 
@@ -2373,98 +2384,203 @@ place_holder2.grid(row=7, column=0)
 ###****************************** Associations - MPLOT  **********************************************###
 ###***************************************************************************************###
 
+
+def man_plot():
+
+	f = open('r/eman.R','r')
+	filedata = f.read()
+	f.close()
+
+	if str(ewas_output_Var.get()) == "Yes":
+		argument_1 = "a1 = TRUE"
+	else:
+		argument_1 = "a1 = FALSE"
+
+
+	#optional
+	if option_groups_file_mplot != "":
+		a0_2_man = "a2 = read.delim('"
+		argument_2 = a0_2_man + option_groups_file_mplot + A0_2
+	else:
+		argument_2 = "a2 = NULL"
+
+
+	#optional
+	if str(p_value_threshold_var.get()) == "":
+		argument_3 = "a3 = NULL" 
+	else:
+		argument_3 = "a3 = " + str(p_value_threshold_var.get())
+
+	#optional
+	if str(plot_title_var.get()) != "":
+		argument_4 = "a4 = " + "'" + str(plot_title_var.get()) + "'" 
+	else:
+		argument_4 = "a4 = NULL"
+
+
+	if str(moreColorsVar.get()) == "Standard Colors":
+		argument_5 = "a5 = TRUE"
+	else:
+		argument_5 = "a5 = FALSE"
+
+	#argument_6 = the file 
+
+	argument_7 = "a7 = " + str(man_height_of_plot_var.get())
+	argument_8 = "a8 = " + str(man_width_of_plot_var.get())
+	argument_9 = "a9 = " + str(man_res_of_plot_var.get())
+
+
+
+	newdata = filedata	
+	f = open('r/GUI_Scripts/eman1.R','w')
+	f.write(newdata)
+	f.write(final + '\n')
+	f.write(argument_1 + '\n')
+	f.write(argument_2 + '\n')
+	f.write(argument_3 + '\n')
+	f.write(argument_4 + '\n')
+	f.write(argument_5 + '\n')
+	# f.write(argument_6 + '\n')
+	f.write(argument_7 + '\n')
+	f.write(argument_8 + '\n')
+	f.write(argument_9 + '\n')
+
+	f.write("newdata <- eman(a0,a1,a2,a3,a4,a5," + "file=" + GLOBAL_OUTPUT_DIRECTORY_FORMATTED +  "ManPlot" + "'," + "a7,a8,a9)"+ '\n')
+
+
+	f.close()
+	
+
+	# with open(log_file_name, 'a') as g:
+	# 	g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
+
+	# 	g.write("EWAS Called" + '\n')
+
+	
+	# s_out = open(log_file_name, "a")
+	# proc = subprocess.call(['Rscript','r/GUI_Scripts/eman1.R'], shell=False,stdout=s_out, stderr=s_out)
+
+	# refresh_logs()
+
+
+
+
 label = Label(f3_right_frame, text="Manhattan Plot")
 label.grid(row=0, column=0, columnspan=2)
 label.config(font=("Comfortaa", 20))
 label.config(fg="cyan4")
 
 
-
-#Groups File - Optional
-global manhattan_plot_choosefile_1
-manhattan_plot_choosefile_1= StringVar()
-manhattan_plot_choosefile_1.set("No File Chosen")
-groups_file_button = Button(f3_right_frame,text="Choose Groups File ++", command= ewas1_file_chosen)
-groups_file_button.grid(row=1, column=0)
-manhattan_plot_choosefile_1_label = Label(f3_right_frame, textvariable=manhattan_plot_choosefile_1,font=("Comfortaa", 14))
-manhattan_plot_choosefile_1_label.grid(row=1, column=1)
-
-
-#P value - Optional
-global p_value_threshold_var
-p_value_threshold_var= StringVar()
-p_value_threshold_var.set("")
-pvalue_threshold_label = Label(f3_right_frame, text="P Value Threshold ++: ",font=("Comfortaa", 14))
-pvalue_threshold_label.grid(row=2, column=0)
-pvalue_threshold_label_entry_box  = Entry(f3_right_frame, textvariable=p_value_threshold_var, width=15, bg="alice blue")
-pvalue_threshold_label_entry_box.grid(row=2, column=1)
-
-
-#Title - Optional
-global plot_title_var
-plot_title_var= StringVar()
-plot_title_var.set("")
-plot_title_label = Label(f3_right_frame, text="Plot Title ++: ",font=("Comfortaa", 14))
-plot_title_label.grid(row=3, column=0)
-plot_title_label_entry_box  = Entry(f3_right_frame, textvariable=plot_title_var, width=15, bg="alice blue")
-plot_title_label_entry_box.grid(row=3, column=1)
-
-
-
 global man_height_of_plot_var
 man_height_of_plot_var= StringVar()
 man_height_of_plot_var.set("")
-plot_height_label = Label(f3_right_frame, text="Height of Plot: ",font=("Comfortaa", 14))
-plot_height_label.grid(row=4, column=0)
+plot_height_label = Label(f3_right_frame, text="Height of Plot ",font=("Comfortaa", 14))
+plot_height_label.grid(row=1, column=0)
 plot_height_label_entry_box  = Entry(f3_right_frame, textvariable=man_height_of_plot_var, width=15, bg="alice blue")
-plot_height_label_entry_box.grid(row=4, column=1)
+plot_height_label_entry_box.grid(row=1, column=1)
 
 
 
 global man_width_of_plot_var
 man_width_of_plot_var= StringVar()
 man_width_of_plot_var.set("")
-plot_width_label = Label(f3_right_frame, text="Width of Plot: ",font=("Comfortaa", 14))
-plot_width_label.grid(row=5, column=0)
+plot_width_label = Label(f3_right_frame, text="Width of Plot ",font=("Comfortaa", 14))
+plot_width_label.grid(row=2, column=0)
 plot_width_label_entry_box  = Entry(f3_right_frame, textvariable=man_width_of_plot_var, width=15, bg="alice blue")
-plot_width_label_entry_box.grid(row=5, column=1)
+plot_width_label_entry_box.grid(row=2, column=1)
 
 
 
 global man_res_of_plot_var
 man_res_of_plot_var= StringVar()
 man_res_of_plot_var.set("")
-plot_resolution_label = Label(f3_right_frame, text="Resolution of Plot: ",font=("Comfortaa", 14))
-plot_resolution_label.grid(row=6, column=0)
+plot_resolution_label = Label(f3_right_frame, text="Resolution of Plot ",font=("Comfortaa", 14))
+plot_resolution_label.grid(row=3, column=0)
 plot_resolution_label_entry_box  = Entry(f3_right_frame, textvariable=man_res_of_plot_var, width=15, bg="alice blue")
-plot_resolution_label_entry_box.grid(row=6, column=1)
+plot_resolution_label_entry_box.grid(row=3, column=1)
+
 
 
 
 #Colors in Program
-moreColorsVar_label = Label(f3_right_frame, text="Plot Colors: ",font=("Comfortaa", 14))
-moreColorsVar_label.grid(row=7, column=0)
+moreColorsVar_label = Label(f3_right_frame, text="Plot Colors ",font=("Comfortaa", 14))
+moreColorsVar_label.grid(row=4, column=0)
+
+global moreColorsVar
 moreColorsVar = tk.StringVar()
 moreColorVar_choices = ("Standard Colors", "Expanded Colors")
 moreColorsVar.set("Select")
 moreColorsVar_menu = tk.OptionMenu(f3_right_frame, moreColorsVar, *moreColorVar_choices)
-moreColorsVar_menu.grid(row=7, column=1)
+moreColorsVar_menu.grid(row=4, column=1)
 
-
-
-
-ewas_output_Var_label = Label(f3_right_frame, text="EWAS output: ",font=("Comfortaa", 14))
-ewas_output_Var_label.grid(row=8, column=0)
+ewas_output_Var_label = Label(f3_right_frame, text="EWAS output ",font=("Comfortaa", 14))
+ewas_output_Var_label.grid(row=5, column=0)
 
 ewas_output_Var = tk.StringVar()
 ewas_output_Var_choices = ("Yes", "No")
 ewas_output_Var.set("Select")
 
 ewas_output_Var_menu = tk.OptionMenu(f3_right_frame, ewas_output_Var, *ewas_output_Var_choices)
-ewas_output_Var_menu.grid(row=8, column=1)
+ewas_output_Var_menu.grid(row=5, column=1)
+
+
+#Groups File - Optional
+global manhattan_plot_choosefile
+manhattan_plot_choosefile= StringVar()
+manhattan_plot_choosefile.set("No File Chosen")
+manhattan_plot_choosefile_label = Label(f3_right_frame, textvariable=manhattan_plot_choosefile,font=("Comfortaa", 14))
+manhattan_plot_choosefile_label.grid(row=6, column=1)
+groups_file_button = Button(f3_right_frame,text="Choose Groups File", command= optional_file_mplot)
+groups_file_button.grid(row=6, column=0)
+global option_groups_file_mplot
+option_groups_file_mplot = ""
+
+
+#P value - Optional
+global p_value_threshold_var
+p_value_threshold_var= StringVar()
+p_value_threshold_var.set("")
+pvalue_threshold_label = Label(f3_right_frame, text="P Value Threshold ",font=("Comfortaa", 14))
+pvalue_threshold_label.grid(row=7, column=0)
+pvalue_threshold_label_entry_box  = Entry(f3_right_frame, textvariable=p_value_threshold_var, width=15, bg="alice blue")
+pvalue_threshold_label_entry_box.grid(row=7, column=1)
+
+
+#Title - Optional
+global plot_title_var
+plot_title_var= StringVar()
+plot_title_var.set("")
+plot_title_label = Label(f3_right_frame, text="Plot Title ",font=("Comfortaa", 14))
+plot_title_label.grid(row=8, column=0)
+plot_title_label_entry_box  = Entry(f3_right_frame, textvariable=plot_title_var, width=15, bg="alice blue")
+plot_title_label_entry_box.grid(row=8, column=1)
 
 
 
+manhattan_plot_button = Button(f3_right_frame,text="Run", command= man_plot)
+manhattan_plot_button.grid(row=9, column=0,columnspan=2)
+manhattan_plot_button.config(width=13)
+
+
+red_symbol_1 = Label(f3, text="*",font=("Comfortaa", 14))
+red_symbol_1.config(fg="red")
+red_symbol_1.place(x=646, y=46)
+
+red_symbol_2 = Label(f3, text="*",font=("Comfortaa", 14))
+red_symbol_2.config(fg="red")
+red_symbol_2.place(x=645, y=75)
+
+red_symbol_3 = Label(f3, text="*",font=("Comfortaa", 14))
+red_symbol_3.config(fg="red")
+red_symbol_3.place(x=660, y=102)
+
+red_symbol_4 = Label(f3, text="*",font=("Comfortaa", 14))
+red_symbol_4.config(fg="red")
+red_symbol_4.place(x=640, y=132)
+
+red_symbol_5 = Label(f3, text="*",font=("Comfortaa", 14))
+red_symbol_5.config(fg="red")
+red_symbol_5.place(x=645, y=160)
 
 
 
