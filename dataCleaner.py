@@ -14,7 +14,7 @@ import subprocess
 import io
 import sys
 import contextlib
-import numpy as np
+# import numpy as np
 import csv
 import math
 import random
@@ -56,6 +56,10 @@ A0_2 = "', header=TRUE)"
 
 GGPLOT_LIBRARY = "library(ggplot2)"
 GRIDEXTRA_LIBRARY = "library(gridExtra)"
+
+RCOLORBREWER_LIBRARY = "library(RColorBrewer)"
+
+
 
 IDCOLUMN = "a0$IID <- paste(""id"", row.names(a0), sep=""_"")"
 
@@ -1261,8 +1265,8 @@ def get_uniq_popup():
 	grous_file_button.image = image
 	grous_file_button.place(x=210, y=0)
 
-	run_levels_button=Button(toplevel,text="Run", command=get_uniq)
-	run_levels_button.pack(fill=X)
+	run_u_button=Button(toplevel,text="Run", command=get_uniq)
+	run_u_button.pack(fill=X)
 
 
 
@@ -2434,6 +2438,12 @@ def man_plot():
 	newdata = filedata	
 	f = open('r/GUI_Scripts/eman1.R','w')
 	f.write(newdata)
+	f.write(GGPLOT_LIBRARY + '\n')
+	f.write(GRIDEXTRA_LIBRARY + '\n')
+	if str(moreColorsVar.get()) != "Standard Colors":
+	f.write(RCOLORBREWER_LIBRARY + '\n')
+
+	
 	f.write(final + '\n')
 	f.write(argument_1 + '\n')
 	f.write(argument_2 + '\n')
