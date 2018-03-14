@@ -1,0 +1,28 @@
+LIVE LOG REPORT - PROGRAM OPENED :  03:38PM on March 14, 2018
+LOGS INPUT VALUES, STDOUT, STDERR, R SCRIPT & FUNC CALLS (GUI PROGRAM)
+
+---------------------------------------------------------------03:38:52 PM---------------------------------------------------------------
+File Chosen: /Users/deven/Desktop/it.txt
+Output Folder: GUI_Output
+---------------------------------------------------------------03:38:54 PM---------------------------------------------------------------
+Get Unique Values Function Called
+[1] "Running..."
+Error in get_uniq(a0) : Please add ID to dataframe as column 1
+Execution halted
+---------------------------------------------------------------03:39:04 PM---------------------------------------------------------------
+Get Unique Values Function Called
+[1] "Running..."
+Error in get_uniq(a0) : Please add ID to dataframe as column 1
+Execution halted
+---------------------------------------------------------------03:39:04 PM---------------------------------------------------------------
+Get Unique Values Function Called
+[1] "Running..."
+Error in get_uniq(a0) : Please add ID to dataframe as column 1
+Execution halted
+---------------------------------------------------------------03:39:27 PM---------------------------------------------------------------
+File Chosen: /Users/deven/Desktop/NHANES.txt
+Output Folder: GUI_Output
+---------------------------------------------------------------03:39:31 PM---------------------------------------------------------------
+Get Unique Values Function Called
+[1] "Running..."
+[1] "Finished in 0.001723 secs"

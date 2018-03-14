@@ -1,0 +1,29 @@
+LIVE LOG REPORT - PROGRAM OPENED :  05:08PM on March 14, 2018
+LOGS INPUT VALUES, STDOUT, STDERR, R SCRIPT & FUNC CALLS (GUI PROGRAM)
+
+---------------------------------------------------------------05:08:46 PM---------------------------------------------------------------
+File Chosen: /Users/deven/Desktop/NHANES.txt
+Output Folder: GUI_Output
+---------------------------------------------------------------05:08:55 PM---------------------------------------------------------------
+Get Unique Values Function Called
+[1] "Running..."
+[1] "Finished in 0.0025 secs"
+---------------------------------------------------------------05:08:58 PM---------------------------------------------------------------
+Sample Size Function Called
+[1] "Running..."
+[1] "Finished in 0.001662 secs"
+---------------------------------------------------------------05:09:05 PM---------------------------------------------------------------
+Generate Bar Plot Function Called
+Number of Plots Per Page: 10
+Number of Rows Per Page:  10
+Number of Columns Per Page: 10
+Width of Plot: 10
+Height of Plot: 10
+Resolution of Plot: 200
+
+[1] "Starting bar charts"
+[1] "Creating image 1 of 2"
+[1] "Printing image 1 of 2"
+[1] "Creating image 2 of 2"
+[1] "Printing image 2 of 2"
+[1] "Finished in 32.3374 secs"

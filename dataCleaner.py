@@ -1222,6 +1222,7 @@ output_directory_label.place(x=390,y=86)
 
 choose_file = Button(root,text="Change", command= choose_output_directory)
 choose_file.place(x=281,y=81)
+choose_file.config(width = 8)
 
 
 
@@ -2037,52 +2038,52 @@ f2_right_frame.pack(side=RIGHT)
 f2_l1 = Label(f2_left_frame,bg="white",text = "General")
 f2_l1.config(font=("Comfortaa", 20))
 f2_l1.pack(pady=(0,5))
-f2_l1.pack(padx=(75,0))
+f2_l1.pack(padx=(116,0))
 f2_l1.config(fg="cyan4")
 f2_l1.pack(fill=X)
 
 
 Colfilter = Button(f2_left_frame,text="Variable Filter", command= colfilter_popup)
-Colfilter.pack(padx=(75,0))
+Colfilter.pack(padx=(0,0))
 Colfilter.config(width = 13)
 
 rowfilter = Button(f2_left_frame,text="Sample Filter", command= rowfilter_popup)
-rowfilter.pack(padx=(75,0))
+rowfilter.pack(padx=(0,0))
 rowfilter.config(width = 13)
 
 get_continuous_button = Button(f2_left_frame,text="Get Continuous", command= get_continuous_popup)
-get_continuous_button.pack(padx=(75,0))
+get_continuous_button.pack(padx=(0,0))
 get_continuous_button.config(width = 13)
 
 get_categorical_button = Button(f2_left_frame,text="Get Categorical", command= get_categorical_popup)
-get_categorical_button.pack(padx=(75,0))
+get_categorical_button.pack(padx=(0,0))
 get_categorical_button.config(width = 13)
 
 get_check_button = Button(f2_left_frame,text="Get Ambiguous", command= get_check_popup)
-get_check_button.pack(padx=(75,0))
+get_check_button.pack(padx=(0,0))
 get_check_button.config(width = 13)
 
 
-merge_variables_button = Button(f2_left_frame,text="Merge Variables", command= merge_variables_popup)
-merge_variables_button.pack(padx=(75,0))
+merge_variables_button = Button(f2,text="Merge Variables", command= merge_variables_popup)
+merge_variables_button.place(x=174,y=89)
 merge_variables_button.config(width = 13)
 
 
-get_binary_button = Button(f2_left_frame,text="Get Binary", command= get_binary_popup)
-get_binary_button.pack(padx=(75,0))
+get_binary_button = Button(f2,text="Get Binary", command= get_binary_popup)
+get_binary_button.place(x=174,y=118)
 get_binary_button.config(width = 13)
 
-sample_size_filter_button = Button(f2_left_frame,text="Sample Size Filter", command= sample_size_filter_popup)
-sample_size_filter_button.pack(padx=(75,0))
+sample_size_filter_button = Button(f2,text="Sample Size Filter", command= sample_size_filter_popup)
+sample_size_filter_button.place(x=174,y=145)
 sample_size_filter_button.config(width = 13)
 
-recode_missing_button = Button(f2_left_frame,text="Recode Missing", command= recode_missing_popup)
-recode_missing_button.pack(padx=(75,0))
+recode_missing_button = Button(f2,text="Recode Missing", command= recode_missing_popup)
+recode_missing_button.place(x=174,y=172)
 recode_missing_button.config(width = 13)
 
 
-specific_recode_missing_button = Button(f2_left_frame,text="Specific Recode Missing", command= specific_recode_missing_popup)
-specific_recode_missing_button.pack(padx=(75,0))
+specific_recode_missing_button = Button(f2,text="Specified Missing", command= specific_recode_missing_popup)
+specific_recode_missing_button.place(x=174,y=202)
 specific_recode_missing_button.config(width = 13)
 
 
@@ -2150,17 +2151,19 @@ def min_n_popup():
 f2_l2 = Label(f2,bg="white",text = "Categorical/Binary")
 f2_l2.config(font=("Comfortaa", 20))
 f2_l2.pack(pady=(51,5))
+f2_l2.pack(padx=(140,0))
+
 f2_l2.config(fg="cyan4")
-f2_l2.pack(fill=X)
+# f2_l2.pack(fill=X)
 
 
 min_cat_n_button = Button(f2,text="Min Category Size", command= min_cat_n_popup)
-min_cat_n_button.pack(padx=(0,0))
+min_cat_n_button.pack(padx=(140,0))
 min_cat_n_button.config(width = 13)
 
 
 min_n_button = Button(f2,text="Min # of Samples", command= min_n_popup)
-min_n_button.pack(padx=(0,0))
+min_n_button.pack(padx=(140,0))
 min_n_button.config(width = 13)
 
 
@@ -2227,17 +2230,17 @@ def transvar_popup():
 f2_l3 = Label(f2_right_frame,bg="white",text = "Continuous")
 f2_l3.config(font=("Comfortaa", 20))
 f2_l3.pack(pady=(0,5))
-f2_l3.pack(padx=(0,75))
+f2_l3.pack(padx=(0,30))
 f2_l3.config(fg="cyan4")
 f2_l3.pack(fill=X)
 
 
 remove_outliers_button = Button(f2_right_frame,text="Remove Outliers", command= remove_outliers_popup)
-remove_outliers_button.pack(padx=(0,75))
+remove_outliers_button.pack(padx=(0,30))
 remove_outliers_button.config(width = 13)
 
 transvar_button = Button(f2_right_frame,text="Variable Specific Transformation", command= transvar_popup)
-transvar_button.pack(padx=(0,75))
+transvar_button.pack(padx=(0,30))
 transvar_button.config(width = 13)
 
 
@@ -2605,7 +2608,7 @@ def log_updater():
 
 	log_label = Label(root,bg="white",text = "Live Logs")
 	log_label.config(font=("Comfortaa", 15))
-	log_label.pack(pady=(5,0))
+	log_label.pack(pady=(0,0))
 	log_label.config(fg="black")
 	log_label.pack(fill=X)
 
@@ -2614,7 +2617,7 @@ def log_updater():
 	frame.pack()
 
 	global listNodes 
-	listNodes = Listbox(frame, width=80, height=15, font=("Helvetica", 12))
+	listNodes = Listbox(frame, width=80, height=10, font=("Helvetica", 17))
 	listNodes.pack(side="left", fill="y")
 
 	scrollbar = Scrollbar(frame, orient="vertical")
