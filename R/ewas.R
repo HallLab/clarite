@@ -13,6 +13,9 @@
 #' ewas(cat, cont, y, cov, regress, adjust)
 
 ewas <- function(cat=NULL, cont=NULL, y, cov=NULL, regress, adjust){
+  t1 <- Sys.time()
+  print("Running...")
+
   if(missing(y)){
     stop("Please specify either 'continuous' or 'categorical' type for predictor variables")
   }
@@ -122,6 +125,9 @@ ewas <- function(cat=NULL, cont=NULL, y, cov=NULL, regress, adjust){
       fres <- fres[order(fres$pvalue_Bonf), ]
     }
   }
+
+  t2 <- Sys.time()
+  print(paste("Finished in", round(as.numeric(difftime(t2,t1, units="secs")), 6), "secs", sep=" "))
 
   return(fres[, names(fres)!="Sort"])
 }

@@ -11,6 +11,8 @@
 #' get_continuous(df, lower=15)
 
 get_continuous <- function(df, lower=15) {
+  t1 <- Sys.time()
+  print("Running...")
 
   if(is.element('ID', names(df))==FALSE){
     stop("Please add ID to dataframe as column 1")
@@ -23,6 +25,9 @@ get_continuous <- function(df, lower=15) {
     df_cont <- cbind(df$ID, df_cont)
     names(df_cont)[[1]] <- "ID"
   }
+
+  t2 <- Sys.time()
+  print(paste("Finished in", round(as.numeric(difftime(t2,t1, units="secs")), 6), "secs", sep=" "))
 
   return(df_cont)
 }

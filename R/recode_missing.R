@@ -10,7 +10,9 @@
 #' recode_missing(df, na_val)
 
 recode_missing <- function(df, na_val) {
-  
+  t1 <- Sys.time()
+  print("Running...")
+
   if(is.element('ID', names(df))==FALSE){
     stop("Please add ID to dataframe as column 1")
   }
@@ -20,6 +22,9 @@ recode_missing <- function(df, na_val) {
 
   #Drop factor levels
   df <- droplevels(df)
+
+  t2 <- Sys.time()
+  print(paste("Finished in", round(as.numeric(difftime(t2,t1, units="secs")), 6), "secs", sep=" "))
 
   return(df)
 }

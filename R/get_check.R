@@ -11,6 +11,8 @@
 #' get_check(df, lower=6, upper=15)
 
 get_check <- function(df, lower=6, upper=15) {
+  t1 <- Sys.time()
+  print("Running...")
 
   if(is.element('ID', names(df))==FALSE){
     stop("Please add ID to dataframe as column 1")
@@ -23,6 +25,9 @@ get_check <- function(df, lower=6, upper=15) {
     df_check <- cbind(df$ID, df_check)
     names(df_check)[[1]] <- "ID"
   }
+
+  t2 <- Sys.time()
+  print(paste("Finished in", round(as.numeric(difftime(t2,t1, units="secs")), 6), "secs", sep=" "))
 
   return(df_check)
 }

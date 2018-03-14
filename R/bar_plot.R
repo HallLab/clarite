@@ -17,6 +17,8 @@
 
 
 bar_plot <- function(d, n=12, file="plot", nrow=4, ncol=3, wi=13.5, hgt=12, res=300) {
+  t1 <- Sys.time()
+
   if (!requireNamespace(c("ggplot2", "gridExtra"), quietly = TRUE)==TRUE) {
     stop("Please install ggplot2 and gridExtra to create visualization.", call. = FALSE)
   } else {
@@ -73,6 +75,7 @@ bar_plot <- function(d, n=12, file="plot", nrow=4, ncol=3, wi=13.5, hgt=12, res=
     }
   }
 
-    print("Finished creating barcharts")
+  t2 <- Sys.time()
+  print(paste("Finished in", round(as.numeric(difftime(t2,t1, units="secs")), 6), "secs", sep=" "))
 }
 

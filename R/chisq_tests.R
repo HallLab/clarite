@@ -8,7 +8,9 @@
 #' chisq_tests(df)
 
 chisq_tests <- function(df) {
-  
+  t1 <- Sys.time()
+  print("Running...")
+
   if(is.element('ID', names(df))==FALSE){
     stop("Please add ID to dataframe as column 1")
   }
@@ -22,6 +24,9 @@ chisq_tests <- function(df) {
   out <- as.data.frame(sapply(df[,-1], chi))
   out <- cbind(rownames(out), data.frame(out, row.names=NULL))
   names(out) <- c("Variable", "p-value")
+
+  t2 <- Sys.time()
+  print(paste("Finished in", round(as.numeric(difftime(t2,t1, units="secs")), 6), "secs", sep=" "))
 
   return(out)
 }

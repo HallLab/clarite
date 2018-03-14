@@ -18,6 +18,8 @@
 #' multi_plot(d, n=6, file="plot", nrow=3, ncol=2, wi=13.5, hgt=9, res=210, type="hist-qq", annotate)
 
 multi_plot <- function(d, n=6, file="plot", nrow=3, ncol=2, wi=13.5, hgt=9, res=210, type, annotate) {
+  t1 <- Sys.time()
+
   if (!requireNamespace(c("ggplot2", "gridExtra"), quietly = TRUE)==TRUE) {
     stop("Please install ggplot2 and gridExtra to create visualization.", call. = FALSE)
   } else {
@@ -103,4 +105,7 @@ multi_plot <- function(d, n=6, file="plot", nrow=3, ncol=2, wi=13.5, hgt=9, res=
 	hgt <- (hgt/nrow)*n_row
     }
   }
+
+  t2 <- Sys.time()
+  print(paste("Finished in", round(as.numeric(difftime(t2,t1, units="secs")), 6), "secs", sep=" "))
 }

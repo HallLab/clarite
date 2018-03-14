@@ -11,6 +11,9 @@
 #' correlations(df, x=0.75)
 
 correlations <- function(df, x=0.75){
+  t1 <- Sys.time()
+  print("Running...")
+
   if(is.element('ID', names(df))==FALSE){
     stop("Please add ID to dataframe as column 1")
   }
@@ -27,6 +30,9 @@ correlations <- function(df, x=0.75){
   #Discard correlations of 1
   d <- d[(d$Cor > c | d$Cor < -c) & (d$Cor !=1 & d$Cor !=-1), ]
   d <- d[!is.na(d$Cor), ]
+
+  t2 <- Sys.time()
+  print(paste("Finished in", round(as.numeric(difftime(t2,t1, units="secs")), 6), "secs", sep=" "))
 
   return(d)
 

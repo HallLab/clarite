@@ -9,10 +9,13 @@
 #' outlier_impact(df, x=2.5)
 
 outlier_impact <- function(df, x=2.5) {
+  t1 <- Sys.time()
+  print("Running...")
+
   if(is.element('ID', names(df))==FALSE){
     stop("Please add ID to dataframe as column 1")
   }
-  
+
   calcs <- function(v, threshold){
     pdf <- v
     s <- summary(v)
@@ -28,12 +31,16 @@ outlier_impact <- function(df, x=2.5) {
     out <- rbind(N=nr, Min=s[[1]], Median=s[[3]], Mean=s[[4]], Max=s[[6]], SD=std, Outlier_SD=threshold, Pros_N=pnr, Pros_Min=ps[[1]], Pros_Median=ps[[3]], Pros_Mean=ps[[4]], Pros_Max=ps[[6]], Pros_SD=pstd)
     return(out)
   }
-  
+
   sumdf <- as.data.frame(t(sapply(df[, -1], calcs, threshold=x)))
   sumdf <- cbind(rownames(sumdf), data.frame(sumdf, row.names=NULL))
   names(sumdf) <- c("Variable","N","Min","Median","Mean","Max","SD","Outlier_SD","Pros_N","Pros_Min","Pros_Median","Pros_Mean","Pros_Max","Pros_SD" )
+
+  t2 <- Sys.time()
+  print(paste("Finished in", round(as.numeric(difftime(t2,t1, units="secs")), 6), "secs", sep=" "))
+
   return(sumdf)
 }
-    
+
 
 

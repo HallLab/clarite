@@ -20,6 +20,9 @@
 #' eman(d, ewas=TRUE, groups, line, title=NULL, morecolors=FALSE, file="eman", hgt=7, wi=12, res=300 )
 
 eman <- function(d, ewas=TRUE, groups, line, title=NULL, morecolors=FALSE, file="eman", hgt=7, wi=12, res=300){
+  t1 <- Sys.time()
+  print("Running...")
+
   if (!requireNamespace(c("ggplot2"), quietly = TRUE)==TRUE) {
     stop("Please install ggplot2 to create visualization.", call. = FALSE)
   } else {
@@ -107,6 +110,10 @@ eman <- function(d, ewas=TRUE, groups, line, title=NULL, morecolors=FALSE, file=
   print(paste("Saving plot to ", file, ".png", sep=""))
   ggsave(p, filename=paste(file, ".png", sep=""), dpi=res, units="in", height=hgt, width=wi)
   print(p)
+
+  t2 <- Sys.time()
+  print(paste("Finished in", round(as.numeric(difftime(t2,t1, units="secs")), 6), "secs", sep=" "))
+
   return(p)
 }
 

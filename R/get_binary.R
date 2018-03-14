@@ -11,6 +11,9 @@
 #' get_binary(df, lev=2)
 
 get_binary <- function(df, lev=2){
+  t1 <- Sys.time()
+  print("Running...")
+
   if(is.element('ID', names(df))==FALSE){
     stop("Please add ID to dataframe as column 1")
   }
@@ -22,6 +25,9 @@ get_binary <- function(df, lev=2){
     df_bin <- cbind(df$ID, df_bin)
     names(df_bin)[[1]] <- "ID"
   }
+
+  t2 <- Sys.time()
+  print(paste("Finished in", round(as.numeric(difftime(t2,t1, units="secs")), 6), "secs", sep=" "))
 
   return(df_bin)
 

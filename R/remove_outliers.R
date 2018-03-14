@@ -10,6 +10,8 @@
 #' remove_outliers(df, x=2.5)
 
 remove_outliers <- function(df, x=2.5){
+  t1 <- Sys.time()
+  print("Running...")
 
   if(is.element('ID', names(df))==FALSE){
     stop("Please add ID to dataframe as column 1")
@@ -25,6 +27,9 @@ remove_outliers <- function(df, x=2.5){
 
   sumdf <- cbind(df$ID, as.data.frame(sapply(df[,-1], calc, threshold=x)))
   colnames(sumdf)[1] <- "ID"
+
+  t2 <- Sys.time()
+  print(paste("Finished in", round(as.numeric(difftime(t2,t1, units="secs")), 6), "secs", sep=" "))
 
   return(sumdf)
 }

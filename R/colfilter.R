@@ -11,6 +11,9 @@
 
 
 colfilter <- function(d, cols, exclude=FALSE){
+  t1 <- Sys.time()
+  print("Running...")
+
   if(is.element('ID', names(d))==FALSE){
     stop("Please add ID to dataframe as column 1")
   }
@@ -32,5 +35,9 @@ colfilter <- function(d, cols, exclude=FALSE){
     subd <- data.frame(d$ID, subd)
     colnames(subd)[1] <- "ID"
   }
+
+  t2 <- Sys.time()
+  print(paste("Finished in", round(as.numeric(difftime(t2,t1, units="secs")), 6), "secs", sep=" "))
+
   return(subd)
 }

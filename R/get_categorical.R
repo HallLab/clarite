@@ -12,7 +12,9 @@
 #' get_categorical(df, lower=3, upper=6)
 
 get_categorical <- function(df, lower=3, upper=6) {
-  
+  t1 <- Sys.time()
+  print("Running...")
+
   if(is.element('ID', names(df))==FALSE){
     stop("Please add ID to dataframe as column 1")
   }
@@ -24,6 +26,9 @@ get_categorical <- function(df, lower=3, upper=6) {
     df_cat <- cbind(df$ID, df_cat)
     names(df_cat)[[1]] <- "ID"
   }
+
+  t2 <- Sys.time()
+  print(paste("Finished in", round(as.numeric(difftime(t2,t1, units="secs")), 6), "secs", sep=" "))
 
   return(df_cat)
 

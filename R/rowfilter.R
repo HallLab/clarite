@@ -11,6 +11,9 @@
 
 
 rowfilter <- function(d, samples, exclude=FALSE){
+  t1 <- Sys.time()
+  print("Running...")
+
   if(is.element('ID', names(d))==FALSE){
     stop("Please add ID to d as column 1")
   }
@@ -28,6 +31,9 @@ rowfilter <- function(d, samples, exclude=FALSE){
       subd <- d[!d$ID %in% samples, , drop=FALSE]
     }
   }
+
+  t2 <- Sys.time()
+  print(paste("Finished in", round(as.numeric(difftime(t2,t1, units="secs")), 6), "secs", sep=" "))
 
   return(subd)
 }

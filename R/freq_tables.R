@@ -9,6 +9,8 @@
 #' freq_tables(df)
 
 freq_tables <- function(df) {
+  t1 <- Sys.time()
+  print("Running...")
 
   if(is.element('ID', names(df))==FALSE){
     stop("Please add ID to dataframe as column 1")
@@ -22,6 +24,9 @@ freq_tables <- function(df) {
   tab_n <- cbind(rownames(tab_n), data.frame(tab_n, row.names=NULL))
   names(tab_n) <- c("Variable", "Value", "N")
   tab_n$Variable<- sub("^(.*)[.].*", "\\1", tab_n$Variable)
+
+  t2 <- Sys.time()
+  print(paste("Finished in", round(as.numeric(difftime(t2,t1, units="secs")), 6), "secs", sep=" "))
 
   return(tab_n)
 
