@@ -1,20 +1,17 @@
 ##Deven Orie 
 ##Dartmouth'19 - CS & Econ Major
 ##Pipeline clean_rows Cleaner
-##Imports Necessary Installations - Numpy, GGPLOT, GG-Grid, Python 2.7
+##Imports Necessary Installations - Python2, or 2,7
 
 ##Recommended to keep DataCleaner Directory on Desktop
-# import Tkinter
 
 import ttk as ttk
 from Tkinter import *
 import Tkinter as tk
-
 import subprocess
 import io
 import sys
 import contextlib
-
 import csv
 import tkFileDialog
 from io import StringIO
@@ -52,7 +49,6 @@ A0_2 = "', header=TRUE)"
 
 # GGPLOT_LIBRARY = "library(ggplot2)"
 # GRIDEXTRA_LIBRARY = "library(gridExtra)"
-
 # RCOLORBREWER_LIBRARY = "library(RColorBrewer)"
 
 
@@ -2455,16 +2451,16 @@ def man_plot():
 	f.close()
 	
 
-	# with open(log_file_name, 'a') as g:
-	# 	g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
+	with open(log_file_name, 'a') as g:
+		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
 
-	# 	g.write("EWAS Called" + '\n')
+		g.write("EWAS Called" + '\n')
 
 	
-	# s_out = open(log_file_name, "a")
-	# proc = subprocess.call(['Rscript','r/GUI_Scripts/eman1.R'], shell=False,stdout=s_out, stderr=s_out)
+	s_out = open(log_file_name, "a")
+	proc = subprocess.call(['Rscript','r/GUI_Scripts/eman1.R'], shell=False,stdout=s_out, stderr=s_out)
 
-	# refresh_logs()
+	refresh_logs()
 
 
 
@@ -2478,7 +2474,7 @@ label.config(fg="cyan4")
 global man_height_of_plot_var
 man_height_of_plot_var= StringVar()
 man_height_of_plot_var.set("")
-plot_height_label = Label(f3_right_frame, text="Height of Plot ",font=("Comfortaa", 14))
+plot_height_label = Label(f3_right_frame, text="* Height of Plot ",font=("Comfortaa", 14))
 plot_height_label.grid(row=1, column=0)
 plot_height_label_entry_box  = Entry(f3_right_frame, textvariable=man_height_of_plot_var, width=15, bg="alice blue")
 plot_height_label_entry_box.grid(row=1, column=1)
@@ -2488,7 +2484,7 @@ plot_height_label_entry_box.grid(row=1, column=1)
 global man_width_of_plot_var
 man_width_of_plot_var= StringVar()
 man_width_of_plot_var.set("")
-plot_width_label = Label(f3_right_frame, text="Width of Plot ",font=("Comfortaa", 14))
+plot_width_label = Label(f3_right_frame, text="* Width of Plot ",font=("Comfortaa", 14))
 plot_width_label.grid(row=2, column=0)
 plot_width_label_entry_box  = Entry(f3_right_frame, textvariable=man_width_of_plot_var, width=15, bg="alice blue")
 plot_width_label_entry_box.grid(row=2, column=1)
@@ -2498,7 +2494,7 @@ plot_width_label_entry_box.grid(row=2, column=1)
 global man_res_of_plot_var
 man_res_of_plot_var= StringVar()
 man_res_of_plot_var.set("")
-plot_resolution_label = Label(f3_right_frame, text="Resolution of Plot ",font=("Comfortaa", 14))
+plot_resolution_label = Label(f3_right_frame, text="* Resolution of Plot ",font=("Comfortaa", 14))
 plot_resolution_label.grid(row=3, column=0)
 plot_resolution_label_entry_box  = Entry(f3_right_frame, textvariable=man_res_of_plot_var, width=15, bg="alice blue")
 plot_resolution_label_entry_box.grid(row=3, column=1)
@@ -2507,7 +2503,7 @@ plot_resolution_label_entry_box.grid(row=3, column=1)
 
 
 #Colors in Program
-moreColorsVar_label = Label(f3_right_frame, text="Plot Colors ",font=("Comfortaa", 14))
+moreColorsVar_label = Label(f3_right_frame, text="* Plot Colors ",font=("Comfortaa", 14))
 moreColorsVar_label.grid(row=4, column=0)
 
 global moreColorsVar
@@ -2517,7 +2513,7 @@ moreColorsVar.set("Select")
 moreColorsVar_menu = tk.OptionMenu(f3_right_frame, moreColorsVar, *moreColorVar_choices)
 moreColorsVar_menu.grid(row=4, column=1)
 
-ewas_output_Var_label = Label(f3_right_frame, text="EWAS output ",font=("Comfortaa", 14))
+ewas_output_Var_label = Label(f3_right_frame, text="* EWAS output ",font=("Comfortaa", 14))
 ewas_output_Var_label.grid(row=5, column=0)
 
 ewas_output_Var = tk.StringVar()
@@ -2566,27 +2562,27 @@ manhattan_plot_button.grid(row=9, column=0,columnspan=2)
 manhattan_plot_button.config(width=13)
 
 
-red_symbol_1 = Label(f3, text="*",font=("Comfortaa", 14))
-red_symbol_1.config(fg="red")
-red_symbol_1.place(x=646, y=46)
+# red_symbol_1 = Label(f3, text="*",font=("Comfortaa", 14))
+# red_symbol_1.config(fg="red")
+# red_symbol_1.place(x=646, y=46)
 
-red_symbol_2 = Label(f3, text="*",font=("Comfortaa", 14))
-red_symbol_2.config(fg="red")
-red_symbol_2.place(x=645, y=75)
+# red_symbol_2 = Label(f3, text="*",font=("Comfortaa", 14))
+# red_symbol_2.config(fg="red")
+# red_symbol_2.place(x=645, y=75)
 
-red_symbol_3 = Label(f3, text="*",font=("Comfortaa", 14))
-red_symbol_3.config(fg="red")
-red_symbol_3.place(x=660, y=102)
+# red_symbol_3 = Label(f3, text="*",font=("Comfortaa", 14))
+# red_symbol_3.config(fg="red")
+# red_symbol_3.place(x=660, y=102)
 
-red_symbol_4 = Label(f3, text="*",font=("Comfortaa", 14))
-red_symbol_4.config(fg="red")
-red_symbol_4.place(x=640, y=132)
+# red_symbol_4 = Label(f3, text="*",font=("Comfortaa", 14))
+# red_symbol_4.config(fg="red")
+# red_symbol_4.place(x=640, y=132)
 
-red_symbol_5 = Label(f3, text="*",font=("Comfortaa", 14))
-red_symbol_5.config(fg="red")
-red_symbol_5.place(x=645, y=160)
+# red_symbol_5 = Label(f3, text="*",font=("Comfortaa", 14))
+# red_symbol_5.config(fg="red")
+# red_symbol_5.place(x=645, y=160)
 
-
+# self.entry.configure(highlightbackground="red", highlightcolor="red")
 
 
 ###***************************************************************************************###
