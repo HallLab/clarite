@@ -14,19 +14,15 @@ import subprocess
 import io
 import sys
 import contextlib
-# import numpy as np
+
 import csv
-import math
-import random
 import tkFileDialog
 from io import StringIO
 import os.path
-from random import randint
 import datetime
-import shlex
 
 
-from PIL import ImageTk
+# from PIL import ImageTk
 IN_WIDTH = 19
 IN_HEIGHT = 18
 
@@ -54,10 +50,10 @@ CONSTANT_INPUT = "a0 = read.delim('/Users/deven/desktop/it.txt', header=TRUE)"
 A0_0 = "a0 = read.delim('"
 A0_2 = "', header=TRUE)"
 
-GGPLOT_LIBRARY = "library(ggplot2)"
-GRIDEXTRA_LIBRARY = "library(gridExtra)"
+# GGPLOT_LIBRARY = "library(ggplot2)"
+# GRIDEXTRA_LIBRARY = "library(gridExtra)"
 
-RCOLORBREWER_LIBRARY = "library(RColorBrewer)"
+# RCOLORBREWER_LIBRARY = "library(RColorBrewer)"
 
 
 
@@ -594,8 +590,8 @@ def histogram():
 
 
 	f = open('r/GUI_Scripts/hist_plot1.R','w')
-	f.write(GGPLOT_LIBRARY + '\n')
-	f.write(GRIDEXTRA_LIBRARY + '\n')
+	# f.write(GGPLOT_LIBRARY + '\n')
+	# f.write(GRIDEXTRA_LIBRARY + '\n')
 	f.write(newdata)
 	f.write(final + '\n')
 	f.write(number_of_plots_per_page + '\n')
@@ -646,8 +642,8 @@ def boxplot():
 
 
 	f = open('r/GUI_Scripts/box_plot1.R','w')
-	f.write(GGPLOT_LIBRARY + '\n')
-	f.write(GRIDEXTRA_LIBRARY + '\n')
+	# f.write(GGPLOT_LIBRARY + '\n')
+	# f.write(GRIDEXTRA_LIBRARY + '\n')
 	f.write(newdata)
 	f.write(final + '\n')
 	f.write(number_of_plots_per_page + '\n')
@@ -694,8 +690,8 @@ def qqplot():
 
 
 	f = open('r/GUI_Scripts/qq_plot1.R','w')
-	f.write(GGPLOT_LIBRARY + '\n')
-	f.write(GRIDEXTRA_LIBRARY + '\n')
+	# f.write(GGPLOT_LIBRARY + '\n')
+	# f.write(GRIDEXTRA_LIBRARY + '\n')
 	f.write(newdata)
 	f.write(final + '\n')
 	f.write(number_of_plots_per_page + '\n')
@@ -746,8 +742,8 @@ def barplot():
 
 
 	f = open('r/GUI_Scripts/bar_plot1.R','w')
-	f.write(GGPLOT_LIBRARY + '\n')
-	f.write(GRIDEXTRA_LIBRARY + '\n')
+	# f.write(GGPLOT_LIBRARY + '\n')
+	# f.write(GRIDEXTRA_LIBRARY + '\n')
 	f.write(newdata)
 	f.write(final + '\n')
 	f.write(number_of_plots_per_page + '\n')
@@ -1259,11 +1255,11 @@ def get_uniq_popup():
 	label1.config(fg="cyan4")
 	label1.pack(fill=X)
 
-	grous_file_button = Button(toplevel,width=IN_WIDTH, height = IN_HEIGHT,command= lambda: instructions_popup("Get Unique Values", "man/get_uniq.Rd"))
-	image = ImageTk.PhotoImage(file="instruction.png")
-	grous_file_button.config(image=image)
-	grous_file_button.image = image
-	grous_file_button.place(x=210, y=0)
+	# grous_file_button = Button(toplevel,width=IN_WIDTH, height = IN_HEIGHT,command= lambda: instructions_popup("Get Unique Values", "man/get_uniq.Rd"))
+	# image = ImageTk.PhotoImage(file="instruction.png")
+	# grous_file_button.config(image=image)
+	# grous_file_button.image = image
+	# grous_file_button.place(x=210, y=0)
 
 	run_u_button=Button(toplevel,text="Run", command=get_uniq)
 	run_u_button.pack(fill=X)
@@ -2438,10 +2434,10 @@ def man_plot():
 	newdata = filedata	
 	f = open('r/GUI_Scripts/eman1.R','w')
 	f.write(newdata)
-	f.write(GGPLOT_LIBRARY + '\n')
-	f.write(GRIDEXTRA_LIBRARY + '\n')
-	if str(moreColorsVar.get()) != "Standard Colors":
-		f.write(RCOLORBREWER_LIBRARY + '\n')
+	# f.write(GGPLOT_LIBRARY + '\n')
+	# f.write(GRIDEXTRA_LIBRARY + '\n')
+	# if str(moreColorsVar.get()) != "Standard Colors":
+	# 	f.write(RCOLORBREWER_LIBRARY + '\n')
 	f.write(final + '\n')
 	f.write(argument_1 + '\n')
 	f.write(argument_2 + '\n')
