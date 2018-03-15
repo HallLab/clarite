@@ -1090,7 +1090,7 @@ def ewas():
 		argument_1 = a0_1 + global_ewas_filename_1 + A0_2
 
 
-	if global_ewas_filename_2 == ""
+	if global_ewas_filename_2 == "":
 		argument_2 = "a2 = NULL"
 	else:
 		a0_2 = "a2 = read.delim('"
