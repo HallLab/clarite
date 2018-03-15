@@ -1,0 +1,10 @@
+LIVE LOG REPORT - PROGRAM OPENED :  11:05AM on March 15, 2018
+LOGS INPUT VALUES, STDOUT, STDERR, R SCRIPT & FUNC CALLS (GUI PROGRAM)
+
+---------------------------------------------------------------11:05:58 AM---------------------------------------------------------------
+File Chosen: /Users/deven/Desktop/NHANES.txt
+Output Folder: GUI_Output
+---------------------------------------------------------------11:06:00 AM---------------------------------------------------------------
+Get Unique Values Function Called
+[1] "Running..."
+[1] "Finished in 0.003799 secs"

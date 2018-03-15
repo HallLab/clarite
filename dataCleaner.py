@@ -2027,6 +2027,31 @@ def specific_recode_missing_popup():
 
 
 
+def min_n_popup():
+
+	toplevel = Toplevel()
+	toplevel.geometry("275x205")
+
+
+	label = Label(toplevel, text="Min # of Samples")
+	label.grid(row=0, column=0, columnspan=2)
+	label.config(font=("Comfortaa", 20))
+	label.config(fg="cyan4")
+
+
+	global min_n_var
+	min_n_var= StringVar()
+	min_n_var.set("")
+
+	min_n_var_label = Label(toplevel, text="Min # of Samples",font=("Comfortaa", 14))
+	min_n_var_label.grid(row=1, column=0)
+	min_n_var_label_entry_box  = Entry(toplevel, textvariable=min_n_var, width=15, bg="alice blue")
+	min_n_var_label_entry_box.grid(row=1, column=1)
+
+	get_check_button = Button(toplevel,text="Run", command= min_n)
+	get_check_button.grid(row=2, column=0,columnspan=2)
+
+
 ###***************************************************************************************###
 #Creating the buttons for the left section of Frame TWO
 f2_left_frame = Frame(f2)
@@ -2077,16 +2102,19 @@ sample_size_filter_button = Button(f2,text="Sample Size Filter", command= sample
 sample_size_filter_button.place(x=174,y=145)
 sample_size_filter_button.config(width = 13)
 
-recode_missing_button = Button(f2,text="Recode Missing", command= recode_missing_popup)
+recode_missing_button = Button(f2,text="Variable Missing", command= recode_missing_popup)
 recode_missing_button.place(x=174,y=172)
 recode_missing_button.config(width = 13)
 
 
-specific_recode_missing_button = Button(f2,text="Specified Missing", command= specific_recode_missing_popup)
+specific_recode_missing_button = Button(f2,text="Single Missing", command= specific_recode_missing_popup)
 specific_recode_missing_button.place(x=174,y=202)
 specific_recode_missing_button.config(width = 13)
 
 
+min_n_button = Button(f2,text="Min # of Samples", command= min_n_popup)
+min_n_button.place(x=104,y=232)
+min_n_button.config(width = 13)
 
 
 ###***************************************************************************************###
@@ -2121,31 +2149,6 @@ def min_cat_n_popup():
 	get_check_button = Button(toplevel,text="Run", command= min_cat_n)
 	get_check_button.grid(row=2, column=0,columnspan=2)
 
-def min_n_popup():
-
-	toplevel = Toplevel()
-	toplevel.geometry("275x205")
-
-
-	label = Label(toplevel, text="Min # of Samples")
-	label.grid(row=0, column=0, columnspan=2)
-	label.config(font=("Comfortaa", 20))
-	label.config(fg="cyan4")
-
-
-	global min_n_var
-	min_n_var= StringVar()
-	min_n_var.set("")
-
-	min_n_var_label = Label(toplevel, text="Min # of Samples",font=("Comfortaa", 14))
-	min_n_var_label.grid(row=1, column=0)
-	min_n_var_label_entry_box  = Entry(toplevel, textvariable=min_n_var, width=15, bg="alice blue")
-	min_n_var_label_entry_box.grid(row=1, column=1)
-
-	get_check_button = Button(toplevel,text="Run", command= min_n)
-	get_check_button.grid(row=2, column=0,columnspan=2)
-
-
 ###***************************************************************************************###
 #Creating the buttons for the middle section of Frame TWO
 f2_l2 = Label(f2,bg="white",text = "Categorical/Binary")
@@ -2160,11 +2163,6 @@ f2_l2.config(fg="cyan4")
 min_cat_n_button = Button(f2,text="Min Category Size", command= min_cat_n_popup)
 min_cat_n_button.pack(padx=(140,0))
 min_cat_n_button.config(width = 13)
-
-
-min_n_button = Button(f2,text="Min # of Samples", command= min_n_popup)
-min_n_button.pack(padx=(140,0))
-min_n_button.config(width = 13)
 
 
 ###***************************************************************************************###
@@ -2205,7 +2203,7 @@ def transvar_popup():
 	toplevel = Toplevel()
 	toplevel.geometry("300x235")
 
-	label1 = Label(toplevel,bg="white",text = "Variable Specific Transformation")
+	label1 = Label(toplevel,bg="white",text = "Variable Transformation")
 	label1.grid(row=0, column=0, columnspan=2)
 	label1.config(font=("Comfortaa", 18))
 	label1.config(fg="cyan4")
@@ -2237,11 +2235,11 @@ f2_l3.pack(fill=X)
 
 remove_outliers_button = Button(f2_right_frame,text="Remove Outliers", command= remove_outliers_popup)
 remove_outliers_button.pack(padx=(0,30))
-remove_outliers_button.config(width = 13)
+remove_outliers_button.config(width = 16)
 
-transvar_button = Button(f2_right_frame,text="Variable Specific Transformation", command= transvar_popup)
+transvar_button = Button(f2_right_frame,text="Variable Transformation", command= transvar_popup)
 transvar_button.pack(padx=(0,30))
-transvar_button.config(width = 13)
+transvar_button.config(width = 16)
 
 
 
