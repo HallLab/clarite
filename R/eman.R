@@ -17,9 +17,9 @@
 #' @return png image(s)
 #' @export
 #' @examples
-#' eman(d, ewas=TRUE, groups, line, title=NULL, morecolors=FALSE, file="eman", hgt=7, wi=12, res=300 )
+#' eman(d, ewas=TRUE, groups=NULL, line, title=NULL, morecolors=FALSE, file="eman", hgt=7, wi=12, res=300 )
 
-eman <- function(d, ewas=TRUE, groups, line, title=NULL, morecolors=FALSE, file="eman", hgt=7, wi=12, res=300){
+eman <- function(d, ewas=TRUE, groups=NULL, line, title=NULL, morecolors=FALSE, file="eman", hgt=7, wi=12, res=300){
   t1 <- Sys.time()
   print("Running...")
 
@@ -39,7 +39,7 @@ eman <- function(d, ewas=TRUE, groups, line, title=NULL, morecolors=FALSE, file=
     }
   }
 
-  if(missing(groups)){
+  if(is.null(groups)==TRUE){
     if("Shape" %in% names(d)){
       p <- ggplot() + geom_point(data=d, aes(x=factor(Variable), y=-log10(pvalue), shape=factor(Shape)))
       p <- p + theme(axis.text.x = element_text(angle=90), axis.title.x=element_blank(), legend.position="bottom", legend.title=element_blank())
