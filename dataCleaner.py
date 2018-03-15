@@ -107,6 +107,7 @@ def output_directory_change():
 	global GLOBAL_OUTPUT_DIRECTORY_FORMATTED 
 	GLOBAL_OUTPUT_DIRECTORY_FORMATTED = "'" + GLOBAL_OUTPUT_DIRECTORY  + "/" + global_file_prefix
 	o_toplevel.destroy()
+
 def choose_output_directory():
 
 	global o_toplevel 
@@ -1094,10 +1095,16 @@ def ewas():
 
 	argument_4 = "a4 <- " + "c(" + global_covariate_string + ")"
 
-	argument_5 = "a5 = " + "'" + str(regressionVar.get()) + "'"
+	if str(regressionVar.get()) == "Linear":
+
+		argument_5 = "a5 = 'gaussian'"
+	else:
+		argument_5 = "a5 = 'binomial'"
+
+
 
 	if str(correctionVar.get()) == "Both":
-		argument_6 = "a6 <- " + "c(" + "'Bonferroni'" + "," + "'Fdr')"
+		argument_6 = "a6 <- " + "c(" + "'bonferroni'" + "," + "'fdr')"
 	else:
 		argument_6 = "a6 <- " + "c(" + "'" + str(correctionVar.get()) + "'" + ")"
 
@@ -1178,7 +1185,7 @@ root.title('CLARITE')
 n = ttk.Notebook(root)
 
 #Title of Program
-title_label = Label(root,bg="white",text = "CLeaning to Analysis: Reproducibility-based Interface for Traits and Exposures (CLARITE)")
+title_label = Label(root,bg="white",text = "CLARITE")
 title_label.config(font=("Comfortaa", 20))
 title_label.pack(pady=15)
 title_label.config(fg="cyan4")
@@ -1952,14 +1959,14 @@ def merge_variables_popup():
 	second_file_upload_merge_label = Label(toplevel, textvariable=second_file_upload_merge,font=("Choose File", 14))
 	second_file_upload_merge_label.grid(row=1, column=1)
 
-	union_var_label = Label(toplevel, text="Union",font=("Comfortaa", 14))
+	union_var_label = Label(toplevel, text="Sample Inclusion",font=("Comfortaa", 14))
 	union_var_label.grid(row=2, column=0)
 
 
 	#Correction Drop Down Menu
 	global mergeVar
 	mergeVar = tk.StringVar()
-	mergeVar_choices = ("Add NA Values", "Intersect")
+	mergeVar_choices = ("Union", "Intersect")
 	mergeVar.set("Select")
 	mergeVar_menu = tk.OptionMenu(toplevel, mergeVar, *mergeVar_choices)
 	mergeVar_menu.grid(row=2, column=1)
@@ -2004,7 +2011,7 @@ def recode_missing_popup():
 def specific_recode_missing_popup():
 
 	toplevel = Toplevel()
-	toplevel.geometry("310x235")
+	toplevel.geometry("325x235")
 
 	label = Label(toplevel, text="Recode Mising - Specific")
 	label.grid(row=0, column=0, columnspan=2)
@@ -2098,9 +2105,11 @@ get_binary_button = Button(f2,text="Get Binary", command= get_binary_popup)
 get_binary_button.place(x=174,y=118)
 get_binary_button.config(width = 13)
 
-sample_size_filter_button = Button(f2,text="Sample Size Filter", command= sample_size_filter_popup)
-sample_size_filter_button.place(x=174,y=145)
-sample_size_filter_button.config(width = 13)
+
+min_n_button = Button(f2,text="Min # of Samples", command= min_n_popup)
+min_n_button.place(x=174,y=145)
+min_n_button.config(width = 13)
+
 
 recode_missing_button = Button(f2,text="Variable Missing", command= recode_missing_popup)
 recode_missing_button.place(x=174,y=172)
@@ -2112,9 +2121,7 @@ specific_recode_missing_button.place(x=174,y=202)
 specific_recode_missing_button.config(width = 13)
 
 
-min_n_button = Button(f2,text="Min # of Samples", command= min_n_popup)
-min_n_button.place(x=104,y=232)
-min_n_button.config(width = 13)
+
 
 
 ###***************************************************************************************###
@@ -2123,6 +2130,7 @@ min_n_button.config(width = 13)
 ###***************************************************************************************###
 def min_cat_n():
 	print("min_cat_n_called")
+
 
 
 def min_cat_n_popup():
@@ -2346,7 +2354,7 @@ regression_menu.grid(row=3, column=1)
 
 #Correction Drop Down Menu
 correctionVar = tk.StringVar()
-correction_choices = ("Bonferroni", "Fdr", "Both")
+correction_choices = ("bonferroni", "fdr", "both")
 correctionVar.set("Select")
 correction_menu = tk.OptionMenu(f3_left_frame, correctionVar, *correction_choices)
 correction_menu.grid(row=4, column=1)
