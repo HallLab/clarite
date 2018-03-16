@@ -315,8 +315,8 @@ def recode_key():
 	f.close()
 
 	newdata = filedata
-
-	argument_1 = "a1 = " + "'" + key_recode_file + "'"
+	
+	a1 = "a1 = read.delim('" + key_recode_file + A0_2
 
 	f = open('r/GUI_Scripts/recode_key1.R','w')
 	f.write(newdata)
