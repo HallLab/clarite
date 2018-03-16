@@ -316,7 +316,7 @@ def recode_key():
 
 	newdata = filedata
 
-	argument_1 = "a1 = " + "'" + str(recode_key_file_var.get()) + "'"
+	argument_1 = "a1 = " + "'" + global_recode_key_dictionary + "'"
 
 	f = open('r/GUI_Scripts/recode_key1.R','w')
 	f.write(newdata)
