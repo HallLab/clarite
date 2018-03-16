@@ -1,0 +1,5 @@
+LIVE LOG REPORT - PROGRAM OPENED :  11:44AM on March 16, 2018
+LOGS INPUT VALUES, STDOUT, STDERR, R SCRIPT & FUNC CALLS (GUI PROGRAM)
+
+---------------------------------------------------------------11:44:38 AM---------------------------------------------------------------
+Continuous File Uploaded: /Users/deven/Desktop/darthall_2002-2033550759.jpg

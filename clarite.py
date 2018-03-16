@@ -1,9 +1,10 @@
 ##Deven Orie 
 ##Dartmouth'19 - CS & Econ Major
+##https://www.linkedin.com/in/devenorie/
 ##Pipeline clean_rows Cleaner
 ##Imports Necessary Installations - Python2, or 2,7
 
-##Recommended to keep DataCleaner Directory on Desktop
+##Recommended to keep clarite Directory on Desktop
 
 import ttk as ttk
 from Tkinter import *
@@ -253,10 +254,10 @@ def optional_file_mplot():
 
 
 
-###**************************** Welcome to Data Cleaner *********************************###
+###**************************** Welcome to Clarite *********************************###
 ###******************** (ORDER = Clean,Filter,Visualize,Summary,GUI) ********************###
 ##IMPORTANT
-## Run PRogram ----> python2.7 dataCleaner.py
+## Run PRogram ----> python2.7 clarite.py
 
 #All R files, have had their hard values replaced with standard variables
 # 1) Functions Read through the R file
@@ -1085,7 +1086,7 @@ def ewas():
 	filedata = f.read()
 	f.close()
 
-	file_output_path = "write.table(newdata,"+ "file" + "=" + GLOBAL_OUTPUT_DIRECTORY_FORMATTED +  "ewas.txt" + "'," + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
+	file_output_path = "write.table(newdata,"+ "file" + "='" + GLOBAL_OUTPUT_DIRECTORY_FORMATTED +  "ewas.txt" + "'," + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
 
 	if global_ewas_filename_1 == "":
 		argument_1 = "a1 = NULL"
@@ -2179,7 +2180,7 @@ def min_cat_n():
 		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
 
 		g.write("Min Cat N Called" + '\n')
-		g.write("Lower Bound: " + min_sample_desired + '\n' +'\n' )
+		g.write("Min Samples: " + min_sample_desired + '\n' +'\n' )
 
 
 
@@ -2329,7 +2330,7 @@ label.config(fg="cyan4")
 
 
 ###********************************GUI BOX Covariates***************************************###
-ychange = -55
+ychange = -45
 global listNodes_covariates 
 listNodes_covariates = Listbox(f3, width=19, height=3, font=("Helvetica", 12))
 listNodes_covariates.place(x=363,y=199+ ychange)
@@ -2367,11 +2368,17 @@ co_variates_var_label_entry_box.place(x=362,y=246+ ychange,width=76)
 add_phenotype_button = Button(f3,text="Add", command= add_phenotype_to_list)
 add_phenotype_button.place(x=438,y=246+ ychange,width=45)
 
+clear_button = Button(f3,text="Clear", command= add_phenotype_to_list)
+clear_button.place(x=410,y=276+ ychange,width=55)
+
 co_variates_var_label = Label(f3, text="covariates",font=("Comfortaa", 14))
 co_variates_var_label.place(x=383,y=179+ ychange)
 
 
 ###***************************************************************************************###
+
+def clear_Covariate_box():
+	pass
 
 
 #file one upload

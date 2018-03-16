@@ -1,0 +1,16 @@
+LIVE LOG REPORT - PROGRAM OPENED :  11:40AM on March 16, 2018
+LOGS INPUT VALUES, STDOUT, STDERR, R SCRIPT & FUNC CALLS (GUI PROGRAM)
+
+---------------------------------------------------------------11:40:41 AM---------------------------------------------------------------
+Categorical File Uploaded: 
+---------------------------------------------------------------11:40:44 AM---------------------------------------------------------------
+Continuous File Uploaded: /Users/deven/Desktop/NHANES_SampleSize.txt
+---------------------------------------------------------------11:42:44 AM---------------------------------------------------------------
+File Chosen: /Users/deven/Desktop/NHANES.txt
+Output Folder: GUI_Output
+---------------------------------------------------------------11:42:50 AM---------------------------------------------------------------
+Min Cat N Called
+Lower Bound: a1 = 5
+
+[1] "Running..."
+[1] "Finished in 0.004494 secs"
