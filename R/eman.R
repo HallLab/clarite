@@ -19,7 +19,7 @@
 #' @examples
 #' eman(d, ewas=TRUE, groups=NULL, line, title=NULL, morecolors=FALSE, file="eman", hgt=7, wi=12, res=300 )
 
-eman <- function(d, ewas=TRUE, groups=NULL, line, title=NULL, morecolors=FALSE, file="eman", hgt=7, wi=12, res=300){
+eman <- function(d, ewas=TRUE, groups=NULL, line=NULL, title=NULL, morecolors=FALSE, file="eman", hgt=7, wi=12, res=300){
   t1 <- Sys.time()
   print("Running...")
 
@@ -104,7 +104,7 @@ eman <- function(d, ewas=TRUE, groups=NULL, line, title=NULL, morecolors=FALSE, 
   p <- p + ggtitle(title) + ylab(expression(paste("-log"[10], "(p-value)", sep="")))
 
   #Add pvalue threshold line
-  if(!missing(line)){
+  if(!is.null(line)){
     p <- p + geom_hline(yintercept = -log10(line), colour="red")
   }
   print(paste("Saving plot to ", file, ".png", sep=""))
