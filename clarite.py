@@ -1,8 +1,8 @@
-##Deven Orie 
-##Dartmouth'19 - CS & Econ Major
+##Deven Orie - Python Script Author
+##Dartmouth College'19 - CS & Econ Major
 ##https://www.linkedin.com/in/devenorie/
-##Pipeline clean_rows Cleaner
-##Imports Necessary Installations - Python2, or 2,7
+
+##Imports Necessary Installations - Python2 or 2.7
 
 ##Recommended to keep clarite Directory on Desktop
 
