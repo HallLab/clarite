@@ -253,7 +253,6 @@ def optional_file_mplot():
 
 
 
-
 ###**************************** Welcome to Data Cleaner *********************************###
 ###******************** (ORDER = Clean,Filter,Visualize,Summary,GUI) ********************###
 ##IMPORTANT
@@ -494,7 +493,7 @@ def min_n():
 	filedata = f.read()
 	f.close()
 
-	file_output_path = "write.table(newdata,"+ "file" + "=" + GLOBAL_OUTPUT_DIRECTORY_FORMATTED +  "MinSamples.txt" + "'," + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
+	file_output_path = "write.table(newdata,"+ "file" + "=" + GLOBAL_OUTPUT_DIRECTORY_FORMATTED +  "MinSamples.txt" + str(min_n_var.get()) + "'," + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
 
 	lower_bound = "a1 = " + str(min_n_var.get())
 	newdata = filedata
@@ -967,6 +966,10 @@ def col_filter():
 	a0_1 = "a1 = read.delim('"
 	argument_1 = a0_1 + column_file_name+ A0_2
 
+	if str(colfilterMenuVar.get()) == "Keep":
+		argument_2 = "a2 = FALSE"
+	else:
+		argument_2 = "a2 = TRUE"
 
 	newdata = filedata
 	
@@ -974,7 +977,8 @@ def col_filter():
 	f.write(newdata)
 	f.write(final + '\n')
 	f.write(argument_1 + '\n')
-	f.write("newdata <- colfilter(a0, a1, FALSE)"+ '\n')
+	f.write(argument_2 + '\n')
+	f.write("newdata <- colfilter(a0, a1, a2)"+ '\n')
 	f.write(file_output_path + '\n')
 
 	f.close()
@@ -1003,7 +1007,7 @@ def row_filter():
 	argument_1 = a0_1 + sample_file_name + A0_2
 
 
-	if str(rowfilterMenuVar.get()) == "True":
+	if str(rowfilterMenuVar.get()) == "Keep":
 		argument_2 = "a2 = FALSE"
 	else:
 		argument_2 = "a2 = TRUE"
@@ -1156,7 +1160,7 @@ def remove_outliers():
 	filedata = f.read()
 	f.close()
 
-	file_output_path = "write.table(newdata,"+ "file" + "=" + GLOBAL_OUTPUT_DIRECTORY_FORMATTED +  "SampleFiltered.txt" + "'," + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
+	file_output_path = "write.table(newdata,"+ "file" + "=" + GLOBAL_OUTPUT_DIRECTORY_FORMATTED +  "OutliersRemoved.txt" + str(remove_outliers_var.get()) + "'," + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
 
 	argument_1 = "a1 = " + str(remove_outliers_var.get()) 
 
@@ -1782,8 +1786,18 @@ def colfilter_popup():
 	upload_columns_button = Button(toplevel,text="Choose File", command= column_file_chosen)
 	upload_columns_button.grid(row=1, column=0)
 
+
+
+	#Correction Drop Down Menu
+	global colfilterMenuVar
+	colfilterMenuVar = tk.StringVar()
+	colfilterMenuVar_choices = ("Remove", "Keep")
+	colfilterMenuVar.set("Select")
+	colfilterMenuVar_choices = tk.OptionMenu(toplevel, colfilterMenuVar, *colfilterMenuVar_choices)
+	colfilterMenuVar_choices.grid(row=2, column=1)
+
 	get_check_button = Button(toplevel,text="Run", command= col_filter)
-	get_check_button.grid(row=2, column=0,columnspan=2)
+	get_check_button.grid(row=3, column=0,columnspan=2)
 
 
 
@@ -1810,14 +1824,14 @@ def rowfilter_popup():
 	global rowfilter2
 	rowfilter2= StringVar()
 	rowfilter2.set("")
-	rowfilter2_label = Label(toplevel, text="Exclude",font=("Comfortaa", 14))
-	rowfilter2_label.grid(row=2, column=0)
+	# rowfilter2_label = Label(toplevel, text="Exclude",font=("Comfortaa", 14))
+	# rowfilter2_label.grid(row=2, column=0)
 
 
 	#Correction Drop Down Menu
 	global rowfilterMenuVar
 	rowfilterMenuVar = tk.StringVar()
-	rowfilterMenuVar_choices = ("True", "False")
+	rowfilterMenuVar_choices = ("Remove", "Keep")
 	rowfilterMenuVar.set("Select")
 	rowfilterMenuVar_choices = tk.OptionMenu(toplevel, rowfilterMenuVar, *rowfilterMenuVar_choices)
 	rowfilterMenuVar_choices.grid(row=2, column=1)
@@ -1934,18 +1948,18 @@ def get_binary_popup():
 
 
 
-def sample_size_filter_popup():
-	toplevel = Toplevel()
-	toplevel.geometry("300x235")
+# def sample_size_filter_popup():
+# 	toplevel = Toplevel()
+# 	toplevel.geometry("300x235")
 
-	label1 = Label(toplevel,bg="white",text = "Sample Size Filter")
-	label1.grid(row=0, column=0, columnspan=2)
-	label1.config(font=("Comfortaa", 18))
-	label1.config(fg="cyan4")
+# 	label1 = Label(toplevel,bg="white",text = "Sample Size Filter")
+# 	label1.grid(row=0, column=0, columnspan=2)
+# 	label1.config(font=("Comfortaa", 18))
+# 	label1.config(fg="cyan4")
 
 
-	sample_size_filter_button = Button(toplevel,text="Run", command= sample_size)
-	sample_size_filter_button.grid(row=1, column=0,columnspan=2)
+# 	sample_size_filter_button = Button(toplevel,text="Run", command= sample_size)
+# 	sample_size_filter_button.grid(row=1, column=0,columnspan=2)
 
 
 
@@ -2138,8 +2152,42 @@ specific_recode_missing_button.config(width = 13)
 ###******************************Quality Control - Categorical**********************************************###
 ###***************************************************************************************###
 def min_cat_n():
-	print("min_cat_n_called")
 
+	f = open('r/min_cat_n.R','r')
+	filedata = f.read()
+	f.close()
+
+	min_sample_desired = "a1 = " + str(min_cat_n_var.get())
+	file_output_path = "write.table(newdata,"+ "file" + "=" + GLOBAL_OUTPUT_DIRECTORY_FORMATTED +  "MinCatN" + str(min_cat_n_var.get()) +".txt" + "'," + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
+
+	newdata = filedata
+
+	f = open('r/GUI_Scripts/min_cat_n1.R','w')
+
+	f.write(newdata)
+	f.write(final + '\n')
+
+	f.write(min_sample_desired + '\n')
+	f.write("newdata <- min_cat_n(a0, a1)"+ '\n')
+	f.write(file_output_path+ '\n')
+
+	f.close()
+
+
+	
+	with open(log_file_name, 'a') as g:
+		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
+
+		g.write("Min Cat N Called" + '\n')
+		g.write("Lower Bound: " + min_sample_desired + '\n' +'\n' )
+
+
+
+
+	s_out = open(log_file_name, "a")
+	proc = subprocess.call(['Rscript','r/GUI_Scripts/min_cat_n1.R'], shell=False,stdout=s_out, stderr=s_out)
+
+	refresh_logs()
 
 
 def min_cat_n_popup():
