@@ -174,7 +174,10 @@ def ewas1_file_chosen():
 
 	global global_ewas_filename_1
 	global_ewas_filename_1 = tkFileDialog.askopenfilename()
-	ewas_choosefile_1.set("File: " + os.path.splitext(os.path.basename(global_ewas_filename_1))[0])
+	if global_ewas_filename_1 == "":
+		ewas_choosefile_1.set("No File Uploaded")
+	else:
+		ewas_choosefile_1.set("File Uploaded")
 
 	with open(log_file_name, 'a') as g:
 		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
@@ -186,8 +189,11 @@ def ewas2_file_chosen():
 
 	global global_ewas_filename_2
 	global_ewas_filename_2 = tkFileDialog.askopenfilename()
-	ewas_choosefile_2.set("File: " + os.path.splitext(os.path.basename(global_ewas_filename_2))[0])
 
+	if global_ewas_filename_2 == "":
+		ewas_choosefile_2.set("No File Uploaded")
+	else:
+		ewas_choosefile_2.set("File Uploaded")
 
 	with open(log_file_name, 'a') as g:
 		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
