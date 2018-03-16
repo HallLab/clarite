@@ -175,7 +175,7 @@ def ewas1_file_chosen():
 
 	global global_ewas_filename_1
 	global_ewas_filename_1 = tkFileDialog.askopenfilename()
-	ewas_choosefile_1.set(os.path.splitext(os.path.basename(global_ewas_filename_1))[0])
+	ewas_choosefile_1.set("File Uploaded")
 
 	with open(log_file_name, 'a') as g:
 		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
@@ -187,7 +187,7 @@ def ewas2_file_chosen():
 
 	global global_ewas_filename_2
 	global_ewas_filename_2 = tkFileDialog.askopenfilename()
-	ewas_choosefile_2.set(os.path.splitext(os.path.basename(global_ewas_filename_2))[0])
+	ewas_choosefile_2.set("File Uploaded")
 
 
 	with open(log_file_name, 'a') as g:
@@ -531,7 +531,7 @@ def transvar():
 	file_output_path = "write.table(newdata,"+ "file" + "=" + GLOBAL_OUTPUT_DIRECTORY_FORMATTED +  "Transformation.txt" + "'," + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
 
 	argument_1 = "a1 = read.delim('/Users/deven/desktop/it.txt', header=TRUE)"
-	a1 = "a1 = read.delim('" + str(transformation_file.get()) + A0_2
+	a1 = "a1 = read.delim('" + transformation_file + A0_2
 
 	newdata = filedata
 
@@ -2302,11 +2302,11 @@ f2_l3.pack(fill=X)
 
 remove_outliers_button = Button(f2_right_frame,text="Remove Outliers", command= remove_outliers_popup)
 remove_outliers_button.pack(padx=(0,30))
-remove_outliers_button.config(width = 16)
+remove_outliers_button.config(width = 13)
 
-transvar_button = Button(f2_right_frame,text="Variable Transformation", command= transvar_popup)
+transvar_button = Button(f2_right_frame,text="Variable Transform", command= transvar_popup)
 transvar_button.pack(padx=(0,30))
-transvar_button.config(width = 16)
+transvar_button.config(width = 13)
 
 
 
