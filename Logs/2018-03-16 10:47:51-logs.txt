@@ -1,0 +1,33 @@
+LIVE LOG REPORT - PROGRAM OPENED :  10:47AM on March 16, 2018
+LOGS INPUT VALUES, STDOUT, STDERR, R SCRIPT & FUNC CALLS (GUI PROGRAM)
+
+---------------------------------------------------------------10:47:55 AM---------------------------------------------------------------
+Continuous File Uploaded: /Users/deven/Desktop/deven_w2_2016_PDF.pdf
+---------------------------------------------------------------10:48:10 AM---------------------------------------------------------------
+Categorical File Uploaded: /Users/deven/Desktop/Screen Shot 2018-03-12 at 4.46.41 PM.png
+---------------------------------------------------------------10:48:11 AM---------------------------------------------------------------
+EWAS Called
+Error in make.names(col.names, unique = TRUE) : 
+  invalid multibyte string at '<89>PNG'
+Calls: read.delim -> read.table -> make.names
+In addition: Warning messages:
+1: In read.table(file = file, header = header, sep = sep, quote = quote,  :
+  line 3 appears to contain embedded nulls
+2: In read.table(file = file, header = header, sep = sep, quote = quote,  :
+  line 4 appears to contain embedded nulls
+3: In read.table(file = file, header = header, sep = sep, quote = quote,  :
+  line 5 appears to contain embedded nulls
+Execution halted
+---------------------------------------------------------------10:48:16 AM---------------------------------------------------------------
+EWAS Called
+Error in make.names(col.names, unique = TRUE) : 
+  invalid multibyte string at '<89>PNG'
+Calls: read.delim -> read.table -> make.names
+In addition: Warning messages:
+1: In read.table(file = file, header = header, sep = sep, quote = quote,  :
+  line 3 appears to contain embedded nulls
+2: In read.table(file = file, header = header, sep = sep, quote = quote,  :
+  line 4 appears to contain embedded nulls
+3: In read.table(file = file, header = header, sep = sep, quote = quote,  :
+  line 5 appears to contain embedded nulls
+Execution halted

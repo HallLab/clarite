@@ -1,0 +1,8 @@
+LIVE LOG REPORT - PROGRAM OPENED :  10:39AM on March 16, 2018
+LOGS INPUT VALUES, STDOUT, STDERR, R SCRIPT & FUNC CALLS (GUI PROGRAM)
+
+---------------------------------------------------------------10:40:17 AM---------------------------------------------------------------
+File Chosen: 
+Output Folder: GUI_Output
+---------------------------------------------------------------10:42:44 AM---------------------------------------------------------------
+Continuous File Uploaded: /Users/deven/Desktop/deven_w2_2016_PDF.pdf

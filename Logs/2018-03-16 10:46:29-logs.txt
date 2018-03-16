@@ -1,0 +1,8 @@
+LIVE LOG REPORT - PROGRAM OPENED :  10:46AM on March 16, 2018
+LOGS INPUT VALUES, STDOUT, STDERR, R SCRIPT & FUNC CALLS (GUI PROGRAM)
+
+---------------------------------------------------------------10:46:35 AM---------------------------------------------------------------
+Continuous File Uploaded: /Users/deven/Desktop/deven_w2_2016_PDF.pdf
+---------------------------------------------------------------10:46:36 AM---------------------------------------------------------------
+File Chosen: /Users/deven/Desktop/NHANES_Unique.txt
+Output Folder: GUI_Output

@@ -174,10 +174,7 @@ def ewas1_file_chosen():
 
 	global global_ewas_filename_1
 	global_ewas_filename_1 = tkFileDialog.askopenfilename()
-	if global_ewas_filename_1 == "":
-		ewas_choosefile_1.set("No File Uploaded")
-	else:
-		ewas_choosefile_1.set("File Uploaded")
+	ewas_choosefile_1.set("File: " + os.path.splitext(os.path.basename(global_ewas_filename_1))[0])
 
 	with open(log_file_name, 'a') as g:
 		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
@@ -189,11 +186,8 @@ def ewas2_file_chosen():
 
 	global global_ewas_filename_2
 	global_ewas_filename_2 = tkFileDialog.askopenfilename()
+	ewas_choosefile_2.set("File: " + os.path.splitext(os.path.basename(global_ewas_filename_2))[0])
 
-	if global_ewas_filename_2 == "":
-		ewas_choosefile_2.set("No File Uploaded")
-	else:
-		ewas_choosefile_2.set("File Uploaded")
 
 	with open(log_file_name, 'a') as g:
 		g.write("---------------------------------------------------------------" + datetime.datetime.now().strftime("%I:%M:%S %p") + "---------------------------------------------------------------" + '\n')
@@ -2340,7 +2334,8 @@ ewas_choosefile_1_label = Label(f3_left_frame, textvariable=ewas_choosefile_1,fo
 ewas_choosefile_1_label.grid(row=1, column=1)
 upload_ewas1_button = Button(f3_left_frame,text="Choose Categorical file", command= ewas1_file_chosen)
 upload_ewas1_button.grid(row=1, column=0)
-
+global global_ewas_filename_1
+global_ewas_filename_1 = ""
 
 #file two upload
 global ewas_choosefile_2
@@ -2350,7 +2345,8 @@ ewas_choosefile_2_label = Label(f3_left_frame, textvariable=ewas_choosefile_2,fo
 ewas_choosefile_2_label.grid(row=2, column=1)
 upload_ewas2_button = Button(f3_left_frame,text="Choose Continuous file", command= ewas2_file_chosen)
 upload_ewas2_button.grid(row=2, column=0)
-
+global global_ewas_filename_2
+global_ewas_filename_2 = ""
 
 
 regression_label = Label(f3_left_frame, text="Regression ",font=("Comfortaa", 14))
