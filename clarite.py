@@ -2332,7 +2332,7 @@ label.config(fg="cyan4")
 ###********************************GUI BOX Covariates***************************************###
 ychange = -45
 global listNodes_covariates 
-listNodes_covariates = Listbox(f3, width=19, height=3, font=("Helvetica", 12))
+listNodes_covariates = Listbox(f3, width=20, height=3, font=("Helvetica", 12))
 listNodes_covariates.place(x=363,y=199+ ychange)
 
 scrollbar_covariates  = Scrollbar(f3, orient="vertical")
@@ -2366,19 +2366,23 @@ co_variates_var_label_entry_box.place(x=362,y=246+ ychange,width=76)
 
 #Add Button for covariate list
 add_phenotype_button = Button(f3,text="Add", command= add_phenotype_to_list)
-add_phenotype_button.place(x=438,y=246+ ychange,width=45)
+add_phenotype_button.place(x=438,y=246+ ychange,width=50)
 
-clear_button = Button(f3,text="Clear", command= add_phenotype_to_list)
-clear_button.place(x=410,y=276+ ychange,width=55)
+
+def clear_Covariate_box():
+	listNodes_covariates.delete(0,END)
+	global global_covariate_string 
+	global_covariate_string= ""
+
+clear_button = Button(f3,text="Clear", command= clear_Covariate_box)
+clear_button.place(x=438,y=276+ ychange,width=50)
 
 co_variates_var_label = Label(f3, text="covariates",font=("Comfortaa", 14))
-co_variates_var_label.place(x=383,y=179+ ychange)
+co_variates_var_label.place(x=385,y=179+ ychange)
 
 
 ###***************************************************************************************###
 
-def clear_Covariate_box():
-	pass
 
 
 #file one upload
