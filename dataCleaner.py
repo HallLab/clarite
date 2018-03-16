@@ -704,7 +704,7 @@ def qqplot():
 	f.write(height_of_plot + '\n')
 	f.write(resolution_of_plot + '\n')
 	f.write("quartz()" + '\n')
-	f.write("qqplot(a0, a1, file=" + GLOBAL_OUTPUT_DIRECTORY_FORMATTED +  "QQPlot" + "'," + "a2, a3, a4, a5, a6)" + '\n')
+	f.write("qq_plot(a0, a1, file=" + GLOBAL_OUTPUT_DIRECTORY_FORMATTED +  "QQPlot" + "'," + "a2, a3, a4, a5, a6)" + '\n')
 
 	f.close()
 

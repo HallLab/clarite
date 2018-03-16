@@ -1,0 +1,92 @@
+LIVE LOG REPORT - PROGRAM OPENED :  01:27AM on March 16, 2018
+LOGS INPUT VALUES, STDOUT, STDERR, R SCRIPT & FUNC CALLS (GUI PROGRAM)
+
+---------------------------------------------------------------01:27:52 AM---------------------------------------------------------------
+File Chosen: /Users/deven/Desktop/r.txt
+Output Folder: GUI_Output
+---------------------------------------------------------------01:28:23 AM---------------------------------------------------------------
+Optional Groups File Uploaded: /Users/deven/Desktop/r.txt
+---------------------------------------------------------------01:28:29 AM---------------------------------------------------------------
+EWAS Called
+[1] "Running..."
+Loading required package: ggplot2
+Error in `$<-.data.frame`(`*tmp*`, "shademap", value = c("shade_ebebeb",  : 
+  replacement has 2 rows, data has 289
+Calls: eman -> $<- -> $<-.data.frame
+Execution halted
+---------------------------------------------------------------10:29:11 AM---------------------------------------------------------------
+File Chosen: /Users/deven/Desktop/NHANES.txt
+Output Folder: GUI_Output
+---------------------------------------------------------------10:29:16 AM---------------------------------------------------------------
+Generate Histogram Function Called
+Number of Plots Per Page: 10
+Number of Rows Per Page:  10
+Number of Columns Per Page: 10
+Width of Plot: 10
+Height of Plot: 10
+Resolution of Plot: 200
+
+[1] "No annotations available"
+[1] "Starting histograms"
+[1] "Creating image 1 of 2"
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+[1] "Printing image 1 of 2"
+[1] "Creating image 2 of 2"
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+Error: StatBin requires a continuous x variable the x variable is discrete. Perhaps you want stat="count"?
+In addition: Warning message:
+In var(if (is.vector(x) || is.factor(x)) x else as.double(x), na.rm = na.rm) :
+  Calling var(x) on a factor x is deprecated and will become an error.
+  Use something like 'all(duplicated(x)[-1L])' to test for a constant vector.
+Execution halted
+---------------------------------------------------------------10:30:36 AM---------------------------------------------------------------
+Generate QQ Plot Function Called
+Number of Plots Per Page: 10
+Number of Rows Per Page:  10
+Number of Columns Per Page: 10
+Width of Plot: 10
+Height of Plot: 10
+Resolution of Plot: 200
+
+Error in `[.data.frame`(x, order(x, na.last = na.last, decreasing = decreasing)) : 
+  undefined columns selected
+Calls: qqplot -> sort -> sort.default -> [ -> [.data.frame
+Execution halted
+---------------------------------------------------------------10:34:25 AM---------------------------------------------------------------
+File Chosen: /Users/deven/Desktop/sim.tsv
+Output Folder: GUI_Output
+---------------------------------------------------------------10:34:38 AM---------------------------------------------------------------
+Generate QQ Plot Function Called
+Number of Plots Per Page: 10
+Number of Rows Per Page:  10
+Number of Columns Per Page: 10
+Width of Plot: 10
+Height of Plot: 10
+Resolution of Plot: 200
+
+Error in `[.data.frame`(x, order(x, na.last = na.last, decreasing = decreasing)) : 
+  undefined columns selected
+Calls: qqplot -> sort -> sort.default -> [ -> [.data.frame
+Execution halted
