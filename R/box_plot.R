@@ -19,7 +19,7 @@
 box_plot <- function(d, n=12, file="plot", nrow=4, ncol=3, wi=13.5, hgt=12, res=300, annotate) {
   t1 <- Sys.time()
 
-  if (!requireNamespace(c("ggplot2", "gridExtra"), quietly = TRUE)==TRUE) {
+  if (!requireNamespace("ggplot2", quietly = TRUE)==TRUE|!requireNamespace("gridExtra", quietly = TRUE)==TRUE) {
     stop("Please install ggplot2 and gridExtra to create visualization.", call. = FALSE)
   } else {
     packages = c("ggplot2", "gridExtra")
