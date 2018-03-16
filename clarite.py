@@ -1086,7 +1086,8 @@ def ewas():
 	filedata = f.read()
 	f.close()
 
-	file_output_path = "write.table(newdata,"+ "file" + "='" + GLOBAL_OUTPUT_DIRECTORY_FORMATTED +  "ewas.txt" + "'," + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
+	file_output_path = "write.table(newdata,"+ "file" + "=" + "'" + GLOBAL_OUTPUT_DIRECTORY + "/EWAS.txt" + "'," + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
+
 
 	if global_ewas_filename_1 == "":
 		argument_1 = "a1 = NULL"
