@@ -1050,7 +1050,7 @@ def merge_data():
 	argument_1 = a0_1 + merge_data_file + A0_2
 
 
-	if str(mergeVar.get()) == "True":
+	if str(mergeVar.get()) == "Union":
 		argument_2 = "a2 = TRUE"
 
 	else:
