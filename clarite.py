@@ -531,7 +531,7 @@ def transvar():
 	file_output_path = "write.table(newdata,"+ "file" + "=" + GLOBAL_OUTPUT_DIRECTORY_FORMATTED +  "Transformation.txt" + "'," + "sep=" +"'\\t'" + ", row.names=FALSE, quote=FALSE)"
 
 	argument_1 = "a1 = read.delim('/Users/deven/desktop/it.txt', header=TRUE)"
-	a1 = "a1 = read.delim('" + str(transformation_file_var.get()) + A0_2
+	a1 = "a1 = read.delim('" + str(transformation_file.get()) + A0_2
 
 	newdata = filedata
 
@@ -2270,9 +2270,9 @@ def transvar_popup():
 	toplevel = Toplevel()
 	toplevel.geometry("300x235")
 
-	label1 = Label(toplevel,bg="white",text = "Variable Transformation")
+	label1 = Label(toplevel,bg="white",text = "Variable Transform")
 	label1.grid(row=0, column=0, columnspan=2)
-	label1.config(font=("Comfortaa", 18))
+	label1.config(font=("Comfortaa", 16))
 	label1.config(fg="cyan4")
 
 
