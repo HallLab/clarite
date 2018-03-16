@@ -2435,9 +2435,9 @@ def man_plot():
 
 
 	if str(moreColorsVar.get()) == "Standard Colors":
-		argument_5 = "a5 = TRUE"
-	else:
 		argument_5 = "a5 = FALSE"
+	else:
+		argument_5 = "a5 = TRUE"
 
 	#argument_6 = the file 
 
