@@ -62,7 +62,11 @@ ewas <- function(cat=NULL, cont=NULL, y, cov=NULL, regress, adjust){
   }
 
   #Specify regression forumula
-  fmla <- paste(y,"~x+", paste(cov, collapse="+"), sep="")
+  if(!is.null(cov)){
+    fmla <- paste(y,"~x+", paste(cov, collapse="+"), sep="")
+  } else {
+    fmla <- paste(y,"~x", sep="")
+  }
 
   #Run Regressions
   if(!is.null(cat) & !is.null(cont)){
