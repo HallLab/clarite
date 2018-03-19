@@ -26,6 +26,14 @@ get_continuous <- function(df, lower=15) {
     names(df_cont)[[1]] <- "ID"
   }
 
+  typchk <- as.data.frame(sapply(df_cont[, -1], is.numeric))
+  typchk <- cbind(rownames(typchk), data.frame(typchk, row.names=NULL))
+  names(typchk) <- c("Variable", "Numeric")
+  nn <- typchk[typchk$Numeric=="FALSE",]
+  if(nrow(nn)>0){
+    print(paste("Warning:", paste(nn$Variable, collapse=", "), "may contain non-numeric values."))
+  }
+
   t2 <- Sys.time()
   print(paste("Finished in", round(as.numeric(difftime(t2,t1, units="secs")), 6), "secs", sep=" "))
 
