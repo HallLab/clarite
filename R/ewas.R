@@ -45,7 +45,7 @@ ewas <- function(cat=NULL, cont=NULL, y, cov=NULL, regress, adjust){
   #Regress over columns != ID, y, covariates, or continuous variables
   regress_cat <- function(d, fmla, cols, rtype, usenull=FALSE){
     mca <- lapply(d[, !(colnames(d) %in% cols)], function (x) return(tryCatch(do.call("glm", list(as.formula(fmla), family=as.name(rtype), data=as.name("d"))), error=function(e) NULL)))
-    if(usenull=FALSE){
+    if(usenull==FALSE){
       red <- lapply(d[,!(colnames(d) %in% cols)], function(x) return(tryCatch(glm(as.formula(gsub("x\\+", "", fmla)), data=d[!is.na(x), ], family=rtype), error=function(e) NULL)))
     } else {
       red <- lapply(d[,!(colnames(d) %in% cols)], function(x) return(tryCatch(glm(as.formula(gsub("\\~x", "~1", fmla)), data=d[!is.na(x), ], family=rtype), error=function(e) NULL)))
