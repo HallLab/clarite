@@ -43,9 +43,13 @@ ewas <- function(cat=NULL, cont=NULL, y, cov=NULL, regress, adjust){
 
   ###Categorical###
   #Regress over columns != ID, y, covariates, or continuous variables
-  regress_cat <- function(d, fmla, cols, rtype){
+  regress_cat <- function(d, fmla, cols, rtype, usenull=FALSE){
     mca <- lapply(d[, !(colnames(d) %in% cols)], function (x) return(tryCatch(do.call("glm", list(as.formula(fmla), family=as.name(rtype), data=as.name("d"))), error=function(e) NULL)))
-    red <- lapply(d[,!(colnames(d) %in% cols)], function(x) return(tryCatch(glm(as.formula(gsub("x\\+", "", fmla)), data=d[!is.na(x), ], family=rtype), error=function(e) NULL)))
+    if(usenull=FALSE){
+      red <- lapply(d[,!(colnames(d) %in% cols)], function(x) return(tryCatch(glm(as.formula(gsub("x\\+", "", fmla)), data=d[!is.na(x), ], family=rtype), error=function(e) NULL)))
+    } else {
+      red <- lapply(d[,!(colnames(d) %in% cols)], function(x) return(tryCatch(glm(as.formula(gsub("\\~x", "~1", fmla)), data=d[!is.na(x), ], family=rtype), error=function(e) NULL)))
+    }
     nmca<- mca[!sapply(mca, is.null)]
     nred<- red[!sapply(red, is.null)]
     lrt <- mapply(function (x,y) anova(x,y, test="LRT"), x=nmca, y=nred, SIMPLIFY = FALSE)
@@ -64,8 +68,10 @@ ewas <- function(cat=NULL, cont=NULL, y, cov=NULL, regress, adjust){
   #Specify regression forumula
   if(!is.null(cov)){
     fmla <- paste(y,"~x+", paste(cov, collapse="+"), sep="")
+    usenull=FALSE
   } else {
     fmla <- paste(y,"~x", sep="")
+    usenull<-TRUE
   }
 
   #Run Regressions
@@ -75,7 +81,7 @@ ewas <- function(cat=NULL, cont=NULL, y, cov=NULL, regress, adjust){
     }
     cat <- as.data.frame(sapply(cat, factor))
     cont$ID <- factor(cont$ID)
-    if(sum(sapply(cont[, -1],is.numeric))!=ncol(cont)-1){
+    if(sum(sapply(cont[, -1, drop=FALSE],is.numeric))!=ncol(cont)-1){
       stop("Please make sure that all values in 'cont' are numeric")
     }
     d <- merge(cat, cont, by="ID", all=TRUE)
@@ -89,7 +95,7 @@ ewas <- function(cat=NULL, cont=NULL, y, cov=NULL, regress, adjust){
       print("No continuous variables to run regressions on")
     }
     if(dim(cat[, !(colnames(cat) %in% c("ID", cov, y))])[2]>0){
-      rcat <- regress_cat(d=d, fmla=fmla, cols=c("ID", cov, y, names(cont)), rtype=regress)
+      rcat <- regress_cat(d=d, fmla=fmla, cols=c("ID", cov, y, names(cont)), rtype=regress, usenull=usenull)
     } else {
       rcat <- NULL
       print("No categorical variables to run regressions on")
@@ -112,7 +118,7 @@ ewas <- function(cat=NULL, cont=NULL, y, cov=NULL, regress, adjust){
       stop("Please add ID to 'cat' as column 1")
     }
     d <- as.data.frame(sapply(cat, factor))
-    fres <- regress_cat(d=d, fmla=fmla, cols=c("ID", cov, y, names(cont)), rtype=regress)
+    fres <- regress_cat(d=d, fmla=fmla, cols=c("ID", cov, y, names(cont)), rtype=regress, usenull=usenull)
   }
 
   fres <- as.data.frame(lapply(fres, unlist))

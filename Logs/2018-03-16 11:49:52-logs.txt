@@ -1,0 +1,14 @@
+LIVE LOG REPORT - PROGRAM OPENED :  11:49AM on March 16, 2018
+LOGS INPUT VALUES, STDOUT, STDERR, R SCRIPT & FUNC CALLS (GUI PROGRAM)
+
+---------------------------------------------------------------11:50:03 AM---------------------------------------------------------------
+Categorical File Uploaded: /Users/amlucas/Downloads/simEWASdata_Categorical3_6.txt
+---------------------------------------------------------------11:50:09 AM---------------------------------------------------------------
+Continuous File Uploaded: /Users/amlucas/Downloads/simEWASdata_Continuous15_SampleFiltered.txt
+---------------------------------------------------------------11:50:28 AM---------------------------------------------------------------
+EWAS Called
+[1] "Running..."
+Error in names(prco) <- c("Variable", "N", "Converged", "Beta", "SE",  : 
+  'names' attribute [6] must be the same length as the vector [1]
+Calls: ewas -> regress_cont
+Execution halted

@@ -1,0 +1,13 @@
+LIVE LOG REPORT - PROGRAM OPENED :  11:50AM on March 16, 2018
+LOGS INPUT VALUES, STDOUT, STDERR, R SCRIPT & FUNC CALLS (GUI PROGRAM)
+
+---------------------------------------------------------------11:50:48 AM---------------------------------------------------------------
+Categorical File Uploaded: /Users/amlucas/Downloads/simEWASdata_Categorical3_6.txt
+---------------------------------------------------------------11:50:57 AM---------------------------------------------------------------
+Continuous File Uploaded: /Users/amlucas/Downloads/simEWASdata_Continuous15_SampleFiltered.txt
+---------------------------------------------------------------11:51:09 AM---------------------------------------------------------------
+EWAS Called
+[1] "Running..."
+[1] "Finished in 0.154912 secs"
+Error: unexpected string constant in "write.table(newdata,file=ewas.txt',sep='"
+Execution halted
