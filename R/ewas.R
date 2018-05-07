@@ -26,7 +26,7 @@ ewas <- function(cat=NULL, cont=NULL, y, cov=NULL, regress, adjust){
   ###Continuous###
   #Regress over columns != ID, y, covariates, or categorical variables
   regress_cont <- function(d, fmla, cols, rtype){
-    mco <- lapply(d[, !(colnames(d) %in% cols)], function (x) return(tryCatch(do.call("glm", list(as.formula(fmla), family=as.name(rtype), data=as.name("d"))), error=function(e) NULL)))
+    mco <- lapply(d[, !(colnames(d) %in% cols), drop=FALSE], function (x) return(tryCatch(do.call("glm", list(as.formula(fmla), family=as.name(rtype), data=as.name("d"))), error=function(e) NULL)))
     nmco<- mco[!sapply(mco, is.null)]
     sco <- lapply(nmco, function (x) summary(x))
     #Grab sample size, beta, se beta, and pvalue
@@ -44,11 +44,11 @@ ewas <- function(cat=NULL, cont=NULL, y, cov=NULL, regress, adjust){
   ###Categorical###
   #Regress over columns != ID, y, covariates, or continuous variables
   regress_cat <- function(d, fmla, cols, rtype, usenull=FALSE){
-    mca <- lapply(d[, !(colnames(d) %in% cols)], function (x) return(tryCatch(do.call("glm", list(as.formula(fmla), family=as.name(rtype), data=as.name("d"))), error=function(e) NULL)))
+    mca <- lapply(d[, !(colnames(d) %in% cols), drop=FALSE], function (x) return(tryCatch(do.call("glm", list(as.formula(fmla), family=as.name(rtype), data=as.name("d"))), error=function(e) NULL)))
     if(usenull==FALSE){
-      red <- lapply(d[,!(colnames(d) %in% cols)], function(x) return(tryCatch(glm(as.formula(gsub("x\\+", "", fmla)), data=d[!is.na(x), ], family=rtype), error=function(e) NULL)))
+      red <- lapply(d[,!(colnames(d) %in% cols), drop=FALSE], function(x) return(tryCatch(glm(as.formula(gsub("x\\+", "", fmla)), data=d[!is.na(x), ], family=rtype), error=function(e) NULL)))
     } else {
-      red <- lapply(d[,!(colnames(d) %in% cols)], function(x) return(tryCatch(glm(as.formula(gsub("\\~x", "~1", fmla)), data=d[!is.na(x), ], family=rtype), error=function(e) NULL)))
+      red <- lapply(d[,!(colnames(d) %in% cols), drop=FALSE], function(x) return(tryCatch(glm(as.formula(gsub("\\~x", "~1", fmla)), data=d[!is.na(x), ], family=rtype), error=function(e) NULL)))
     }
     nmca<- mca[!sapply(mca, is.null)]
     nred<- red[!sapply(red, is.null)]
@@ -86,7 +86,7 @@ ewas <- function(cat=NULL, cont=NULL, y, cov=NULL, regress, adjust){
     }
     d <- merge(cat, cont, by="ID", all=TRUE)
 
-    if(dim(cont[, !(colnames(cont) %in% c("ID", cov, y))])[2]>0){
+    if(dim(cont[, !(colnames(cont) %in% c("ID", cov, y)), drop=FALSE])[2]>0){
       rcont <- regress_cont(d=d, fmla=fmla, cols=c("ID", cov, y, names(cat)), rtype=regress)
       rcont$LRT_pvalue <- NA
       rcont$Diff_AIC <- NA
@@ -94,7 +94,7 @@ ewas <- function(cat=NULL, cont=NULL, y, cov=NULL, regress, adjust){
       rcont <- NULL
       print("No continuous variables to run regressions on")
     }
-    if(dim(cat[, !(colnames(cat) %in% c("ID", cov, y))])[2]>0){
+    if(dim(cat[, !(colnames(cat) %in% c("ID", cov, y)), drop=FALSE])[2]>0){
       rcat <- regress_cat(d=d, fmla=fmla, cols=c("ID", cov, y, names(cont)), rtype=regress, usenull=usenull)
     } else {
       rcat <- NULL
