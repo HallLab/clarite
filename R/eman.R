@@ -69,7 +69,7 @@ eman <- function(d, ewas=TRUE, groups=NULL, line=NULL, title=NULL, morecolors=FA
       names(lims) <- c("Color", "Varx", "px", "posmin", "Vary", "py", "posmax")
     }
     lims$av <- (lims$posmin + lims$posmax)/2
-    lims$shademap <- rep(c("shade_ebebeb","shade_fffff"), each=1)
+    lims$shademap <- rep(c("shade_ebebeb","shade_fffff"), each=1, length=nrow(lims))
 
     #Set up color palette
     ncolors <- nlevels(lims$Color)
