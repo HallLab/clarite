@@ -46,12 +46,12 @@ ewas <- function(cat=NULL, cont=NULL, y, cov=NULL, regress, adjust){
   regress_cat <- function(d, fmla, cols, rtype, usenull=FALSE){
     mca <- lapply(d[, !(colnames(d) %in% cols), drop=FALSE], function (x) return(tryCatch(do.call("glm", list(as.formula(fmla), family=as.name(rtype), data=as.name("d"))), error=function(e) NULL)))
     if(usenull==FALSE){
-      red <- lapply(d[,!(colnames(d) %in% cols), drop=FALSE], function(x) return(tryCatch(glm(as.formula(gsub("x\\+", "", fmla)), data=d[!is.na(x), ], family=rtype), error=function(e) NULL)))
+      red <- lapply(d[,!(colnames(d) %in% cols), drop=FALSE], function(x) return(tryCatch(glm(as.formula(sub("x\\+", "", fmla)), data=d[!is.na(x), ], family=rtype), error=function(e) NULL)))
     } else {
       red <- lapply(d[,!(colnames(d) %in% cols), drop=FALSE], function(x) return(tryCatch(glm(as.formula(gsub("\\~x", "~1", fmla)), data=d[!is.na(x), ], family=rtype), error=function(e) NULL)))
     }
     nmca<- mca[!sapply(mca, is.null)]
-    nred<- red[!sapply(red, is.null)]
+    nred<- red[!sapply(mca, is.null)]
     lrt <- mapply(function (x,y) anova(x,y, test="LRT"), x=nmca, y=nred, SIMPLIFY = FALSE)
     #Grab sample size, beta, se beta, and pvalue
     rca <- data.frame(t(as.data.frame(sapply(nmca, function(x) as.data.frame(length(x$residuals))))),
