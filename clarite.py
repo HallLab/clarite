@@ -2425,7 +2425,7 @@ regression_menu.grid(row=3, column=1)
 
 #Correction Drop Down Menu
 correctionVar = tk.StringVar()
-correction_choices = ("bonferroni", "fdr", "both")
+correction_choices = ("bonferroni", "fdr", "Both")
 correctionVar.set("Select")
 correction_menu = tk.OptionMenu(f3_left_frame, correctionVar, *correction_choices)
 correction_menu.grid(row=4, column=1)
