@@ -1,10 +1,12 @@
 Package: clarite
-Title: What the Package Does (one line, title case)
+Title: CLeaning to Anlaysis: Reproducibility-based Interface for Traits and Exposures
 Version: 0.0.0.9000
-Authors@R: person("First", "Last", email = "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
+Authors@R: c(person("Anastasia", "Lucas", email = "anastasia.lucas.bioinfo@gmail.com", role = c("aut", "cre")),
+	     person("Deven", "Orie", email = "deven.orie@gmail.com", role = "ctb"))
+Maintainer: Molly Hall <mah546@psu.edu>
+Description: The goal of CLARITE is to guide a dataset from the “raw” data stage to EWAS analysis and subsequent visualization of results. The package is designed to lead a user through the stages of data cleaning: from generating descriptive statistics, to making QC decisions informed by the descriptive statistics, to running analyses on the filtered dataset and visualizing the results.
 Depends: R (>= 3.2.1)
-License: What license is it under?
+License: GPL-3
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.0.1
