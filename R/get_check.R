@@ -7,6 +7,7 @@
 #' @param lev number of levels desired
 #' @return data frame containing only ID and variables meeting criteria, which should then be assessed manually
 #' @export
+#' @family filter functions
 #' @examples
 #' get_check(df, lower=6, upper=15)
 

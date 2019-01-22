@@ -6,6 +6,8 @@
 #' @param x number of standard deviations away from the mean to qualify as an outlier
 #' @return data frame with outlier values within each column replaced with NA
 #' @export
+#' @family filter functions
+#' @family continuous variable functions
 #' @examples
 #' remove_outliers(df, x=2.5)
 

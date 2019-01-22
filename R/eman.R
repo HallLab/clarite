@@ -16,6 +16,7 @@
 #' @param res resolution of plot in pixels per inch
 #' @return png image(s)
 #' @export
+#' @family plot functions
 #' @examples
 #' eman(d, ewas=TRUE, groups=NULL, line, title=NULL, morecolors=FALSE, file="eman", hgt=7, wi=12, res=300 )
 

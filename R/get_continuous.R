@@ -7,6 +7,7 @@
 #' @param lower minimum number of unique values to be considered continuous
 #' @return data frame containing only ID and variables meeting the criteria
 #' @export
+#' @family filter functions
 #' @examples
 #' get_continuous(df, lower=15)
 

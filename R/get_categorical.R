@@ -8,6 +8,7 @@
 #' @param upper maximum number of unique values to be considered categorical
 #' @return data frame containing only ID and variables meeting the criteria
 #' @export
+#' @family filter functions
 #' @examples
 #' get_categorical(df, lower=3, upper=6)
 

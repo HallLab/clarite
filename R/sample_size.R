@@ -1,9 +1,10 @@
 #' sample_size
 #'
 #' Create list of sample_sizes for each variable
-#' @param df data frame with IID as first column
+#' @param df data frame with ID as first column
 #' @return data frame with two columns, "Variable" and "Sample_Size"
 #' @export
+#' @family summary functions
 #' @examples
 #' sample_size(df)
 

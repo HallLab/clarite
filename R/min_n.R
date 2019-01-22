@@ -5,6 +5,7 @@
 #' @param n minimum sample size desired
 #' @return data frame containing only those variables with at least n samples
 #' @export
+#' @family filter functions
 #' @examples
 #' min_n(df, n)
 

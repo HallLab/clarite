@@ -5,6 +5,8 @@
 #' @param x number of standard deviations away from the mean to qualify as an outlier
 #' @return data frame consisting of summary statistics for the input dataframe and potential dataframe if outliers were to be removed at that threshold
 #' @export
+#' @family summary functions
+#' @family continuous variable functions
 #' @examples
 #' outlier_impact(df, x=2.5)
 

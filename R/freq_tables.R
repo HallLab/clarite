@@ -5,6 +5,8 @@
 #' @param df data frame with ID as first column
 #' @return data frame with three columns, Variable, Category, and N
 #' @export
+#' @family summary functions
+#' @family categorical variable functions
 #' @examples
 #' freq_tables(df)
 

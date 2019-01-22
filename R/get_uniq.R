@@ -4,6 +4,7 @@
 #' @param df data frame
 #' @return data frame with two columns, one for variable name and one for number of unique values
 #' @export
+#' @family summary functions
 #' @examples
 #' get_uniq(df)
 

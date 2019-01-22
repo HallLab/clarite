@@ -4,6 +4,8 @@
 #' @param df data frame, with ID as first column
 #' @return data frame with two columns, Variable and P.Value
 #' @export
+#' @family summary functions
+#' @family categorical variable functions
 #' @examples
 #' chisq_tests(df)
 

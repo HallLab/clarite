@@ -6,9 +6,12 @@
 #' @param exclude boolean, keep or exclude
 #' @return dataframe
 #' @export
+#' @family filter functions
 #' @examples
-#' colfilter(d, cols, exclude=FALSE)
-
+#' require(NHANES)
+#' data(NHANES)
+#' cols <- c("SurveyYr","Gender", "Age")
+#' head(colfilter(NHANES, cols=cols))
 
 colfilter <- function(d, cols, exclude=FALSE){
   t1 <- Sys.time()

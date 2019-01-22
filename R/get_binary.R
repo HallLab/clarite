@@ -7,6 +7,7 @@
 #' @param lev number of levels desired
 #' @return data frame containing only ID and variables with the number of levels specified
 #' @export
+#' @family filter functions
 #' @examples
 #' get_binary(df, lev=2)
 

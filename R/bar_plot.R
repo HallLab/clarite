@@ -12,6 +12,8 @@
 #' @param res resolution of plot
 #' @return png image(s)
 #' @export
+#' @family plot functions
+#' @family categorical variable functions
 #' @examples
 #' bar_plot(d, n=12, file="plot", nrow=4, ncol=3, wi=13.5, hgt=12, res=210)
 

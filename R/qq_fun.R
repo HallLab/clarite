@@ -8,6 +8,8 @@
 #' @param annotate optional data frame of annotation information
 #' @return ggplot object
 #' @export
+#' @family plot functions
+#' @family continuous variable functions
 #' @examples
 #' qq_fun(d, i, annotate)
 

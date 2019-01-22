@@ -9,6 +9,7 @@
 #' @param adjust p-value adjustment (bonferroni or fdr)
 #' @return data frame containing following fields Variable, Sample Size, Converged, SE, Beta, Variable p-value, LRT, AIC, adjusted p-value
 #' @export
+#' @family analysis functions
 #' @examples
 #' ewas(cat, cont, y, cov, regress, adjust)
 

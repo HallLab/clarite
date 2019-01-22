@@ -13,6 +13,8 @@
 #' @param annotate optional data frame with clinical lab information
 #' @return png image(s)
 #' @export
+#' @family plot functions
+#' @family continuous variable functions
 #' @examples
 #' box_plot(d, n=12, file="plot", nrow=4, ncol=3, wi=13.5, hgt=12, res=210, annotate)
 

@@ -5,6 +5,8 @@
 #' @param n minimum sample size desired
 #' @return data frame containing only those variables with at least n samples per factor level
 #' @export
+#' @family filter functions
+#' @family categorical variables functions
 #' @examples
 #' min_cat_n(df, n)
 

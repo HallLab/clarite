@@ -6,9 +6,12 @@
 #' @param exclude boolean, keep or exclude
 #' @return dataframe
 #' @export
+#' @family filter functions
 #' @examples
-#' rowfilter(d, samples, exclude=FALSE)
-
+#' require(NHANES)
+#' data(NHANES)
+#' ids <- c("51624", "51625")
+#' head(rowfilter(NHANES, samples = ids))
 
 rowfilter <- function(d, samples, exclude=FALSE){
   t1 <- Sys.time()

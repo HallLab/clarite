@@ -7,6 +7,8 @@
 #' @param x correlation threshold, -1 <= x <= 1
 #' @return data frame with three columns, Variable 1, Variable 2, and the correlation between Variable 1 and Variable 2
 #' @export
+#' @family summary functions
+#' @family continuous variable functions
 #' @examples
 #' correlations(df, x=0.75)
 
