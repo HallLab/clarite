@@ -10,7 +10,9 @@
 #' @export
 #' @family filter functions
 #' @examples
-#' get_categorical(df, lower=3, upper=6)
+#' require(NHANES)
+#' data(NHANES)
+#' head(get_categorical(NHANES))
 
 get_categorical <- function(df, lower=3, upper=6) {
   t1 <- Sys.time()

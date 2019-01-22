@@ -8,8 +8,9 @@
 #' @family filter functions
 #' @family categorical variables functions
 #' @examples
-#' min_cat_n(df, n)
-
+#' require(NHANES)
+#' data(NHANES)
+#' ncol(min_cat_n(get_categorical(NHANES)))
 
 min_cat_n <- function(df, n=200){
   t1 <- Sys.time()

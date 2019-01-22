@@ -33,3 +33,12 @@ Dependencies: ggplot2, gridExtra
 \examples{
 bar_plot(d, n=12, file="plot", nrow=4, ncol=3, wi=13.5, hgt=12, res=210)
 }
+\seealso{
+Other plot functions: \code{\link{box_plot}},
+  \code{\link{eman}}, \code{\link{hist_fun}},
+  \code{\link{hist_plot}}, \code{\link{multi_plot}},
+  \code{\link{qq_fun}}, \code{\link{qq_plot}}
+
+Other categorical variable functions: \code{\link{chisq_tests}},
+  \code{\link{freq_tables}}
+}

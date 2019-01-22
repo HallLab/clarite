@@ -9,7 +9,7 @@ remove_outliers(df, x = 2.5)
 \arguments{
 \item{df}{data frame with first column as ID}
 
-\item{x}{number of standard deviations away from the mean to qualify as an outlier}
+\item{x}{number of standard deviations from the mean to qualify as an outlier}
 }
 \value{
 data frame with outlier values within each column replaced with NA
@@ -19,5 +19,19 @@ Remove outliers from data frame
 This function does not remove the entire row of data, only replaces the outlier value with NA in a particular column
 }
 \examples{
-remove_outliers(df, x=2.5)
+require(NHANES)
+data(NHANES)
+summary(remove_outliers(get_continuous(NHANES), x=3))
+}
+\seealso{
+Other filter functions: \code{\link{colfilter}},
+  \code{\link{get_binary}}, \code{\link{get_categorical}},
+  \code{\link{get_check}}, \code{\link{get_continuous}},
+  \code{\link{min_cat_n}}, \code{\link{min_n}},
+  \code{\link{rowfilter}}
+
+Other continuous variable functions: \code{\link{box_plot}},
+  \code{\link{correlations}}, \code{\link{hist_fun}},
+  \code{\link{multi_plot}}, \code{\link{outlier_impact}},
+  \code{\link{qq_fun}}, \code{\link{qq_plot}}
 }

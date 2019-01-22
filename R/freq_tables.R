@@ -8,7 +8,9 @@
 #' @family summary functions
 #' @family categorical variable functions
 #' @examples
-#' freq_tables(df)
+#' require(NHANES)
+#' data(NHANES)
+#' freq_tables(get_categorical(NHANES))
 
 freq_tables <- function(df) {
   t1 <- Sys.time()

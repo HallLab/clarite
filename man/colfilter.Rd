@@ -20,5 +20,15 @@ dataframe
 Subset data by column name
 }
 \examples{
-colfilter(d, cols, exclude=FALSE)
+require(NHANES)
+data(NHANES)
+cols <- c("SurveyYr","Gender", "Age")
+head(colfilter(NHANES, cols=cols))
+}
+\seealso{
+Other filter functions: \code{\link{get_binary}},
+  \code{\link{get_categorical}}, \code{\link{get_check}},
+  \code{\link{get_continuous}}, \code{\link{min_cat_n}},
+  \code{\link{min_n}}, \code{\link{remove_outliers}},
+  \code{\link{rowfilter}}
 }

@@ -8,7 +8,9 @@
 #' @family summary functions
 #' @family continuous variable functions
 #' @examples
-#' outlier_impact(df, x=2.5)
+#' require(NHANES)
+#' data(NHANES)
+#' outlier_impact(get_continuous(NHANES), x=3)
 
 outlier_impact <- function(df, x=2.5) {
   t1 <- Sys.time()

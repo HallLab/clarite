@@ -6,7 +6,9 @@
 #' @export
 #' @family summary functions
 #' @examples
-#' get_uniq(df)
+#' require(NHANES)
+#' data(NHANES)
+#' get_uniq(NHANES)
 
 get_uniq <- function(df) {
   t1 <- Sys.time()

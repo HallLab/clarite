@@ -9,7 +9,9 @@
 #' @export
 #' @family filter functions
 #' @examples
-#' get_check(df, lower=6, upper=15)
+#' require(NHANES)
+#' data(NHANES) 
+#' head(get_check(NHANES))
 
 get_check <- function(df, lower=6, upper=15) {
   t1 <- Sys.time()

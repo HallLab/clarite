@@ -37,3 +37,14 @@ Dependencies: ggplot2, gridExtra
 \examples{
 multi_plot(d, n=6, file="plot", nrow=3, ncol=2, wi=13.5, hgt=9, res=210, type="hist-qq", annotate)
 }
+\seealso{
+Other plot functions: \code{\link{bar_plot}},
+  \code{\link{box_plot}}, \code{\link{eman}},
+  \code{\link{hist_fun}}, \code{\link{hist_plot}},
+  \code{\link{qq_fun}}, \code{\link{qq_plot}}
+
+Other continuous variable functions: \code{\link{box_plot}},
+  \code{\link{correlations}}, \code{\link{hist_fun}},
+  \code{\link{outlier_impact}}, \code{\link{qq_fun}},
+  \code{\link{qq_plot}}, \code{\link{remove_outliers}}
+}

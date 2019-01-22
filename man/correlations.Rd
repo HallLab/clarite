@@ -20,5 +20,17 @@ Note: Uses Pearson/pairwise.complete.obs in the base R cor function
 Note: A threshold of 0.75 also includes variables with a negative correlation stronger than -0.5
 }
 \examples{
-correlations(df, x=0.75)
+require(NHANES)
+data(NHANES)
+correlations(get_continuous(NHANES))
+}
+\seealso{
+Other summary functions: \code{\link{chisq_tests}},
+  \code{\link{freq_tables}}, \code{\link{get_uniq}},
+  \code{\link{outlier_impact}}, \code{\link{sample_size}}
+
+Other continuous variable functions: \code{\link{box_plot}},
+  \code{\link{hist_fun}}, \code{\link{multi_plot}},
+  \code{\link{outlier_impact}}, \code{\link{qq_fun}},
+  \code{\link{qq_plot}}, \code{\link{remove_outliers}}
 }

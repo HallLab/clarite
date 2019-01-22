@@ -7,7 +7,9 @@
 #' @export
 #' @family filter functions
 #' @examples
-#' min_n(df, n)
+#' require(NHANES)
+#' data(NHANES)
+#' ncol(min_n(NHANES, n = 1000))
 
 
 min_n <- function(df, n=200){

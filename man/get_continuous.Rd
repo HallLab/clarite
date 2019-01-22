@@ -20,5 +20,14 @@ Comparison operators used are >=
 NA values do not contribute to level counts
 }
 \examples{
-get_continuous(df, lower=15)
+require(NHANES)
+data(NHANES)
+head(get_continuous(NHANES))
+}
+\seealso{
+Other filter functions: \code{\link{colfilter}},
+  \code{\link{get_binary}}, \code{\link{get_categorical}},
+  \code{\link{get_check}}, \code{\link{min_cat_n}},
+  \code{\link{min_n}}, \code{\link{remove_outliers}},
+  \code{\link{rowfilter}}
 }

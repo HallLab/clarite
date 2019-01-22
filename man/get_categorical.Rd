@@ -22,5 +22,14 @@ Comparison operators used are <= and >=
 NA values do not contribute to level counts
 }
 \examples{
-get_categorical(df, lower=3, upper=6)
+require(NHANES)
+data(NHANES)
+head(get_categorical(NHANES))
+}
+\seealso{
+Other filter functions: \code{\link{colfilter}},
+  \code{\link{get_binary}}, \code{\link{get_check}},
+  \code{\link{get_continuous}}, \code{\link{min_cat_n}},
+  \code{\link{min_n}}, \code{\link{remove_outliers}},
+  \code{\link{rowfilter}}
 }

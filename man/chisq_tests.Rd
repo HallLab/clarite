@@ -18,3 +18,11 @@ Create table of chi-square tests for each variable
 \examples{
 chisq_tests(df)
 }
+\seealso{
+Other summary functions: \code{\link{correlations}},
+  \code{\link{freq_tables}}, \code{\link{get_uniq}},
+  \code{\link{outlier_impact}}, \code{\link{sample_size}}
+
+Other categorical variable functions: \code{\link{bar_plot}},
+  \code{\link{freq_tables}}
+}

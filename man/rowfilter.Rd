@@ -20,5 +20,15 @@ dataframe
 Subset data by sample name
 }
 \examples{
-rowfilter(d, samples, exclude=FALSE)
+require(NHANES)
+data(NHANES)
+ids <- c("51624", "51625")
+head(rowfilter(NHANES, samples = ids))
+}
+\seealso{
+Other filter functions: \code{\link{colfilter}},
+  \code{\link{get_binary}}, \code{\link{get_categorical}},
+  \code{\link{get_check}}, \code{\link{get_continuous}},
+  \code{\link{min_cat_n}}, \code{\link{min_n}},
+  \code{\link{remove_outliers}}
 }

@@ -35,3 +35,9 @@ Dependencies: ggplot2, gridExtra
 \examples{
 hist_plot(d, n=12, file="plot", nrow=4, ncol=3, wi=13.5, hgt=12, res=210, annotate)
 }
+\seealso{
+Other plot functions: \code{\link{bar_plot}},
+  \code{\link{box_plot}}, \code{\link{eman}},
+  \code{\link{hist_fun}}, \code{\link{multi_plot}},
+  \code{\link{qq_fun}}, \code{\link{qq_plot}}
+}

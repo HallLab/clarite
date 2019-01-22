@@ -6,7 +6,9 @@
 #' @export
 #' @family summary functions
 #' @examples
-#' sample_size(df)
+#' require(NHANES)
+#' data(NHANES)
+#' sample_size(NHANES)
 
 sample_size <- function(df) {
   t1 <- Sys.time()

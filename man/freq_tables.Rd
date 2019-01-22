@@ -17,5 +17,15 @@ Create frequency tables for each variable
 Gives the number of observations in each category for all variables in file
 }
 \examples{
-freq_tables(df)
+require(NHANES)
+data(NHANES)
+freq_tables(get_categorical(NHANES))
+}
+\seealso{
+Other summary functions: \code{\link{chisq_tests}},
+  \code{\link{correlations}}, \code{\link{get_uniq}},
+  \code{\link{outlier_impact}}, \code{\link{sample_size}}
+
+Other categorical variable functions: \code{\link{bar_plot}},
+  \code{\link{chisq_tests}}
 }

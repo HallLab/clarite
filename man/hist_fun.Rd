@@ -24,3 +24,14 @@ Dependencies: ggplot2, gridExtra
 \examples{
 hist_fun(d, i, annotate)
 }
+\seealso{
+Other plot functions: \code{\link{bar_plot}},
+  \code{\link{box_plot}}, \code{\link{eman}},
+  \code{\link{hist_plot}}, \code{\link{multi_plot}},
+  \code{\link{qq_fun}}, \code{\link{qq_plot}}
+
+Other continuous variable functions: \code{\link{box_plot}},
+  \code{\link{correlations}}, \code{\link{multi_plot}},
+  \code{\link{outlier_impact}}, \code{\link{qq_fun}},
+  \code{\link{qq_plot}}, \code{\link{remove_outliers}}
+}

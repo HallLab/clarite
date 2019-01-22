@@ -33,3 +33,14 @@ Dependencies: ggplot2, gridExtra
 \examples{
 qq_plot(d, n=12, file="plot", nrow=4, ncol=3, wi=13.5, hgt=12, res=210)
 }
+\seealso{
+Other plot functions: \code{\link{bar_plot}},
+  \code{\link{box_plot}}, \code{\link{eman}},
+  \code{\link{hist_fun}}, \code{\link{hist_plot}},
+  \code{\link{multi_plot}}, \code{\link{qq_fun}}
+
+Other continuous variable functions: \code{\link{box_plot}},
+  \code{\link{correlations}}, \code{\link{hist_fun}},
+  \code{\link{multi_plot}}, \code{\link{outlier_impact}},
+  \code{\link{qq_fun}}, \code{\link{remove_outliers}}
+}

@@ -40,3 +40,9 @@ Suggested: RColorBrewer
 \examples{
 eman(d, ewas=TRUE, groups=NULL, line, title=NULL, morecolors=FALSE, file="eman", hgt=7, wi=12, res=300 )
 }
+\seealso{
+Other plot functions: \code{\link{bar_plot}},
+  \code{\link{box_plot}}, \code{\link{hist_fun}},
+  \code{\link{hist_plot}}, \code{\link{multi_plot}},
+  \code{\link{qq_fun}}, \code{\link{qq_plot}}
+}

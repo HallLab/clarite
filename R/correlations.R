@@ -10,7 +10,9 @@
 #' @family summary functions
 #' @family continuous variable functions
 #' @examples
-#' correlations(df, x=0.75)
+#' require(NHANES)
+#' data(NHANES)
+#' correlations(get_continuous(NHANES))
 
 correlations <- function(df, x=0.75){
   t1 <- Sys.time()

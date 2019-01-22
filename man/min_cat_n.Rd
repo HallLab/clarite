@@ -18,5 +18,14 @@ data frame containing only those variables with at least n samples per factor le
 Keep variables with a minimum of n samples
 }
 \examples{
-min_cat_n(df, n)
+require(NHANES)
+data(NHANES)
+ncol(min_cat_n(get_categorical(NHANES)))
+}
+\seealso{
+Other filter functions: \code{\link{colfilter}},
+  \code{\link{get_binary}}, \code{\link{get_categorical}},
+  \code{\link{get_check}}, \code{\link{get_continuous}},
+  \code{\link{min_n}}, \code{\link{remove_outliers}},
+  \code{\link{rowfilter}}
 }

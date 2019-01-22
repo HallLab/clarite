@@ -16,5 +16,12 @@ data frame with two columns, one for variable name and one for number of unique 
 Get number of unique values in each column, not including 'NA'
 }
 \examples{
-get_uniq(df)
+require(NHANES)
+data(NHANES)
+get_uniq(NHANES)
+}
+\seealso{
+Other summary functions: \code{\link{chisq_tests}},
+  \code{\link{correlations}}, \code{\link{freq_tables}},
+  \code{\link{outlier_impact}}, \code{\link{sample_size}}
 }

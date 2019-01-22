@@ -7,7 +7,7 @@
 sample_size(df)
 }
 \arguments{
-\item{df}{data frame with IID as first column}
+\item{df}{data frame with ID as first column}
 }
 \value{
 data frame with two columns, "Variable" and "Sample_Size"
@@ -16,5 +16,12 @@ data frame with two columns, "Variable" and "Sample_Size"
 Create list of sample_sizes for each variable
 }
 \examples{
-sample_size(df)
+require(NHANES)
+data(NHANES)
+sample_size(NHANES)
+}
+\seealso{
+Other summary functions: \code{\link{chisq_tests}},
+  \code{\link{correlations}}, \code{\link{freq_tables}},
+  \code{\link{get_uniq}}, \code{\link{outlier_impact}}
 }

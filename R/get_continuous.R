@@ -9,7 +9,9 @@
 #' @export
 #' @family filter functions
 #' @examples
-#' get_continuous(df, lower=15)
+#' require(NHANES)
+#' data(NHANES)
+#' head(get_continuous(NHANES))
 
 get_continuous <- function(df, lower=15) {
   t1 <- Sys.time()

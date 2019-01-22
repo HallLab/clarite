@@ -18,5 +18,17 @@ data frame consisting of summary statistics for the input dataframe and potentia
 Create data frame with outliers and summary statistics for each variable
 }
 \examples{
-outlier_impact(df, x=2.5)
+require(NHANES)
+data(NHANES)
+outlier_impact(get_continuous(NHANES), x=3)
+}
+\seealso{
+Other summary functions: \code{\link{chisq_tests}},
+  \code{\link{correlations}}, \code{\link{freq_tables}},
+  \code{\link{get_uniq}}, \code{\link{sample_size}}
+
+Other continuous variable functions: \code{\link{box_plot}},
+  \code{\link{correlations}}, \code{\link{hist_fun}},
+  \code{\link{multi_plot}}, \code{\link{qq_fun}},
+  \code{\link{qq_plot}}, \code{\link{remove_outliers}}
 }

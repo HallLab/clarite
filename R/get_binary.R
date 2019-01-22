@@ -9,7 +9,9 @@
 #' @export
 #' @family filter functions
 #' @examples
-#' get_binary(df, lev=2)
+#' require(NHANES)
+#' data(NHANES)
+#' head(get_binary(NHANES))
 
 get_binary <- function(df, lev=2){
   t1 <- Sys.time()
