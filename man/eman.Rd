@@ -32,9 +32,9 @@ eman(d, ewas = TRUE, groups = NULL, line = NULL, title = NULL,
 png image(s)
 }
 \description{
-Create Manhattan plots for EWAS
-Note: There is an issue with dev.off() if using RStudio
-Dependencies: ggplot2
+Create Manhattan plots for EWAS\cr
+Note: There is an issue with dev.off() if using RStudio\cr
+Dependencies: ggplot2\cr
 Suggested: RColorBrewer
 }
 \examples{

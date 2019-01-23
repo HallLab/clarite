@@ -1,6 +1,6 @@
 #' recode_key
 #'
-#' Recode based on a data key if multiple columns have different missing values
+#' Recode based on a data key if multiple columns have different missing values\cr
 #' Note: this is not recommended if the value to replace is a float
 #' @param df data frame
 #' @param key data frame with two columns, "Variable" and "Missing Value"

@@ -15,7 +15,7 @@ recode_key(df, key)
 data frame with all missing values recoded to NA
 }
 \description{
-Recode based on a data key if multiple columns have different missing values
+Recode based on a data key if multiple columns have different missing values\cr
 Note: this is not recommended if the value to replace is a float
 }
 \examples{

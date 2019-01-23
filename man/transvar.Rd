@@ -15,7 +15,7 @@ transvar(df, key)
 data frame with the variables transformed according to the key
 }
 \description{
-Transform user list of columns and transform type for each column (sqrt,log)
+Transform user list of columns and transform type for each column (sqrt,log)\cr
 Can mix transform types but can only do one transform per variable at a time
 }
 \examples{

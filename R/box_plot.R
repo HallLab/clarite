@@ -1,7 +1,7 @@
 #' box_plot
 #'
-#' Create boxplots and choose number to display per page
-#' Note: There is an issue with dev.off() if using RStudio
+#' Create boxplots and choose number to display per page\cr
+#' Note: There is an issue with dev.off() if using RStudio\cr
 #' Dependencies: ggplot2, gridExtra
 #' @param d data frame
 #' @param n number of plots to display per page

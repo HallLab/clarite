@@ -1,7 +1,7 @@
 #' chisq_tests
 #'
-#' Create table of chi-square tests for each variable
-#' @param df data frame, with ID as first column
+#' Create table of chi-square tests for each variable\cr
+#' @param df data frame, with ID as first column\cr
 #' @return data frame with two columns, Variable and P.Value
 #' @export
 #' @family summary functions

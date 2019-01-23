@@ -15,8 +15,8 @@ correlations(df, x = 0.75)
 data frame with three columns, Variable 1, Variable 2, and the correlation between Variable 1 and Variable 2
 }
 \description{
-Identify variables that are correlated above a certain threshold
-Note: Uses Pearson/pairwise.complete.obs in the base R cor function
+Identify variables that are correlated above a certain threshold\cr
+Note: Uses Pearson/pairwise.complete.obs in the base R cor function\cr
 Note: A threshold of 0.75 also includes variables with a negative correlation stronger than -0.5
 }
 \examples{

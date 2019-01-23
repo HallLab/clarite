@@ -1,7 +1,7 @@
 #' multi_plot
 #'
-#' Create multiple types of plots on the same page
-#' Note: There is an issue with dev.off() if using RStudio
+#' Create multiple types of plots on the same page\cr
+#' Note: There is an issue with dev.off() if using RStudio\cr
 #' Dependencies: ggplot2, gridExtra
 #' @param d data frame
 #' @param n number of variables to display per page

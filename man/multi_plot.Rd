@@ -32,8 +32,8 @@ multi_plot(d, n = 6, file = "plot", nrow = 3, ncol = 2, wi = 13.5,
 png image(s)
 }
 \description{
-Create multiple types of plots on the same page
-Note: There is an issue with dev.off() if using RStudio
+Create multiple types of plots on the same page\cr
+Note: There is an issue with dev.off() if using RStudio\cr
 Dependencies: ggplot2, gridExtra
 }
 \examples{

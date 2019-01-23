@@ -15,8 +15,8 @@ get_continuous(df, lower = 15)
 data frame containing only ID and variables meeting the criteria
 }
 \description{
-Identify continuous variables from a data frame of mixed variable types
-Comparison operators used are >=
+Identify continuous variables from a data frame of mixed variable types\cr
+Comparison operators used are >=\cr
 NA values do not contribute to level counts
 }
 \examples{

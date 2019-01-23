@@ -17,8 +17,8 @@ get_categorical(df, lower = 3, upper = 6)
 data frame containing only ID and variables meeting the criteria
 }
 \description{
-Identify categorical variables from a data frame of mixed variable types
-Comparison operators used are <= and >=
+Identify categorical variables from a data frame of mixed variable types\cr
+Comparison operators used are <= and >=\cr
 NA values do not contribute to level counts
 }
 \examples{

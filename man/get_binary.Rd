@@ -15,8 +15,8 @@ get_binary(df, lev = 2)
 data frame containing only ID and variables with the number of levels specified
 }
 \description{
-Identify binary variables from a data frame of mixed variable types
-Comparison operator used is =
+Identify binary variables from a data frame of mixed variable types\cr
+Comparison operator used is =\cr
 NA values do not contribute to level counts
 }
 \examples{

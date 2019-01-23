@@ -1,6 +1,6 @@
 #' remove_outliers
 #'
-#' Remove outliers from data frame
+#' Remove outliers from data frame\cr
 #' This function does not remove the entire row of data, only replaces the outlier value with NA in a particular column
 #' @param df data frame with first column as ID
 #' @param x number of standard deviations from the mean to qualify as an outlier

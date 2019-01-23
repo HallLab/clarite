@@ -15,7 +15,7 @@ remove_outliers(df, x = 2.5)
 data frame with outlier values within each column replaced with NA
 }
 \description{
-Remove outliers from data frame
+Remove outliers from data frame\cr
 This function does not remove the entire row of data, only replaces the outlier value with NA in a particular column
 }
 \examples{

@@ -1,7 +1,7 @@
 #' get_continuous
 #'
-#' Identify continuous variables from a data frame of mixed variable types
-#' Comparison operators used are >=
+#' Identify continuous variables from a data frame of mixed variable types\cr
+#' Comparison operators used are >=\cr
 #' NA values do not contribute to level counts
 #' @param df data frame of mixed variable types
 #' @param lower minimum number of unique values to be considered continuous

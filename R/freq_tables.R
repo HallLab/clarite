@@ -1,6 +1,6 @@
 #' freq_tables
 #'
-#' Create frequency tables for each variable
+#' Create frequency tables for each variable\cr
 #' Gives the number of observations in each category for all variables in file
 #' @param df data frame with ID as first column
 #' @return data frame with three columns, Variable, Category, and N

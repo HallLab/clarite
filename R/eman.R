@@ -1,8 +1,8 @@
 #' eman
 #'
-#' Create Manhattan plots for EWAS
-#' Note: There is an issue with dev.off() if using RStudio
-#' Dependencies: ggplot2
+#' Create Manhattan plots for EWAS\cr
+#' Note: There is an issue with dev.off() if using RStudio\cr
+#' Dependencies: ggplot2\cr
 #' Suggested: RColorBrewer
 #' @param d data frame, if ewas=FALSE columns one and two must be Variable and pvalue, Shape is optional 3rd column
 #' @param ewas boolean if d frame is in ewas output format, default TRUE

@@ -1,6 +1,6 @@
 #' transvar
 #'
-#' Transform user list of columns and transform type for each column (sqrt,log)
+#' Transform user list of columns and transform type for each column (sqrt,log)\cr
 #' Can mix transform types but can only do one transform per variable at a time
 #' @param df data frame
 #' @param key data frame with columns for variable and transform type

@@ -13,7 +13,7 @@ freq_tables(df)
 data frame with three columns, Variable, Category, and N
 }
 \description{
-Create frequency tables for each variable
+Create frequency tables for each variable\cr
 Gives the number of observations in each category for all variables in file
 }
 \examples{

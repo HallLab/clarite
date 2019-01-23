@@ -1,6 +1,6 @@
 #' recode_missing
 #'
-#' Recode if there is one missing value for entire dataset
+#' Recode if there is one missing value for entire dataset\cr
 #' Note: this is not recommended if the value to be changed to NA is a float
 #' @param df data frame
 #' @param na_val value to replace with NA

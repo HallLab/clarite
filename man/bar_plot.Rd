@@ -28,8 +28,8 @@ bar_plot(d, n = 12, file = "plot", nrow = 4, ncol = 3, wi = 13.5,
 png image(s)
 }
 \description{
-Create barcharts and choose number to display per page
-Note: There is an issue with dev.off() if using RStudio
+Create barcharts and choose number to display per page\cr
+Note: There is an issue with dev.off() if using RStudio\cr
 Dependencies: ggplot2, gridExtra
 }
 \examples{

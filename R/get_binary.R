@@ -1,7 +1,7 @@
 #' get_binary
 #'
-#' Identify binary variables from a data frame of mixed variable types
-#' Comparison operator used is =
+#' Identify binary variables from a data frame of mixed variable types\cr
+#' Comparison operator used is =\cr
 #' NA values do not contribute to level counts
 #' @param df data frame of mixed variable types
 #' @param lev number of levels desired

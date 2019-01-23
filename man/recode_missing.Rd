@@ -15,7 +15,7 @@ recode_missing(df, na_val)
 data frame with missing value recoded to NA
 }
 \description{
-Recode if there is one missing value for entire dataset
+Recode if there is one missing value for entire dataset\cr
 Note: this is not recommended if the value to be changed to NA is a float
 }
 \examples{

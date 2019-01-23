@@ -1,7 +1,7 @@
 #' hist_plot
 #'
-#' Create histograms for each column of a data frame
-#' Note: There is an issue with dev.off() if using RStudio
+#' Create histograms for each column of a data frame\cr
+#' Note: There is an issue with dev.off() if using RStudio\cr
 #' Dependencies: ggplot2, gridExtra
 #' @param d data frame with variables only
 #' @param n number of plots to display per page

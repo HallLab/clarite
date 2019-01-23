@@ -7,13 +7,13 @@
 chisq_tests(df)
 }
 \arguments{
-\item{df}{data frame, with ID as first column}
+\item{df}{data frame, with ID as first column\cr}
 }
 \value{
 data frame with two columns, Variable and P.Value
 }
 \description{
-Create table of chi-square tests for each variable
+Create table of chi-square tests for each variable\cr
 }
 \examples{
 \dontrun{

@@ -1,7 +1,7 @@
 #' correlations
 #'
-#' Identify variables that are correlated above a certain threshold
-#' Note: Uses Pearson/pairwise.complete.obs in the base R cor function
+#' Identify variables that are correlated above a certain threshold\cr
+#' Note: Uses Pearson/pairwise.complete.obs in the base R cor function\cr
 #' Note: A threshold of 0.75 also includes variables with a negative correlation stronger than -0.5
 #' @param df data frame
 #' @param x correlation threshold, -1 <= x <= 1
