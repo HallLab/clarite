@@ -13,11 +13,15 @@ visualizing the results.
 
 A development version of the package can be installed using devtools.
 
-```devtools::install_github('HallLab/clarite')```
+`devtools::install_github('HallLab/clarite')`
 
-There also exists a beta version of a GUI for clarite, ```clarite.py```, which is written in Python 2.7 
+There also exists a beta version of a GUI for clarite, `clarite.py`, which is written in Python 2.7 
 and will call R functions in the background.
 
 ## Example Workflow
+
+The following image depicts a typical workflow for a project from raw data stage to analysis, in this case an
+Environment-Wide Association Study, and results visualization, all of which can be performed using the `clarite`
+package.
 
 ![Image](https://github.com/RitchieLab/utility/blob/master/personal/ana/images/clariteworkflow.svg)
