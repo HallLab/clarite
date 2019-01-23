@@ -1,6 +1,6 @@
 Package: clarite
 Title: CLeaning to Anlaysis: Reproducibility-based Interface for Traits and Exposures
-Version: 0.0.0.9000
+Version: 1.0.0
 Authors@R: c(person("Anastasia", "Lucas", email = "anastasia.lucas.bioinfo@gmail.com", role = c("aut", "cre")),
 	     person("Deven", "Orie", email = "deven.orie@gmail.com", role = "ctb"))
 Maintainer: Molly Hall <mah546@psu.edu>
