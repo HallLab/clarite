@@ -17,3 +17,7 @@ A development version of the package can be installed using devtools.
 
 There also exists a beta version of a GUI for clarite, ```clarite.py```, which is written in Python 2.7 
 and will call R functions in the background.
+
+## Example Workflow
+
+![Image](https://github.com/RitchieLab/utility/blob/master/personal/ana/images/clariteworkflow.svg)
