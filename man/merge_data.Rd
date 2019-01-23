@@ -20,5 +20,7 @@ data frame containing merged data
 Merge two datasets
 }
 \examples{
+\dontrun{
 merge_data(df1, df2, union=TRUE)
+}
 }

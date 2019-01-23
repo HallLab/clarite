@@ -25,7 +25,7 @@ correlations <- function(df, x=0.75){
   class(df) <- "numeric"
 
   #Make correlation matrix
-  m <- cor(df, use="pairwise.complete.obs")
+  m <- stats::cor(df, use="pairwise.complete.obs")
   d <- data.frame(Cor=as.vector(m), Var1=rownames(m), Var2=rep(rownames(m), each=nrow(m)))
   #Only use the upper triangle
   d <- d[as.vector(upper.tri(m, TRUE)),]

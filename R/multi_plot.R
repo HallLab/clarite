@@ -12,12 +12,15 @@
 #' @param res resolution of plot
 #' @param type sepcify plot type 'hist-qq, box-qq, hist-box, hist-box-qq'
 #' @param annotate optional data frame with clinical lab information
+#' @param file filename of output
 #' @return png image(s)
 #' @export
 #' @family plot functions
 #' @family continuous variable functions
 #' @examples
+#' \dontrun{
 #' multi_plot(d, n=6, file="plot", nrow=3, ncol=2, wi=13.5, hgt=9, res=210, type="hist-qq", annotate)
+#' }
 
 multi_plot <- function(d, n=6, file="plot", nrow=3, ncol=2, wi=13.5, hgt=9, res=210, type, annotate) {
   t1 <- Sys.time()

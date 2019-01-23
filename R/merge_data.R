@@ -7,7 +7,9 @@
 #' @return data frame containing merged data
 #' @export
 #' @examples
+#' \dontrun{
 #' merge_data(df1, df2, union=TRUE)
+#' }
 
 merge_data <- function(df1, df2, union=TRUE){
   t1 <- Sys.time()

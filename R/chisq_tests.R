@@ -7,7 +7,9 @@
 #' @family summary functions
 #' @family categorical variable functions
 #' @examples
+#' \dontrun{
 #' chisq_tests(df)
+#' }
 
 chisq_tests <- function(df) {
   t1 <- Sys.time()
@@ -19,7 +21,7 @@ chisq_tests <- function(df) {
 
   chi <- function(v){
     freq_tab <- table(v)
-    chisq <- chisq.test(freq_tab)
+    chisq <- stats::chisq.test(freq_tab)
     return(chisq$p.value)
   }
 

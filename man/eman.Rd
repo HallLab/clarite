@@ -38,7 +38,10 @@ Dependencies: ggplot2
 Suggested: RColorBrewer
 }
 \examples{
-eman(d, ewas=TRUE, groups=NULL, line, title=NULL, morecolors=FALSE, file="eman", hgt=7, wi=12, res=300 )
+\dontrun{
+eman(d, ewas=TRUE, groups=NULL, line, title=NULL, morecolors=FALSE, 
+file="eman", hgt=7, wi=12, res=300 )
+}
 }
 \seealso{
 Other plot functions: \code{\link{bar_plot}},

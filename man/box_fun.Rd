@@ -21,6 +21,3 @@ Create boxplots and choose number to display per page
 Note: There is an issue with dev.off() if using RStudio
 Dependencies: ggplot2, gridExtra
 }
-\examples{
-box_fun(d, i, annotate)
-}

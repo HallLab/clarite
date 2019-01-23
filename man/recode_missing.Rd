@@ -19,5 +19,7 @@ Recode if there is one missing value for entire dataset
 Note: this is not recommended if the value to be changed to NA is a float
 }
 \examples{
+\dontrun{
 recode_missing(df, na_val)
+}
 }

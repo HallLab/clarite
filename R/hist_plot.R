@@ -11,12 +11,16 @@
 #' @param hgt height of plot
 #' @param res resolution of plot
 #' @param annotate optional data frame containing annotation information
+#' @param file filename of output
 #' @return png image(s)
 #' @export
 #' @family plot functions
 #' @family continuous data functions
 #' @examples
+#' \dontrun{
 #' hist_plot(d, n=12, file="plot", nrow=4, ncol=3, wi=13.5, hgt=12, res=210, annotate)
+#' }
+
 hist_plot <- function(d, n=12, file="plot", nrow=4, ncol=3, wi=13.5, hgt=12, res=300, annotate) {
   t1 <- Sys.time()
 

@@ -18,7 +18,10 @@
 #' @export
 #' @family plot functions
 #' @examples
-#' eman(d, ewas=TRUE, groups=NULL, line, title=NULL, morecolors=FALSE, file="eman", hgt=7, wi=12, res=300 )
+#' \dontrun{
+#' eman(d, ewas=TRUE, groups=NULL, line, title=NULL, morecolors=FALSE, 
+#'	file="eman", hgt=7, wi=12, res=300 )
+#' }
 
 eman <- function(d, ewas=TRUE, groups=NULL, line=NULL, title=NULL, morecolors=FALSE, file="eman", hgt=7, wi=12, res=300){
   t1 <- Sys.time()

@@ -11,7 +11,9 @@
 #' @export
 #' @family analysis functions
 #' @examples
+#' \dontrun{
 #' ewas(cat, cont, y, cov, regress, adjust)
+#' }
 
 ewas <- function(cat=NULL, cont=NULL, y, cov=NULL, regress, adjust){
   t1 <- Sys.time()

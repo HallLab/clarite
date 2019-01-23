@@ -7,7 +7,9 @@
 #' @return data frame with all missing values recoded to NA
 #' @export
 #' @examples
+#' \dontrun{
 #' recode_key(df, key)
+#' }
 
 recode_key <- function(df, key) {
   t1 <- Sys.time()

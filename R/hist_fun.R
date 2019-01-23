@@ -7,11 +7,9 @@
 #' @param i column name
 #' @param annotate optional data frame of annotation information in the following format (order is important): Variable, Norm_min, Norm_max, Min, Max
 #' @return ggplot object
-#' @export
 #' @family plot functions
 #' @family continuous variable functions
-#' @examples
-#' hist_fun(d, i, annotate)
+
 hist_fun <- function(d, i, annotate) {
   if (!requireNamespace(c("ggplot2", "gridExtra"), quietly = TRUE)==TRUE) {
     stop("Please install ggplot2 and gridExtra to create visualization.", call. = FALSE)

@@ -26,5 +26,7 @@ data frame containing following fields Variable, Sample Size, Converged, SE, Bet
 Run environment-wide association study
 }
 \examples{
+\dontrun{
 ewas(cat, cont, y, cov, regress, adjust)
+}
 }

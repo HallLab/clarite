@@ -10,8 +10,6 @@ qq_fun(d, i)
 \item{d}{data frame}
 
 \item{i}{column name}
-
-\item{annotate}{optional data frame of annotation information}
 }
 \value{
 ggplot object
@@ -20,9 +18,6 @@ ggplot object
 Create qqplots and choose number to display per page
 Note: There is an issue with dev.off() if using RStudio
 Dependencies: ggplot2, gridExtra
-}
-\examples{
-qq_fun(d, i, annotate)
 }
 \seealso{
 Other plot functions: \code{\link{bar_plot}},

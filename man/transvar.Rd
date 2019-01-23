@@ -19,5 +19,7 @@ Transform user list of columns and transform type for each column (sqrt,log)
 Can mix transform types but can only do one transform per variable at a time
 }
 \examples{
+\dontrun{
 transvar(df, key)
+}
 }

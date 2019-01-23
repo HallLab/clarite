@@ -21,9 +21,6 @@ Create histograms and choose number to display per page
 Note: There is an issue with dev.off() if using RStudio
 Dependencies: ggplot2, gridExtra
 }
-\examples{
-hist_fun(d, i, annotate)
-}
 \seealso{
 Other plot functions: \code{\link{bar_plot}},
   \code{\link{box_plot}}, \code{\link{eman}},

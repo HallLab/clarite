@@ -1,10 +1,11 @@
 #' get_check
 #'
 #' Identify ambiguous type variables from a data frame of mixed variable types
-#' Comparison operators used are < and >
+#' Comparison operators used are =
 #' NA values do not contribute to level counts
 #' @param df data frame of mixed variable types
-#' @param lev number of levels desired
+#' @param lower lower bound of unique values
+#' @param upper upper bound of unique values
 #' @return data frame containing only ID and variables meeting criteria, which should then be assessed manually
 #' @export
 #' @family filter functions

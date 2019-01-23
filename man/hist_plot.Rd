@@ -12,6 +12,8 @@ hist_plot(d, n = 12, file = "plot", nrow = 4, ncol = 3, wi = 13.5,
 
 \item{n}{number of plots to display per page}
 
+\item{file}{filename of output}
+
 \item{nrow}{number of rows to display per page}
 
 \item{ncol}{number of columns to display per page}
@@ -33,7 +35,9 @@ Note: There is an issue with dev.off() if using RStudio
 Dependencies: ggplot2, gridExtra
 }
 \examples{
+\dontrun{
 hist_plot(d, n=12, file="plot", nrow=4, ncol=3, wi=13.5, hgt=12, res=210, annotate)
+}
 }
 \seealso{
 Other plot functions: \code{\link{bar_plot}},

@@ -12,6 +12,8 @@ multi_plot(d, n = 6, file = "plot", nrow = 3, ncol = 2, wi = 13.5,
 
 \item{n}{number of variables to display per page}
 
+\item{file}{filename of output}
+
 \item{nrow}{number of variables per row}
 
 \item{ncol}{number of variables per column}
@@ -35,7 +37,9 @@ Note: There is an issue with dev.off() if using RStudio
 Dependencies: ggplot2, gridExtra
 }
 \examples{
+\dontrun{
 multi_plot(d, n=6, file="plot", nrow=3, ncol=2, wi=13.5, hgt=9, res=210, type="hist-qq", annotate)
+}
 }
 \seealso{
 Other plot functions: \code{\link{bar_plot}},

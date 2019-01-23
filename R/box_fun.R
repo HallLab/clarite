@@ -7,9 +7,7 @@
 #' @param i column index
 #' @param annotate optional data frame with annotation information in the following format (order is important): Variable, Norm_min, Norm_max, Min, Max
 #' @return png image(s)
-#' @export
-#' @examples
-#' box_fun(d, i, annotate)
+
 box_fun <- function(d, i, annotate) {
   if (!requireNamespace(c("ggplot2", "gridExtra"), quietly = TRUE)==TRUE) {
     stop("Please install ggplot2 and gridExtra to create visualization.", call. = FALSE)

@@ -7,7 +7,9 @@
 #' @return data frame with the variables transformed according to the key
 #' @export
 #' @examples
+#' \dontrun{
 #' transvar(df, key)
+#' }
 
 transvar <- function(df, key) {
   t1 <- Sys.time()

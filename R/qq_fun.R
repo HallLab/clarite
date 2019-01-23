@@ -5,13 +5,9 @@
 #' Dependencies: ggplot2, gridExtra
 #' @param d data frame
 #' @param i column name
-#' @param annotate optional data frame of annotation information
 #' @return ggplot object
-#' @export
 #' @family plot functions
 #' @family continuous variable functions
-#' @examples
-#' qq_fun(d, i, annotate)
 
 qq_fun <- function(d, i) {
   if (!requireNamespace(c("ggplot2", "gridExtra"), quietly = TRUE)) {

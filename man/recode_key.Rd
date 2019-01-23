@@ -19,5 +19,7 @@ Recode based on a data key if multiple columns have different missing values
 Note: this is not recommended if the value to replace is a float
 }
 \examples{
+\dontrun{
 recode_key(df, key)
+}
 }

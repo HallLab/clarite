@@ -9,14 +9,16 @@ get_check(df, lower = 6, upper = 15)
 \arguments{
 \item{df}{data frame of mixed variable types}
 
-\item{lev}{number of levels desired}
+\item{lower}{lower bound of unique values}
+
+\item{upper}{upper bound of unique values}
 }
 \value{
 data frame containing only ID and variables meeting criteria, which should then be assessed manually
 }
 \description{
 Identify ambiguous type variables from a data frame of mixed variable types
-Comparison operators used are < and >
+Comparison operators used are =
 NA values do not contribute to level counts
 }
 \examples{

@@ -7,7 +7,9 @@
 #' @return data frame with missing value recoded to NA
 #' @export
 #' @examples
+#' \dontrun{
 #' recode_missing(df, na_val)
+#' }
 
 recode_missing <- function(df, na_val) {
   t1 <- Sys.time()

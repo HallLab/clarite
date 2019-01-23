@@ -16,7 +16,9 @@ data frame with two columns, Variable and P.Value
 Create table of chi-square tests for each variable
 }
 \examples{
+\dontrun{
 chisq_tests(df)
+}
 }
 \seealso{
 Other summary functions: \code{\link{correlations}},
