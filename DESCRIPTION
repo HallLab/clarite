@@ -5,7 +5,7 @@ Authors@R: c(person("Anastasia", "Lucas", email = "anastasia.lucas.bioinfo@gmail
 	     person("Deven", "Orie", email = "deven.orie@gmail.com", role = "ctb"))
 Maintainer: Molly Hall <mah546@psu.edu>
 BugReports: https://github.com/HallLab/clarite/issues
-Description: The goal of clarite is to guide a dataset from the “raw” data stage to EWAS analysis and 
+Description: The goal of 'clarite' is to guide a dataset from the raw data stage to EWAS analysis and 
 	     subsequent visualization of results. The package is designed to lead a user through the 
 	     stages of data cleaning: from generating descriptive statistics, to making QC decisions 
 	     informed by the descriptive statistics, to running analyses on the filtered dataset and 
