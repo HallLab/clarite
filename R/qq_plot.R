@@ -65,7 +65,7 @@ qq_plot <- function(d, n=12, file="plot", nrow=4, ncol=3, wi=13.5, hgt=12, res=3
 
       #Explicitly set aes to look in local environment due to bug in ggplot
       q <- ggplot2::ggplot(d, aes(sample=d[[v]]), environment=environment()) + ggplot2::geom_point(stat="qq", na.rm=TRUE) + ggplot2::labs(x="Sample", y="Theoretical")
-      q <- q + ggplot2::ggtitle(bquote(atop(.(v), atop(.(sumstr), "")))) + qqplot2::stat_qq(alpha=0.5) + ggplot2::geom_abline(slope=slope, intercept=int, colour="black") + ggplot2::theme(plot.title=ggplot2::element_text(size=9), axis.title=ggplot2::element_text(size=8))
+      q <- q + ggplot2::ggtitle(bquote(atop(.(v), atop(.(sumstr), "")))) + ggplot2::stat_qq(alpha=0.5) + ggplot2::geom_abline(slope=slope, intercept=int, colour="black") + ggplot2::theme(plot.title=ggplot2::element_text(size=9), axis.title=ggplot2::element_text(size=8))
 
       print(q)
       plots[[lst_indx]] <- gridExtra::grid.arrange(q, ncol=1)

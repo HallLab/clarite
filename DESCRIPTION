@@ -11,7 +11,6 @@ Description: The goal of 'clarite' is to guide a dataset from the raw data stage
 	     informed by the descriptive statistics, to running analyses on the filtered dataset and 
 	     visualizing the results.
 Depends: R (>= 3.2.1)
-Imports: stats
 Suggests: ggplot2, gridExtra, RColorBrewer, NHANES
 License: GPL-3
 Encoding: UTF-8
