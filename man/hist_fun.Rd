@@ -17,9 +17,9 @@ hist_fun(d, i, annotate)
 ggplot object
 }
 \description{
-Create histograms and choose number to display per page
-Note: There is an issue with dev.off() if using RStudio
-Dependencies: ggplot2, gridExtra
+Create histograms and choose number to display per page\cr
+Note: Call quatrz() prior to plottting in RStudio\cr
+Dependencies: ggplot2
 }
 \seealso{
 Other plot functions: \code{\link{bar_plot}},

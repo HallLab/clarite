@@ -31,7 +31,7 @@ png image(s)
 }
 \description{
 Create boxplots and choose number to display per page\cr
-Note: There is an issue with dev.off() if using RStudio\cr
+Note: Call quatrz() prior to plottting in RStudio\cr
 Dependencies: ggplot2, gridExtra
 }
 \examples{

@@ -56,25 +56,25 @@ qq_plot <- function(d, n=12, file="plot", nrow=4, ncol=3, wi=13.5, hgt=12, res=3
 
       v <- names(d[i])
       smpls <- length(d[[v]][!is.na(d[[v]])])
-      std <- sd(d[[i]], na.rm=TRUE)
+      std <- stats::sd(d[[i]], na.rm=TRUE)
       sumstr <- paste("Sample Size = ", smpls, ", Std.Dev. = ", format(std, digits=4), sep="")
-      y <- quantile(d[[v]][!is.na(d[[v]])], c(0.25, 0.75))
-      x <- qnorm(c(0.25, 0.75))
+      y <- stats::quantile(d[[v]][!is.na(d[[v]])], c(0.25, 0.75))
+      x <- stats::qnorm(c(0.25, 0.75))
       slope <- diff(y)/diff(x)
       int <- y[1L] - slope * x[1L]
 
       #Explicitly set aes to look in local environment due to bug in ggplot
-      q <- ggplot2::ggplot(d, aes(sample=d[[v]]), environment=environment()) + ggplot2::geom_point(stat="qq", na.rm=TRUE) + labs(x="Sample", y="Theoretical")
-      q <- q + ggplot2::ggtitle(bquote(atop(.(v), atop(.(sumstr), "")))) + qqplot2::stat_qq(alpha=0.5) + ggplot2::geom_abline(slope=slope, intercept=int, colour="black") + ggplot2::theme(plot.title=element_text(size=9), axis.title=element_text(size=8))
+      q <- ggplot2::ggplot(d, aes(sample=d[[v]]), environment=environment()) + ggplot2::geom_point(stat="qq", na.rm=TRUE) + ggplot2::labs(x="Sample", y="Theoretical")
+      q <- q + ggplot2::ggtitle(bquote(atop(.(v), atop(.(sumstr), "")))) + qqplot2::stat_qq(alpha=0.5) + ggplot2::geom_abline(slope=slope, intercept=int, colour="black") + ggplot2::theme(plot.title=ggplot2::element_text(size=9), axis.title=ggplot2::element_text(size=8))
 
       print(q)
       plots[[lst_indx]] <- gridExtra::grid.arrange(q, ncol=1)
       lst_indx <- lst_indx + 1
     }
 
-    png(paste(file, "_qqplot_", j, ".png", sep=""), width=wi, height=hgt, units="in", res=210, pointsize=4)
+    grDevices::png(paste(file, "_qqplot_", j, ".png", sep=""), width=wi, height=hgt, units="in", res=210, pointsize=4)
     do.call("gridExtra::grid.arrange", c(plots, ncol=ncol))
-    dev.off()
+    grDevices::dev.off()
     print(paste("Printing image", j, "of", iter, sep=" "))
 
     k <- inc + 1

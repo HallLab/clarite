@@ -1,8 +1,8 @@
 #' multi_plot
 #'
 #' Create multiple types of plots on the same page\cr
-#' Note: There is an issue with dev.off() if using RStudio\cr
-#' Dependencies: ggplot2, gridExtra
+#' Note: Call quatrz() prior to plottting in RStudio\cr
+#' Dependencies: gridExtra
 #' @param d data frame
 #' @param n number of variables to display per page
 #' @param nrow number of variables per row
@@ -25,12 +25,12 @@
 multi_plot <- function(d, n=6, file="plot", nrow=3, ncol=2, wi=13.5, hgt=9, res=210, type, annotate) {
   t1 <- Sys.time()
 
-  if (!requireNamespace("ggplot2", quietly = TRUE)==TRUE|!requireNamespace("gridExtra", quietly = TRUE)==TRUE) {
-    stop("Please install ggplot2 and gridExtra to create visualization.", call. = FALSE)
-  } else {
-    packages = c("ggplot2", "gridExtra")
-    lapply(packages, library, character.only = TRUE)
-  }
+  if (!requireNamespace("gridExtra", quietly = TRUE)==TRUE) {
+    stop("Please install gridExtra to create visualization.", call. = FALSE)
+  } #else {
+    #packages = c("ggplot2", "gridExtra")
+    #lapply(packages, library, character.only = TRUE)
+  #}
 
 
   if(is.element('ID', names(d))==FALSE){
@@ -53,7 +53,7 @@ multi_plot <- function(d, n=6, file="plot", nrow=3, ncol=2, wi=13.5, hgt=9, res=
 
   if(!missing(annotate)){
     #Add clinical lab information
-    c <- setNames(data.frame(t(annotate[,-1])), annotate[,1])
+    c <- stats::setNames(data.frame(t(annotate[,-1])), annotate[,1])
   } else {
     print("No annotations available")
   }
@@ -82,24 +82,24 @@ multi_plot <- function(d, n=6, file="plot", nrow=3, ncol=2, wi=13.5, hgt=9, res=
       }
 
       if(length(grep("hist-qq", type))!=0){
-	plots[[lst_indx]] <- grid.arrange(h, q, ncol=2)
+	plots[[lst_indx]] <- gridExtra::grid.arrange(h, q, ncol=2)
       }
       if(length(grep("hist-box", type))!=0){
-	plots[[lst_indx]] <- grid.arrange(h, b, ncol=2)
+	plots[[lst_indx]] <- gridExtra::grid.arrange(h, b, ncol=2)
       }
       if(length(grep("box-qq", type))!=0){
-	plots[[lst_indx]] <- grid.arrange(b, q, ncol=2)
+	plots[[lst_indx]] <- gridExtra::grid.arrange(b, q, ncol=2)
       }
       if(length(grep("hist-box-qq", type))!=0){
-        plots[[lst_indx]] <- grid.arrange(h, b, q, ncol=3)
+        plots[[lst_indx]] <- gridExtra::grid.arrange(h, b, q, ncol=3)
       }
 
       lst_indx <- lst_indx + 1
     }
 
-    png(paste(file, "_", type, "_", j, ".png", sep=""), width=wi, height=hgt, units="in", res=res, pointsize=4)
-    do.call("grid.arrange", c(plots, ncol=ncol))
-    dev.off()
+    grDevices::png(paste(file, "_", type, "_", j, ".png", sep=""), width=wi, height=hgt, units="in", res=res, pointsize=4)
+    do.call("gridExtra::grid.arrange", c(plots, ncol=ncol))
+    grDevices::dev.off()
     print(paste("Printing image", j, "of", iter, sep=" "))
 
     k <- inc + 1

@@ -19,7 +19,7 @@
 #' @family plot functions
 #' @examples
 #' \dontrun{
-#' eman(d, ewas=TRUE, groups=NULL, line, title=NULL, morecolors=FALSE, 
+#' eman(d, ewas=TRUE, groups=NULL, line, title=NULL, morecolors=FALSE,
 #'	file="eman", hgt=7, wi=12, res=300 )
 #' }
 
@@ -29,9 +29,9 @@ eman <- function(d, ewas=TRUE, groups=NULL, line=NULL, title=NULL, morecolors=FA
 
   if (!requireNamespace(c("ggplot2"), quietly = TRUE)==TRUE) {
     stop("Please install ggplot2 to create visualization.", call. = FALSE)
-  } else {
-    require("ggplot2")
-  }
+  } #else {
+    #require("ggplot2")
+  #}
 
   if(ewas==TRUE){
     if("Variable_pvalue" %in% names(d) & "LRT_pvalue" %in% names(d)){
@@ -45,10 +45,10 @@ eman <- function(d, ewas=TRUE, groups=NULL, line=NULL, title=NULL, morecolors=FA
 
   if(is.null(groups)==TRUE){
     if("Shape" %in% names(d)){
-      p <- ggplot() + geom_point(data=d, aes(x=factor(Variable), y=-log10(pvalue), shape=factor(Shape)))
-      p <- p + theme(axis.text.x = element_text(angle=90), axis.title.x=element_blank(), legend.position="bottom", legend.title=element_blank())
+      p <- ggplot2::ggplot() + ggplot2::geom_point(data=d, aes(x=factor(Variable), y=-log10(pvalue), shape=factor(Shape)))
+      p <- p + ggplot2::theme(axis.text.x = ggplot2::element_text(angle=90), axis.title.x=ggplot2::element_blank(), legend.position="bottom", legend.title=ggplot2::element_blank())
     } else {
-      p <- ggplot(d, aes(x=factor(Variable), y=-log10(pvalue))) + geom_point() + theme(axis.text.x = element_text(angle=90), axis.title.x=element_blank())
+      p <- ggplot2::ggplot(d, aes(x=factor(Variable), y=-log10(pvalue))) + ggplot2::geom_point() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle=90), axis.title.x=ggplot2::element_blank())
     }
   } else {
 
@@ -80,10 +80,10 @@ eman <- function(d, ewas=TRUE, groups=NULL, line=NULL, title=NULL, morecolors=FA
     if(morecolors==TRUE){
       if (!requireNamespace(c("RColorBrewer"), quietly = TRUE)==TRUE) {
         stop("Please install RColorBrewer to add color attribute.", call. = FALSE)
-      }else {
-        require("RColorBrewer")
-      }
-      getPalette = colorRampPalette(brewer.pal(11, "Spectral"))
+      }#else {
+       # require("RColorBrewer")
+      #}
+      getPalette = grDevices::colorRampPalette(RColorBrewer::brewer.pal(11, "Spectral"))
       newcols <- c(getPalette(ncolors), "#EBEBEB", "#FFFFFF")
     } else {
       newcols <-c(rep(x=c("#53868B", "#4D4D4D"), length.out=ncolors, each=1), "#EBEBEB", "#FFFFFF")
@@ -91,28 +91,28 @@ eman <- function(d, ewas=TRUE, groups=NULL, line=NULL, title=NULL, morecolors=FA
     names(newcols) <-c(levels(factor(lims$Color)), levels(factor(lims$shademap)))
 
     #Start plotting
-    p <- ggplot() + geom_rect(data = lims, aes(xmin = posmin-.5, xmax = posmax+.5, ymin = 0, ymax = Inf, fill=factor(shademap)), alpha = 0.5)
+    p <- ggplot2::ggplot() + ggplot2::geom_rect(data = lims, aes(xmin = posmin-.5, xmax = posmax+.5, ymin = 0, ymax = Inf, fill=factor(shademap)), alpha = 0.5)
     #Add shape info if available
     if("Shape" %in% names(dg)){
-      p <- p + geom_point(data=dg_order, aes(x=pos_index, y=-log10(pvalue), color=Color, shape=factor(Shape)))
+      p <- p + ggplot2::geom_point(data=dg_order, aes(x=pos_index, y=-log10(pvalue), color=Color, shape=factor(Shape)))
     } else {
-      p <- p + geom_point(data=dg_order, aes(x=pos_index, y=-log10(pvalue), color=Color))
+      p <- p + ggplot2::geom_point(data=dg_order, aes(x=pos_index, y=-log10(pvalue), color=Color))
     }
-    p <- p + scale_x_continuous(breaks=lims$av, labels=lims$Color, expand=c(0,0))
-    p <- p + geom_rect(data = lims, aes(xmin = posmin-.5, xmax = posmax+.5, ymin = -Inf, ymax = 0, fill=Color), alpha = 1)
-    p <- p + scale_colour_manual(name = "Color",values = newcols, guides(alpha=FALSE)) + scale_fill_manual(name = "Color",values = newcols, guides(alpha=FALSE))
-    p <- p + theme(axis.text.x=element_text(angle=90), panel.grid.minor.x = element_blank(), panel.grid.major.x=element_blank(), axis.title.x=element_blank(), legend.position="bottom", legend.title=element_blank())
+    p <- p + ggplot2::scale_x_continuous(breaks=lims$av, labels=lims$Color, expand=c(0,0))
+    p <- p + ggplot2::geom_rect(data = lims, aes(xmin = posmin-.5, xmax = posmax+.5, ymin = -Inf, ymax = 0, fill=Color), alpha = 1)
+    p <- p + ggplot2::scale_colour_manual(name = "Color",values = newcols, ggplot2::guides(alpha=FALSE)) + ggplot2::scale_fill_manual(name = "Color",values = newcols, ggplot2::guides(alpha=FALSE))
+    p <- p + ggplot2::theme(axis.text.x=ggplot2::element_text(angle=90), panel.grid.minor.x = ggplot2::element_blank(), panel.grid.major.x=ggplot2::element_blank(), axis.title.x=ggplot2::element_blank(), legend.position="bottom", legend.title=ggplot2::element_blank())
   }
 
   #Add title and y axis title
-  p <- p + ggtitle(title) + ylab(expression(paste("-log"[10], "(p-value)", sep="")))
+  p <- p + ggplot2::ggtitle(title) + ggplot2::ylab(expression(paste("-log"[10], "(p-value)", sep="")))
 
   #Add pvalue threshold line
   if(!is.null(line)){
-    p <- p + geom_hline(yintercept = -log10(line), colour="red")
+    p <- p + ggplot2::geom_hline(yintercept = -log10(line), colour="red")
   }
   print(paste("Saving plot to ", file, ".png", sep=""))
-  ggsave(p, filename=paste(file, ".png", sep=""), dpi=res, units="in", height=hgt, width=wi)
+  ggplot2::ggsave(p, filename=paste(file, ".png", sep=""), dpi=res, units="in", height=hgt, width=wi)
   print(p)
 
   t2 <- Sys.time()

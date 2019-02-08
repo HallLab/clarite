@@ -1,7 +1,7 @@
 #' bar_plot
 #'
 #' Create barcharts and choose number to display per page\cr
-#' Note: There is an issue with dev.off() if using RStudio\cr
+#' Note: Call quatrz() prior to plottting in RStudio\cr
 #' Dependencies: ggplot2, gridExtra
 #' @param d data frame
 #' @param n number of plots to display per page
@@ -25,10 +25,10 @@ bar_plot <- function(d, n=12, file="plot", nrow=4, ncol=3, wi=13.5, hgt=12, res=
 
   if (!requireNamespace("ggplot2", quietly = TRUE)==TRUE|!requireNamespace("gridExtra", quietly = TRUE)==TRUE) {
     stop("Please install ggplot2 and gridExtra to create visualization.", call. = FALSE)
-  } else {
-    packages = c("ggplot2", "gridExtra")
-    lapply(packages, library, character.only = TRUE)
-  }
+  } #else {
+    #packages = c("ggplot2", "gridExtra")
+    #lapply(packages, library, character.only = TRUE)
+  #}
 
   if(is.element('ID', names(d))==FALSE){
     stop("Please add ID to dataframe as column 1")
@@ -58,16 +58,16 @@ bar_plot <- function(d, n=12, file="plot", nrow=4, ncol=3, wi=13.5, hgt=12, res=
       sumstr <- paste("Sample Size = ", smpls, sep="")
 
       #Explicitly set aes to look in local environment due to bug in ggplot
-      b <- ggplot(d, aes(x=factor(d[[v]])), environment=environment()) + geom_bar(fill="cadetblue4", colour="white", width=.5) + labs(x="Category", y="Count")
-      b <- b + ggtitle(bquote(atop(.(v), atop(.(sumstr), ""))))
+      b <- ggplot2::ggplot(d, aes(x=factor(d[[v]])), environment=environment()) + ggplot2::geom_bar(fill="cadetblue4", colour="white", width=.5) + ggplot2::labs(x="Category", y="Count")
+      b <- b + ggplot2::ggtitle(bquote(atop(.(v), atop(.(sumstr), ""))))
       print(b)
-      plots[[lst_indx]] <- grid.arrange(b, ncol=1)
+      plots[[lst_indx]] <- gridExtra::grid.arrange(b, ncol=1)
       lst_indx <- lst_indx + 1
     }
 
-    png(paste(file, "_barchart_", j, ".png", sep=""), width=wi, height=hgt, units="in", res=210, pointsize=4)
-    do.call("grid.arrange", c(plots, ncol=ncol))
-    dev.off()
+    grDevices::png(paste(file, "_barchart_", j, ".png", sep=""), width=wi, height=hgt, units="in", res=210, pointsize=4)
+    do.call("gridExtra::grid.arrange", c(plots, ncol=ncol))
+    grDevices::dev.off()
     print(paste("Printing image", j, "of", iter, sep=" "))
 
     k <- inc + 1

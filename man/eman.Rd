@@ -39,7 +39,7 @@ Suggested: RColorBrewer
 }
 \examples{
 \dontrun{
-eman(d, ewas=TRUE, groups=NULL, line, title=NULL, morecolors=FALSE, 
+eman(d, ewas=TRUE, groups=NULL, line, title=NULL, morecolors=FALSE,
 file="eman", hgt=7, wi=12, res=300 )
 }
 }

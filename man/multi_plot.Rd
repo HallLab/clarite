@@ -33,8 +33,8 @@ png image(s)
 }
 \description{
 Create multiple types of plots on the same page\cr
-Note: There is an issue with dev.off() if using RStudio\cr
-Dependencies: ggplot2, gridExtra
+Note: Call quatrz() prior to plottting in RStudio\cr
+Dependencies: gridExtra
 }
 \examples{
 \dontrun{
