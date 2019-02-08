@@ -22,6 +22,6 @@ and will call R functions in the background.
 
 The following image depicts a typical workflow for a project from raw data stage to analysis, in this case an
 Environment-Wide Association Study, and results visualization, all of which can be performed using the `clarite`
-package.
+package. The user starts with raw data and alternates filtering (dark boxes) or summary steps (light boxes) until it is sufficiently “cleaned” and in a stage where analyses can be run.
 
 ![Image](https://github.com/RitchieLab/utility/blob/master/personal/ana/images/clariteworkflow.svg)
