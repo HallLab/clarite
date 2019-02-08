@@ -29,7 +29,7 @@ ewas <- function(cat=NULL, cont=NULL, y, cov=NULL, regress, adjust){
   ###Continuous###
   #Regress over columns != ID, y, covariates, or categorical variables
   regress_cont <- function(d, fmla, cols, rtype){
-    mco <- lapply(d[, !(colnames(d) %in% cols), drop=FALSE], function (x) return(tryCatch(do.call("glm", list(as.formula(fmla), family=as.name(rtype), data=as.name("d"))), error=function(e) NULL)))
+    mco <- lapply(d[, !(colnames(d) %in% cols), drop=FALSE], function (x) return(tryCatch(do.call("glm", list(stats::as.formula(fmla), family=as.name(rtype), data=as.name("d"))), error=function(e) NULL)))
     nmco<- mco[!sapply(mco, is.null)]
     sco <- lapply(nmco, function (x) summary(x))
     #Grab sample size, beta, se beta, and pvalue
@@ -47,15 +47,15 @@ ewas <- function(cat=NULL, cont=NULL, y, cov=NULL, regress, adjust){
   ###Categorical###
   #Regress over columns != ID, y, covariates, or continuous variables
   regress_cat <- function(d, fmla, cols, rtype, usenull=FALSE){
-    mca <- lapply(d[, !(colnames(d) %in% cols), drop=FALSE], function (x) return(tryCatch(do.call("glm", list(as.formula(fmla), family=as.name(rtype), data=as.name("d"))), error=function(e) NULL)))
+    mca <- lapply(d[, !(colnames(d) %in% cols), drop=FALSE], function (x) return(tryCatch(do.call("stats::glm", list(stats::as.formula(fmla), family=as.name(rtype), data=as.name("d"))), error=function(e) NULL)))
     if(usenull==FALSE){
-      red <- lapply(d[,!(colnames(d) %in% cols), drop=FALSE], function(x) return(tryCatch(glm(as.formula(sub("x\\+", "", fmla)), data=d[!is.na(x), ], family=rtype), error=function(e) NULL)))
+      red <- lapply(d[,!(colnames(d) %in% cols), drop=FALSE], function(x) return(tryCatch(stats::glm(stats::as.formula(sub("x\\+", "", fmla)), data=d[!is.na(x), ], family=rtype), error=function(e) NULL)))
     } else {
-      red <- lapply(d[,!(colnames(d) %in% cols), drop=FALSE], function(x) return(tryCatch(glm(as.formula(gsub("\\~x", "~1", fmla)), data=d[!is.na(x), ], family=rtype), error=function(e) NULL)))
+      red <- lapply(d[,!(colnames(d) %in% cols), drop=FALSE], function(x) return(tryCatch(stats::glm(stats::as.formula(gsub("\\~x", "~1", fmla)), data=d[!is.na(x), ], family=rtype), error=function(e) NULL)))
     }
     nmca<- mca[!sapply(mca, is.null)]
     nred<- red[!sapply(mca, is.null)]
-    lrt <- mapply(function (x,y) anova(x,y, test="LRT"), x=nmca, y=nred, SIMPLIFY = FALSE)
+    lrt <- mapply(function (x,y) stats::anova(x,y, test="LRT"), x=nmca, y=nred, SIMPLIFY = FALSE)
     #Grab sample size, beta, se beta, and pvalue
     rca <- data.frame(t(as.data.frame(sapply(nmca, function(x) as.data.frame(length(x$residuals))))),
                       t(as.data.frame(sapply(nmca, function(x) as.data.frame(x$converged)))),
@@ -130,11 +130,11 @@ ewas <- function(cat=NULL, cont=NULL, y, cov=NULL, regress, adjust){
   #Optional multiple testing correction
   if(!missing(adjust)){
     if(length(grep("fdr", adjust))!=0){
-      fres$pvalue_FDR <- p.adjust(fres$Sort, method="fdr")
+      fres$pvalue_FDR <- stats::p.adjust(fres$Sort, method="fdr")
       fres <- fres[order(fres$pvalue_FDR), ]
     }
     if(length(grep("bonferroni", adjust))!=0){
-      fres$pvalue_Bonf <- p.adjust(fres$Sort, method="bonferroni")
+      fres$pvalue_Bonf <- stats::p.adjust(fres$Sort, method="bonferroni")
       fres <- fres[order(fres$pvalue_Bonf), ]
     }
   }

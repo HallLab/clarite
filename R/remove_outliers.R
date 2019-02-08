@@ -22,7 +22,7 @@ remove_outliers <- function(df, x=2.5){
   }
   calc <- function(v, threshold){
     m <- mean(v, na.rm=TRUE)
-    s <- sd(v, na.rm=TRUE)
+    s <- stats::sd(v, na.rm=TRUE)
     ceil <- m + threshold*s
     flor <- m - threshold*s
     v[v > ceil | v < flor] <- NA

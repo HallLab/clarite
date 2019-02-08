@@ -18,7 +18,7 @@ sample_size <- function(df) {
     stop("Please add ID to dataframe as column 1")
   }
 
-  df_n <- as.data.frame(sapply(df, function(x) (length(na.omit(x)))))
+  df_n <- as.data.frame(sapply(df, function(x) (length(stats::na.omit(x)))))
   df_n <- cbind(rownames(df_n), data.frame(df_n, row.names=NULL))
   names(df_n) <- c("Variable", "N")
 

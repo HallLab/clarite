@@ -23,15 +23,15 @@ outlier_impact <- function(df, x=2.5) {
   calcs <- function(v, threshold){
     pdf <- v
     s <- summary(v)
-    std <- sd(v, na.rm=TRUE)
+    std <- stats::sd(v, na.rm=TRUE)
     ceil <- s[[4]] + threshold*std
     flor <- s[[4]] - threshold*std
-    nr <- length(na.omit(v))
+    nr <- length(stats::na.omit(v))
     #Execute on potential dataframe
     pdf[pdf > ceil | pdf < flor] <- NA
     ps <- summary(pdf)
-    pstd <- sd(pdf, na.rm=TRUE)
-    pnr <- length(na.omit(pdf))
+    pstd <- stats::sd(pdf, na.rm=TRUE)
+    pnr <- length(stats::na.omit(pdf))
     out <- rbind(N=nr, Min=s[[1]], Median=s[[3]], Mean=s[[4]], Max=s[[6]], SD=std, Outlier_SD=threshold, Pros_N=pnr, Pros_Min=ps[[1]], Pros_Median=ps[[3]], Pros_Mean=ps[[4]], Pros_Max=ps[[6]], Pros_SD=pstd)
     return(out)
   }

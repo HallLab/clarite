@@ -29,7 +29,7 @@ png image(s)
 }
 \description{
 Create qqplots and choose number to display per page\cr
-Note: There is an issue with dev.off() if using RStudio\cr
+Note: Call quartz() prior to plotting if using RStudio\cr
 Dependencies: ggplot2, gridExtra
 }
 \examples{

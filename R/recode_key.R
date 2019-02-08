@@ -24,11 +24,11 @@ recode_key <- function(df, key) {
   t_key <- t_key[-1,]
 
   for(i in names(t_key)){
-	if(class(type.convert(as.character(t_key[[i]])))=="factor"){
+	if(class(utils::type.convert(as.character(t_key[[i]])))=="factor"){
 		t_key[[i]] <- factor(t_key[[i]], levels=levels(df[[i]]))
     		df[[i]][df[[i]]==t_key[[i]]] <- NA
 	}
-	if(class(type.convert(as.character(t_key[[i]])))=="integer" | class(type.convert(as.character(t_key[[i]])))=="numeric"){
+	if(class(utils::type.convert(as.character(t_key[[i]])))=="integer" | class(utils::type.convert(as.character(t_key[[i]])))=="numeric"){
 		df[[i]][df[[i]]==as.numeric(as.character(t_key[[i]]))] <- NA
 	}
   }

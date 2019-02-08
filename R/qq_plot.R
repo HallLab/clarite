@@ -1,7 +1,7 @@
 #' qq_plot
 #'
 #' Create qqplots and choose number to display per page\cr
-#' Note: There is an issue with dev.off() if using RStudio\cr
+#' Note: Call quartz() prior to plotting if using RStudio\cr
 #' Dependencies: ggplot2, gridExtra
 #' @param d data frame
 #' @param n number of plots to display per page
@@ -25,10 +25,10 @@ qq_plot <- function(d, n=12, file="plot", nrow=4, ncol=3, wi=13.5, hgt=12, res=3
 
   if (!requireNamespace("ggplot2", quietly = TRUE)==TRUE|!requireNamespace("gridExtra", quietly = TRUE)==TRUE) {
     stop("Please install ggplot2 and gridExtra to create visualization.", call. = FALSE)
-  } else {
-    packages = c("ggplot2", "gridExtra")
-    lapply(packages, library, character.only = TRUE)
-  }
+  } #else {
+    #packages = c("ggplot2", "gridExtra")
+    #lapply(packages, library, character.only = TRUE)
+  #}
 
   if(is.element('ID', names(d))==FALSE){
     stop("Please add ID to dataframe as column 1")
@@ -64,16 +64,16 @@ qq_plot <- function(d, n=12, file="plot", nrow=4, ncol=3, wi=13.5, hgt=12, res=3
       int <- y[1L] - slope * x[1L]
 
       #Explicitly set aes to look in local environment due to bug in ggplot
-      q <- ggplot(d, aes(sample=d[[v]]), environment=environment()) + geom_point(stat="qq", na.rm=TRUE) + labs(x="Sample", y="Theoretical")
-      q <- q + ggtitle(bquote(atop(.(v), atop(.(sumstr), "")))) + stat_qq(alpha=0.5) + geom_abline(slope=slope, intercept=int, colour="black") + theme(plot.title=element_text(size=9), axis.title=element_text(size=8))
+      q <- ggplot2::ggplot(d, aes(sample=d[[v]]), environment=environment()) + ggplot2::geom_point(stat="qq", na.rm=TRUE) + labs(x="Sample", y="Theoretical")
+      q <- q + ggplot2::ggtitle(bquote(atop(.(v), atop(.(sumstr), "")))) + qqplot2::stat_qq(alpha=0.5) + ggplot2::geom_abline(slope=slope, intercept=int, colour="black") + ggplot2::theme(plot.title=element_text(size=9), axis.title=element_text(size=8))
 
       print(q)
-      plots[[lst_indx]] <- grid.arrange(q, ncol=1)
+      plots[[lst_indx]] <- gridExtra::grid.arrange(q, ncol=1)
       lst_indx <- lst_indx + 1
     }
 
     png(paste(file, "_qqplot_", j, ".png", sep=""), width=wi, height=hgt, units="in", res=210, pointsize=4)
-    do.call("grid.arrange", c(plots, ncol=ncol))
+    do.call("gridExtra::grid.arrange", c(plots, ncol=ncol))
     dev.off()
     print(paste("Printing image", j, "of", iter, sep=" "))
 
