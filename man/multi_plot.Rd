@@ -5,7 +5,7 @@
 \title{multi_plot}
 \usage{
 multi_plot(d, n = 6, file = "plot", nrow = 3, ncol = 2, wi = 13.5,
-  hgt = 9, res = 210, type, annotate)
+  hgt = 9, res = 300, type, annotate)
 }
 \arguments{
 \item{d}{data frame}

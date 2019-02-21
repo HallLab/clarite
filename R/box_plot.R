@@ -97,7 +97,7 @@ box_plot <- function(d, n=12, file="plot", nrow=4, ncol=3, wi=13.5, hgt=12, res=
       lst_indx <- lst_indx + 1
     }
 
-    grDevices::png(paste(file, "_boxplot_", j, ".png", sep=""), width=wi, height=hgt, units="in", res=210, pointsize=4)
+    grDevices::png(paste(file, "_boxplot_", j, ".png", sep=""), width=wi, height=hgt, units="in", res=res, pointsize=4)
     do.call("gridExtra::grid.arrange", c(plots, ncol=ncol))
     grDevices::dev.off()
     print(paste("Printing image", j, "of", iter, sep=" "))
