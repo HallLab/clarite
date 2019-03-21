@@ -98,7 +98,7 @@ multi_plot <- function(d, n=6, file="plot", nrow=3, ncol=2, wi=13.5, hgt=9, res=
     }
 
     grDevices::png(paste(file, "_", type, "_", j, ".png", sep=""), width=wi, height=hgt, units="in", res=res, pointsize=4)
-    do.call("gridExtra::grid.arrange", c(plots, ncol=ncol))
+    do.call(eval(parse(text="gridExtra::grid.arrange")), c(plots, ncol=ncol))
     grDevices::dev.off()
     print(paste("Printing image", j, "of", iter, sep=" "))
 

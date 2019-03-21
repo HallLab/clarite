@@ -26,10 +26,13 @@ ewas <- function(cat=NULL, cont=NULL, y, cov=NULL, regress, adjust){
     stop("Please specify family type for glm()")
   }
 
+  # Get the glm function
+  glm <- eval(parse(text="stats::glm"))
+
   ###Continuous###
   #Regress over columns != ID, y, covariates, or categorical variables
   regress_cont <- function(d, fmla, cols, rtype){
-    mco <- lapply(d[, !(colnames(d) %in% cols), drop=FALSE], function (x) return(tryCatch(do.call("glm", list(stats::as.formula(fmla), family=as.name(rtype), data=as.name("d"))), error=function(e) NULL)))
+    mco <- lapply(d[, !(colnames(d) %in% cols), drop=FALSE], function (x) return(tryCatch(do.call(glm, list(stats::as.formula(fmla), family=as.name(rtype), data=as.name("d"))), error=function(e) NULL)))
     nmco<- mco[!sapply(mco, is.null)]
     sco <- lapply(nmco, function (x) summary(x))
     #Grab sample size, beta, se beta, and pvalue
@@ -47,11 +50,11 @@ ewas <- function(cat=NULL, cont=NULL, y, cov=NULL, regress, adjust){
   ###Categorical###
   #Regress over columns != ID, y, covariates, or continuous variables
   regress_cat <- function(d, fmla, cols, rtype, usenull=FALSE){
-    mca <- lapply(d[, !(colnames(d) %in% cols), drop=FALSE], function (x) return(tryCatch(do.call("stats::glm", list(stats::as.formula(fmla), family=as.name(rtype), data=as.name("d"))), error=function(e) NULL)))
+    mca <- lapply(d[, !(colnames(d) %in% cols), drop=FALSE], function (x) return(tryCatch(do.call(glm, list(stats::as.formula(fmla), family=as.name(rtype), data=as.name("d"))), error=function(e) NULL)))
     if(usenull==FALSE){
-      red <- lapply(d[,!(colnames(d) %in% cols), drop=FALSE], function(x) return(tryCatch(stats::glm(stats::as.formula(sub("x\\+", "", fmla)), data=d[!is.na(x), ], family=rtype), error=function(e) NULL)))
+      red <- lapply(d[,!(colnames(d) %in% cols), drop=FALSE], function(x) return(tryCatch(glm(stats::as.formula(sub("x\\+", "", fmla)), data=d[!is.na(x), ], family=rtype), error=function(e) NULL)))
     } else {
-      red <- lapply(d[,!(colnames(d) %in% cols), drop=FALSE], function(x) return(tryCatch(stats::glm(stats::as.formula(gsub("\\~x", "~1", fmla)), data=d[!is.na(x), ], family=rtype), error=function(e) NULL)))
+      red <- lapply(d[,!(colnames(d) %in% cols), drop=FALSE], function(x) return(tryCatch(glm(stats::as.formula(gsub("\\~x", "~1", fmla)), data=d[!is.na(x), ], family=rtype), error=function(e) NULL)))
     }
     nmca<- mca[!sapply(mca, is.null)]
     nred<- red[!sapply(mca, is.null)]

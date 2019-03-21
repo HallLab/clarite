@@ -96,7 +96,7 @@ hist_plot <- function(d, n=12, file="plot", nrow=4, ncol=3, wi=13.5, hgt=12, res
     }
 
     grDevices::png(paste(file, "_histogram_", j, ".png", sep=""), width=wi, height=hgt, units="in", res=res, pointsize=4)
-    do.call("gridExtra::grid.arrange", c(plots, ncol=ncol))
+    do.call(eval(parse(text="gridExtra::grid.arrange")), c(plots, ncol=ncol))
     grDevices::dev.off()
     print(paste("Printing image", j, "of", iter, sep=" "))
 

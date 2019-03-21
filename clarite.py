@@ -26,7 +26,10 @@ IN_HEIGHT = 18
 
 
 global time_stamp
-time_stamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+time_stamp = datetime.datetime.now().strftime("%Y-%m-%d %H-%M-%S")
+
+global rloc
+rloc = 'C:\\Users\\jrm5100\\Documents\\R\\R-3.5.3\\bin\\Rscript'
 
 
 if not os.path.exists("Logs"):
@@ -303,7 +306,7 @@ def recode_missing():
 	
 
 	s_out = open(log_file_name, "a")
-	proc = subprocess.call(['Rscript','r/GUI_Scripts/recode_missing1.R'], shell=False,stdout=s_out, stderr=s_out)
+	proc = subprocess.call([rloc,'r/GUI_Scripts/recode_missing1.R'], shell=False,stdout=s_out, stderr=s_out)
 
 	refresh_logs()
 
@@ -337,7 +340,7 @@ def recode_key():
 	
 
 	s_out = open(log_file_name, "a")
-	proc = subprocess.call(['Rscript','r/GUI_Scripts/recode_key1.R'], shell=False,stdout=s_out, stderr=s_out)
+	proc = subprocess.call([rloc,'r/GUI_Scripts/recode_key1.R'], shell=False,stdout=s_out, stderr=s_out)
 
 	refresh_logs()
 
@@ -374,7 +377,7 @@ def get_binary():
 	
 
 	s_out = open(log_file_name, "a")
-	proc = subprocess.call(['Rscript','r/GUI_Scripts/get_binary1.R'], shell=False,stdout=s_out, stderr=s_out)
+	proc = subprocess.call([rloc,'r/GUI_Scripts/get_binary1.R'], shell=False,stdout=s_out, stderr=s_out)
 
 	refresh_logs()
 
@@ -410,7 +413,7 @@ def get_continuous():
 
 
 	s_out = open(log_file_name, "a")
-	proc = subprocess.call(['Rscript','r/GUI_Scripts/get_continuous1.R'], shell=False,stdout=s_out, stderr=s_out)
+	proc = subprocess.call([rloc,'r/GUI_Scripts/get_continuous1.R'], shell=False,stdout=s_out, stderr=s_out)
 
 	refresh_logs()
 
@@ -448,7 +451,7 @@ def get_categorical():
 
 
 	s_out = open(log_file_name, "a")
-	proc = subprocess.call(['Rscript','r/GUI_Scripts/get_categorical1.R'], shell=False,stdout=s_out, stderr=s_out)
+	proc = subprocess.call([rloc,'r/GUI_Scripts/get_categorical1.R'], shell=False,stdout=s_out, stderr=s_out)
 
 	refresh_logs()
 
@@ -485,7 +488,7 @@ def get_check():
 		g.write("Upper Bound: " + upper_bound + '\n' +'\n' )
 	
 	s_out = open(log_file_name, "a")
-	proc = subprocess.call(['Rscript','r/GUI_Scripts/get_check1.R'], shell=False,stdout=s_out, stderr=s_out)
+	proc = subprocess.call([rloc,'r/GUI_Scripts/get_check1.R'], shell=False,stdout=s_out, stderr=s_out)
 
 	refresh_logs()
 
@@ -519,7 +522,7 @@ def min_n():
 		g.write("Lower Bound: " + lower_bound + '\n' +'\n' )
 
 	s_out = open(log_file_name, "a")
-	proc = subprocess.call(['Rscript','r/GUI_Scripts/min_n1.R'], shell=False,stdout=s_out, stderr=s_out)
+	proc = subprocess.call([rloc,'r/GUI_Scripts/min_n1.R'], shell=False,stdout=s_out, stderr=s_out)
 
 	refresh_logs()
 
@@ -553,7 +556,7 @@ def transvar():
 		g.write("Variable Specific Transformation Function Called" + '\n' + '\n')
 
 	s_out = open(log_file_name, "a")
-	proc = subprocess.call(['Rscript','r/GUI_Scripts/transvar1.R'], shell=False,stdout=s_out, stderr=s_out)
+	proc = subprocess.call([rloc,'r/GUI_Scripts/transvar1.R'], shell=False,stdout=s_out, stderr=s_out)
 
 	refresh_logs()
 
@@ -616,7 +619,7 @@ def histogram():
 		g.write("Resolution of Plot: " + str(h6.get()) + '\n' +'\n' )
 	
 	s_out = open(log_file_name, "a")
-	proc = subprocess.call(['Rscript','r/GUI_Scripts/hist_plot1.R'], shell=False,stdout=s_out, stderr=s_out)
+	proc = subprocess.call([rloc,'r/GUI_Scripts/hist_plot1.R'], shell=False,stdout=s_out, stderr=s_out)
 
 	refresh_logs()
 
@@ -666,7 +669,7 @@ def boxplot():
 		g.write("Resolution of Plot: " + str(bx6.get()) + '\n' +'\n' )
 	
 	s_out = open(log_file_name, "a")
-	proc = subprocess.call(['Rscript','r/GUI_Scripts/box_plot1.R'], shell=False,stdout=s_out, stderr=s_out)
+	proc = subprocess.call([rloc,'r/GUI_Scripts/box_plot1.R'], shell=False,stdout=s_out, stderr=s_out)
 
 	refresh_logs()
 
@@ -714,7 +717,7 @@ def qqplot():
 		g.write("Resolution of Plot: " + str(qq6.get()) + '\n' +'\n' )
 	
 	s_out = open(log_file_name, "a")
-	proc = subprocess.call(['Rscript','r/GUI_Scripts/qq_plot1.R'], shell=False,stdout=s_out, stderr=s_out)
+	proc = subprocess.call([rloc,'r/GUI_Scripts/qq_plot1.R'], shell=False,stdout=s_out, stderr=s_out)
 
 	refresh_logs()
 
@@ -769,7 +772,7 @@ def barplot():
 	
 	s_out = open(log_file_name, "a")
 	
-	proc = subprocess.call(['Rscript','r/GUI_Scripts/bar_plot1.R'], shell=False, stdout=s_out, stderr=s_out)
+	proc = subprocess.call([rloc,'r/GUI_Scripts/bar_plot1.R'], shell=False, stdout=s_out, stderr=s_out)
 
 	refresh_logs()
 
@@ -802,7 +805,7 @@ def frequency_table():
 
 	s_out = open(log_file_name, "a")
 	
-	proc = subprocess.call(['Rscript','r/GUI_Scripts/freq_tables1.R'], shell=False, stdout=s_out, stderr=s_out)
+	proc = subprocess.call([rloc,'r/GUI_Scripts/freq_tables1.R'], shell=False, stdout=s_out, stderr=s_out)
 
 	refresh_logs()
 
@@ -833,7 +836,7 @@ def correlations():
 	
 	s_out = open(log_file_name, "a")
 	
-	proc = subprocess.call(['Rscript','r/GUI_Scripts/correlations1.R'], shell=False, stdout=s_out, stderr=s_out)
+	proc = subprocess.call([rloc,'r/GUI_Scripts/correlations1.R'], shell=False, stdout=s_out, stderr=s_out)
 
 	refresh_logs()
 	
@@ -863,7 +866,7 @@ def sample_size():
 	
 	s_out = open(log_file_name, "a")
 	
-	proc = subprocess.call(['Rscript','r/GUI_Scripts/sample_size1.R'], shell=False, stdout=s_out, stderr=s_out)
+	proc = subprocess.call([rloc,'r/GUI_Scripts/sample_size1.R'], shell=False, stdout=s_out, stderr=s_out)
 
 	refresh_logs()
 
@@ -892,7 +895,7 @@ def get_uniq():
 	
 	s_out = open(log_file_name, "a")
 	
-	proc = subprocess.call(['Rscript','r/GUI_Scripts/get_uniq1.R'], shell=False, stdout=s_out, stderr=s_out)
+	proc = subprocess.call([rloc,'r/GUI_Scripts/get_uniq1.R'], shell=False, stdout=s_out, stderr=s_out)
 
 	refresh_logs()
 
@@ -922,7 +925,7 @@ def outlier_impact():
 
 	s_out = open(log_file_name, "a")
 	
-	proc = subprocess.call(['Rscript','r/GUI_Scripts/outlier_impact1.R'], shell=False, stdout=s_out, stderr=s_out)
+	proc = subprocess.call([rloc,'r/GUI_Scripts/outlier_impact1.R'], shell=False, stdout=s_out, stderr=s_out)
 
 	refresh_logs()
 
@@ -949,7 +952,7 @@ def chisq_tests():
 	
 	s_out = open(log_file_name, "a")
 	
-	proc = subprocess.call(['Rscript','r/GUI_Scripts/chisq_tests1.R'], shell=False, stdout=s_out, stderr=s_out)
+	proc = subprocess.call([rloc,'r/GUI_Scripts/chisq_tests1.R'], shell=False, stdout=s_out, stderr=s_out)
 
 	refresh_logs()
 
@@ -991,7 +994,7 @@ def col_filter():
 		g.write("File: " + column_file_name + '\n'+'\n' )
 	
 	s_out = open(log_file_name, "a")
-	proc = subprocess.call(['Rscript','r/GUI_Scripts/colfilter1.R'], shell=False,stdout=s_out, stderr=s_out)
+	proc = subprocess.call([rloc,'r/GUI_Scripts/colfilter1.R'], shell=False,stdout=s_out, stderr=s_out)
 
 	refresh_logs()
 
@@ -1034,7 +1037,7 @@ def row_filter():
 		g.write("File: " + sample_file_name + '\n'+'\n' )
 	
 	s_out = open(log_file_name, "a")
-	proc = subprocess.call(['Rscript','r/GUI_Scripts/rowfilter1.R'], shell=False,stdout=s_out, stderr=s_out)
+	proc = subprocess.call([rloc,'r/GUI_Scripts/rowfilter1.R'], shell=False,stdout=s_out, stderr=s_out)
 
 	refresh_logs()
 
@@ -1075,7 +1078,7 @@ def merge_data():
 		g.write("Merge Data Called" + '\n')
 	
 	s_out = open(log_file_name, "a")
-	proc = subprocess.call(['Rscript','r/GUI_Scripts/merge_data1.R'], shell=False,stdout=s_out, stderr=s_out)
+	proc = subprocess.call([rloc,'r/GUI_Scripts/merge_data1.R'], shell=False,stdout=s_out, stderr=s_out)
 
 	refresh_logs()
 
@@ -1150,7 +1153,7 @@ def ewas():
 
 	
 	s_out = open(log_file_name, "a")
-	proc = subprocess.call(['Rscript','r/GUI_Scripts/ewas1.R'], shell=False,stdout=s_out, stderr=s_out)
+	proc = subprocess.call([rloc,'r/GUI_Scripts/ewas1.R'], shell=False,stdout=s_out, stderr=s_out)
 
 	refresh_logs()
 
@@ -1184,7 +1187,7 @@ def remove_outliers():
 		g.write("Remove Outliers Called" + '\n')
 	
 	s_out = open(log_file_name, "a")
-	proc = subprocess.call(['Rscript','r/GUI_Scripts/remove_outliers1.R'], shell=False,stdout=s_out, stderr=s_out)
+	proc = subprocess.call([rloc,'r/GUI_Scripts/remove_outliers1.R'], shell=False,stdout=s_out, stderr=s_out)
 
 	refresh_logs()
 
@@ -2187,7 +2190,7 @@ def min_cat_n():
 
 
 	s_out = open(log_file_name, "a")
-	proc = subprocess.call(['Rscript','r/GUI_Scripts/min_cat_n1.R'], shell=False,stdout=s_out, stderr=s_out)
+	proc = subprocess.call([rloc,'r/GUI_Scripts/min_cat_n1.R'], shell=False,stdout=s_out, stderr=s_out)
 
 	refresh_logs()
 
@@ -2538,7 +2541,7 @@ def man_plot():
 
 	
 	s_out = open(log_file_name, "a")
-	proc = subprocess.call(['Rscript','r/GUI_Scripts/eman1.R'], shell=False,stdout=s_out, stderr=s_out)
+	proc = subprocess.call([rloc,'r/GUI_Scripts/eman1.R'], shell=False,stdout=s_out, stderr=s_out)
 
 	refresh_logs()
 
