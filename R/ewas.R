@@ -3,7 +3,7 @@
 #' Run environment-wide association study
 #' @param cat data frame containing categorical variables with first column as ID
 #' @param cont data frame containing continuous variables with first column as ID
-#' @param y name of response variable
+#' @param y name(s) of response variable(s)
 #' @param cov vector containing names of covariates
 #' @param regress family for the regression model as specified in glm, linear or logisitic
 #' @param adjust p-value adjustment (bonferroni or fdr)
@@ -88,16 +88,20 @@ ewas <- function(cat=NULL, cont=NULL, y, cov=NULL, regress, adjust){
     usenull<-TRUE
   }
 
+  #Correct the types and check for IDs
+  if(!isnull(cat)){
+    if(is.element('ID', names(cat))==FALSE){stop("Please add ID to 'cat' as column 1"}
+    cat <- as.data.frame(sapply(cat, factor))
+  }
+
+  if(!isnull(cont)){
+    if(is.element('ID', names(cont))==FALSE){stop("Please add ID to 'cont' as column 1"}
+    cont$ID <- factor(cont$ID)
+    if(sum(sapply(cont[, -1, drop=FALSE],is.numeric))!=ncol(cont)-1){stop("Please make sure that all values in 'cont' are numeric")}
+  }
+
   #Run Regressions
   if(!is.null(cat) & !is.null(cont)){
-    if(is.element('ID', names(cat))==FALSE | is.element('ID', names(cont))==FALSE){
-      stop("Please add ID to 'cat' and/or 'cont' as column 1")
-    }
-    cat <- as.data.frame(sapply(cat, factor))
-    cont$ID <- factor(cont$ID)
-    if(sum(sapply(cont[, -1, drop=FALSE],is.numeric))!=ncol(cont)-1){
-      stop("Please make sure that all values in 'cont' are numeric")
-    }
     d <- merge(cat, cont, by="ID", all=TRUE)
 
     if(dim(cont[, !(colnames(cont) %in% c("ID", cov, y)), drop=FALSE])[2]>0){
@@ -118,19 +122,9 @@ ewas <- function(cat=NULL, cont=NULL, y, cov=NULL, regress, adjust){
     fres <- rbind(rcont, rcat)
 
   } else if(is.null(cat) & !is.null(cont)){
-    if(is.element('ID', names(cont))==FALSE){
-      stop("Please add ID 'cont' as column 1")
-    }
-    cont$ID <- factor(cont$ID)
-    if(sum(sapply(cont[, -1],is.numeric))!=ncol(cont)-1){
-      stop("Please make sure that all values in 'cont' are numeric")
-    }
     fres <- regress_cont(d=cont, fmla=fmla, cols=c("ID", cov, y), rtype=regress)
-
+  
   } else if(is.null(cont) & !is.null(cat)){
-    if(is.element('ID', names(cat))==FALSE){
-      stop("Please add ID to 'cat' as column 1")
-    }
     d <- as.data.frame(sapply(cat, factor))
     fres <- regress_cat(d=d, fmla=fmla, cols=c("ID", cov, y, names(cont)), rtype=regress, usenull=usenull)
   }
