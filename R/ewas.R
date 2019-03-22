@@ -26,12 +26,20 @@ ewas <- function(cat=NULL, cont=NULL, y, cov=NULL, regress, adjust){
     stop("Please specify family type for glm()")
   }
 
+  # Ensure covariates are all present
+  for (cov_name in cov){
+    if(!(cov_name %in% names(cat)) & !(cov_name %in% names(cat))) {
+      stop("The covariate \"", cov_name, "\" is missing from the categorical and/or continuous variables")
+    }
+  }
+
   # Get the glm function
   glm <- eval(parse(text="stats::glm"))
 
   ###Continuous###
   #Regress over columns != ID, y, covariates, or categorical variables
   regress_cont <- function(d, fmla, cols, rtype){
+
     mco <- lapply(d[, !(colnames(d) %in% cols), drop=FALSE], function (x) return(tryCatch(do.call(glm, list(stats::as.formula(fmla), family=as.name(rtype), data=as.name("d"))), error=function(e) NULL)))
     nmco<- mco[!sapply(mco, is.null)]
     sco <- lapply(nmco, function (x) summary(x))
