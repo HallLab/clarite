@@ -89,12 +89,12 @@ ewas <- function(cat=NULL, cont=NULL, y, cov=NULL, regress, adjust){
   }
 
   #Correct the types and check for IDs
-  if(!isnull(cat)){
+  if(!is.null(cat)){
     if(is.element('ID', names(cat))==FALSE){stop("Please add ID to 'cat' as column 1"}
     cat <- as.data.frame(sapply(cat, factor))
   }
 
-  if(!isnull(cont)){
+  if(!is.null(cont)){
     if(is.element('ID', names(cont))==FALSE){stop("Please add ID to 'cont' as column 1"}
     cont$ID <- factor(cont$ID)
     if(sum(sapply(cont[, -1, drop=FALSE],is.numeric))!=ncol(cont)-1){stop("Please make sure that all values in 'cont' are numeric")}
