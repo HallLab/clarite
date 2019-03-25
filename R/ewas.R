@@ -26,9 +26,18 @@ ewas <- function(cat=NULL, cont=NULL, y, cov=NULL, regress, adjust){
     stop("Please specify family type for glm()")
   }
 
+  # Get a list of variable names
+  variable_names <- union(names(cat), names(cont))
+
+  # Ensure phenotypes are all present
+  for (y_name in y){
+    if(!(y_name %in% variable_names)) {
+      stop("The phenotype \"", y_name, "\" is missing from the categorical and/or continuous variables")
+    }
+  }
   # Ensure covariates are all present
   for (cov_name in cov){
-    if(!(cov_name %in% names(cat)) & !(cov_name %in% names(cont))) {
+    if(!(cov_name %in% variable_names)) {
       stop("The covariate \"", cov_name, "\" is missing from the categorical and/or continuous variables")
     }
   }
