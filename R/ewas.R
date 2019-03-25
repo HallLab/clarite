@@ -28,7 +28,7 @@ ewas <- function(cat=NULL, cont=NULL, y, cov=NULL, regress, adjust){
 
   # Ensure covariates are all present
   for (cov_name in cov){
-    if(!(cov_name %in% names(cat)) & !(cov_name %in% names(cat))) {
+    if(!(cov_name %in% names(cat)) & !(cov_name %in% names(cont))) {
       stop("The covariate \"", cov_name, "\" is missing from the categorical and/or continuous variables")
     }
   }
