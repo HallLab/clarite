@@ -30,16 +30,15 @@ ewas <- function(cat=NULL, cont=NULL, y, cov=NULL, regress, adjust){
   variable_names <- union(names(cat), names(cont))
 
   # Ensure phenotypes are all present
-  for (y_name in y){
-    if(!(y_name %in% variable_names)) {
-      stop("The phenotype \"", y_name, "\" is missing from the categorical and/or continuous variables")
-    }
+  missing_phenotypes <- setdiff(y, variable_names)
+  if(length(missing_phenotypes)>0) {
+      stop("Phenotype(s) missing from the categorical and/or continuous variables: ", paste(missing_phenotypes, collapse=", "))
   }
+
   # Ensure covariates are all present
-  for (cov_name in cov){
-    if(!(cov_name %in% variable_names)) {
-      stop("The covariate \"", cov_name, "\" is missing from the categorical and/or continuous variables")
-    }
+  missing_covariates <- setdiff(cov, variable_names)
+  if(length(missing_covariates)>0) {
+      stop("Covariate(s) missing from the categorical and/or continuous variables: ", paste(missing_covariates, collapse=", "))
   }
 
   # Get the glm function
