@@ -50,3 +50,5 @@ Other continuous variable functions: \code{\link{correlations}},
   \code{\link{outlier_impact}}, \code{\link{qq_fun}},
   \code{\link{qq_plot}}, \code{\link{remove_outliers}}
 }
+\concept{continuous variable functions}
+\concept{plot functions}

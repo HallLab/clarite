@@ -49,3 +49,4 @@ Other plot functions: \code{\link{bar_plot}},
   \code{\link{hist_plot}}, \code{\link{multi_plot}},
   \code{\link{qq_fun}}, \code{\link{qq_plot}}
 }
+\concept{plot functions}

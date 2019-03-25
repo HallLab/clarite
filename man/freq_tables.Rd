@@ -29,3 +29,5 @@ Other summary functions: \code{\link{chisq_tests}},
 Other categorical variable functions: \code{\link{bar_plot}},
   \code{\link{chisq_tests}}
 }
+\concept{categorical variable functions}
+\concept{summary functions}

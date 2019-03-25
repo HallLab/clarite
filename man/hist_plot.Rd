@@ -4,8 +4,8 @@
 \alias{hist_plot}
 \title{hist_plot}
 \usage{
-hist_plot(d, n = 12, file = "plot", nrow = 4, ncol = 3, wi = 13.5,
-  hgt = 12, res = 300, annotate)
+hist_plot(d, n = 12, file = "plot", nrow = 4, ncol = 3,
+  wi = 13.5, hgt = 12, res = 300, annotate)
 }
 \arguments{
 \item{d}{data frame with variables only}
@@ -45,3 +45,5 @@ Other plot functions: \code{\link{bar_plot}},
   \code{\link{hist_fun}}, \code{\link{multi_plot}},
   \code{\link{qq_fun}}, \code{\link{qq_plot}}
 }
+\concept{continuous data functions}
+\concept{plot functions}

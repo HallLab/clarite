@@ -28,3 +28,5 @@ Other summary functions: \code{\link{correlations}},
 Other categorical variable functions: \code{\link{bar_plot}},
   \code{\link{freq_tables}}
 }
+\concept{categorical variable functions}
+\concept{summary functions}

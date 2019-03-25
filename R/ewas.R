@@ -6,16 +6,15 @@
 #' @param y name(s) of response variable(s)
 #' @param cov vector containing names of covariates
 #' @param regress family for the regression model as specified in glm, linear or logisitic
-#' @param adjust p-value adjustment (bonferroni or fdr)
-#' @return data frame containing following fields Variable, Sample Size, Converged, SE, Beta, Variable p-value, LRT, AIC, adjusted p-value
+#' @return data frame containing following fields Variable, Sample Size, Converged, SE, Beta, Variable p-value, LRT, AIC, pval, Phenotype
 #' @export
 #' @family analysis functions
 #' @examples
 #' \dontrun{
-#' ewas(cat, cont, y, cov, regress, adjust)
+#' ewas(cat, cont, y, cov, regress)
 #' }
 
-ewas <- function(cat=NULL, cont=NULL, y, cov=NULL, regress, adjust){
+ewas <- function(cat=NULL, cont=NULL, y, cov=NULL, regress){
   t1 <- Sys.time()
   print("Running...")
 
@@ -24,6 +23,12 @@ ewas <- function(cat=NULL, cont=NULL, y, cov=NULL, regress, adjust){
   }
   if(missing(regress)){
     stop("Please specify family type for glm()")
+  }
+  if(is.null(cat) & is.null(cont)){
+    stop("'cat' and 'cont' may not both be null")
+  }
+  if(inherits(cat, "list") | inherits(cont, "list")){
+    stop("'cat' and 'cont' must be specified as single dataframes, not lists")
   }
 
   # Get a list of variable names
@@ -59,7 +64,7 @@ ewas <- function(cat=NULL, cont=NULL, y, cov=NULL, regress, adjust){
                                                                                   x$coefficients[2,4]))))))
     prco <- data.frame(names = gsub("\\.length.x.residuals.","", row.names(rco)), rco, row.names = NULL)
     names(prco) <- c("Variable", "N", "Converged", "Beta", "SE", "Variable_pvalue")
-    prco$Sort <- ifelse(prco$Converged==TRUE, prco$Variable_pvalue, NA)
+    prco$pval <- ifelse(prco$Converged==TRUE, prco$Variable_pvalue, NA)
     return(prco)
   }
 
@@ -83,7 +88,7 @@ ewas <- function(cat=NULL, cont=NULL, y, cov=NULL, regress, adjust){
                       t(as.data.frame(mapply(function (x,y) x$aic-y$aic, x=nmca, y=nred, SIMPLIFY = FALSE))))
     prca <- data.frame(names = gsub("\\.length.x.residuals.","", row.names(rca)), rca, row.names = NULL)
     names(prca) <- c("Variable", "N", "Converged", "Beta", "SE", "Variable_pvalue", "LRT_pvalue", "Diff_AIC")
-    prca$Sort <- ifelse(prca$Converged==TRUE, prca$LRT_pvalue, NA)
+    prca$pval <- ifelse(prca$Converged==TRUE, prca$LRT_pvalue, NA)
     return(prca)
   }
 
@@ -138,24 +143,13 @@ ewas <- function(cat=NULL, cont=NULL, y, cov=NULL, regress, adjust){
   }
 
   fres <- as.data.frame(lapply(fres, unlist))
-  fres <- fres[order(fres$Sort),]
-
-  #Optional multiple testing correction
-  if(!missing(adjust)){
-    if(length(grep("fdr", adjust))!=0){
-      fres$pvalue_FDR <- stats::p.adjust(fres$Sort, method="fdr")
-      fres <- fres[order(fres$pvalue_FDR), ]
-    }
-    if(length(grep("bonferroni", adjust))!=0){
-      fres$pvalue_Bonf <- stats::p.adjust(fres$Sort, method="bonferroni")
-      fres <- fres[order(fres$pvalue_Bonf), ]
-    }
-  }
+  fres <- fres[order(fres$pval),]
+  fres$phenotype <- y
 
   t2 <- Sys.time()
   print(paste("Finished in", round(as.numeric(difftime(t2,t1, units="secs")), 6), "secs", sep=" "))
 
-  return(fres[, names(fres)!="Sort"])
+  return(fres)
 }
 
 

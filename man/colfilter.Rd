@@ -32,3 +32,4 @@ Other filter functions: \code{\link{get_binary}},
   \code{\link{min_n}}, \code{\link{remove_outliers}},
   \code{\link{rowfilter}}
 }
+\concept{filter functions}

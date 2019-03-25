@@ -48,3 +48,5 @@ Other continuous variable functions: \code{\link{box_plot}},
   \code{\link{multi_plot}}, \code{\link{outlier_impact}},
   \code{\link{qq_fun}}, \code{\link{remove_outliers}}
 }
+\concept{continuous variable functions}
+\concept{plot functions}
