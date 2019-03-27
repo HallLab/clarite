@@ -29,3 +29,5 @@ Other filter functions: \code{\link{colfilter}},
   \code{\link{min_n}}, \code{\link{remove_outliers}},
   \code{\link{rowfilter}}
 }
+\concept{categorical variables functions}
+\concept{filter functions}

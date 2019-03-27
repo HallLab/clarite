@@ -4,8 +4,8 @@
 \alias{multi_plot}
 \title{multi_plot}
 \usage{
-multi_plot(d, n = 6, file = "plot", nrow = 3, ncol = 2, wi = 13.5,
-  hgt = 9, res = 300, type, annotate)
+multi_plot(d, n = 6, file = "plot", nrow = 3, ncol = 2,
+  wi = 13.5, hgt = 9, res = 300, type, annotate)
 }
 \arguments{
 \item{d}{data frame}
@@ -52,3 +52,5 @@ Other continuous variable functions: \code{\link{box_plot}},
   \code{\link{outlier_impact}}, \code{\link{qq_fun}},
   \code{\link{qq_plot}}, \code{\link{remove_outliers}}
 }
+\concept{continuous variable functions}
+\concept{plot functions}

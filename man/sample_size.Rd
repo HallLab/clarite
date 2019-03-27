@@ -25,3 +25,4 @@ Other summary functions: \code{\link{chisq_tests}},
   \code{\link{correlations}}, \code{\link{freq_tables}},
   \code{\link{get_uniq}}, \code{\link{outlier_impact}}
 }
+\concept{summary functions}

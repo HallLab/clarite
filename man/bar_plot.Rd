@@ -46,3 +46,5 @@ Other plot functions: \code{\link{box_plot}},
 Other categorical variable functions: \code{\link{chisq_tests}},
   \code{\link{freq_tables}}
 }
+\concept{categorical variable functions}
+\concept{plot functions}

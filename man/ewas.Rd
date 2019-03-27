@@ -4,29 +4,31 @@
 \alias{ewas}
 \title{ewas}
 \usage{
-ewas(cat = NULL, cont = NULL, y, cov = NULL, regress, adjust)
+ewas(cat = NULL, cont = NULL, y, cov = NULL, regress)
 }
 \arguments{
 \item{cat}{data frame containing categorical variables with first column as ID}
 
 \item{cont}{data frame containing continuous variables with first column as ID}
 
-\item{y}{name of response variable}
+\item{y}{name(s) of response variable(s)}
 
 \item{cov}{vector containing names of covariates}
 
 \item{regress}{family for the regression model as specified in glm, linear or logisitic}
-
-\item{adjust}{p-value adjustment (bonferroni or fdr)}
 }
 \value{
-data frame containing following fields Variable, Sample Size, Converged, SE, Beta, Variable p-value, LRT, AIC, adjusted p-value
+data frame containing following fields Variable, Sample Size, Converged, SE, Beta, Variable p-value, LRT, AIC, pval, Phenotype
 }
 \description{
 Run environment-wide association study
 }
 \examples{
 \dontrun{
-ewas(cat, cont, y, cov, regress, adjust)
+ewas(cat, cont, y, cov, regress)
 }
 }
+\seealso{
+Other analysis functions: \code{\link{ewas_pval_adjust}}
+}
+\concept{analysis functions}

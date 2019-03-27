@@ -35,3 +35,5 @@ Other continuous variable functions: \code{\link{box_plot}},
   \code{\link{multi_plot}}, \code{\link{outlier_impact}},
   \code{\link{qq_fun}}, \code{\link{qq_plot}}
 }
+\concept{continuous variable functions}
+\concept{filter functions}

@@ -25,3 +25,4 @@ Other summary functions: \code{\link{chisq_tests}},
   \code{\link{correlations}}, \code{\link{freq_tables}},
   \code{\link{outlier_impact}}, \code{\link{sample_size}}
 }
+\concept{summary functions}

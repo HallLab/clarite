@@ -32,3 +32,5 @@ Other continuous variable functions: \code{\link{box_plot}},
   \code{\link{multi_plot}}, \code{\link{qq_fun}},
   \code{\link{qq_plot}}, \code{\link{remove_outliers}}
 }
+\concept{continuous variable functions}
+\concept{summary functions}
