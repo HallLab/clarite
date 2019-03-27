@@ -1,18 +1,18 @@
-#' ewas_adjust
+#' ewas_pval_adjust
 #'
 #' Add corrected p-values to the output of EWAS
 #' @param ewas_result data frame of ewas result
-#' @param bonferroni boolean - calculate bonferroni correction (default = TRUE)
+#' @param bonferroni boolean - calculate bonferroni correction (default=TRUE)
 #' @param fdr boolean - calculate fdr correction (default=TRUE)
 #' @return the input data frame with added columns for the adjusted p-values
 #' @export
 #' @family analysis functions
 #' @examples
 #' \dontrun{
-#' ewas_adjust(ewas_result)
+#' ewas_pval_adjust(ewas_result)
 #' }
 
-ewas_adjust <- function(ewas_result, bonferroni=TRUE, fdr=TRUE){
+ewas_pval_adjust <- function(ewas_result, bonferroni=TRUE, fdr=TRUE){
   t1 <- Sys.time()
   print("Running...")
 

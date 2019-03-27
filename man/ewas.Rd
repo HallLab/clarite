@@ -18,7 +18,7 @@ ewas(cat = NULL, cont = NULL, y, cov = NULL, regress)
 \item{regress}{family for the regression model as specified in glm, linear or logisitic}
 }
 \value{
-data frame containing following fields Variable, Sample Size, Converged, SE, Beta, Variable p-value, LRT, AIC, Phenotype
+data frame containing following fields Variable, Sample Size, Converged, SE, Beta, Variable p-value, LRT, AIC, pval, Phenotype
 }
 \description{
 Run environment-wide association study
@@ -29,6 +29,6 @@ ewas(cat, cont, y, cov, regress)
 }
 }
 \seealso{
-Other analysis functions: \code{\link{ewas_adjust}}
+Other analysis functions: \code{\link{ewas_pval_adjust}}
 }
 \concept{analysis functions}
