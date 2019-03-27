@@ -4,12 +4,16 @@
 \alias{min_cat_n}
 \title{min_cat_n}
 \usage{
-min_cat_n(df, n = 200)
+min_cat_n(df, n = 200, skip = NULL, only = NULL)
 }
 \arguments{
 \item{df}{data frame}
 
 \item{n}{minimum sample size desired}
+
+\item{skip}{list of column names that are not filtered}
+
+\item{only}{list of column names that are filtered, any others are skipped}
 }
 \value{
 data frame containing only those variables with at least n samples per factor level
