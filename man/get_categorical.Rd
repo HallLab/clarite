@@ -30,7 +30,7 @@ head(get_categorical(NHANES))
 Other filter functions: \code{\link{colfilter}},
   \code{\link{get_binary}}, \code{\link{get_check}},
   \code{\link{get_continuous}}, \code{\link{min_cat_n}},
-  \code{\link{min_n}}, \code{\link{remove_outliers}},
-  \code{\link{rowfilter}}
+  \code{\link{min_n}}, \code{\link{remove_incomplete_obs}},
+  \code{\link{remove_outliers}}, \code{\link{rowfilter}}
 }
 \concept{filter functions}
