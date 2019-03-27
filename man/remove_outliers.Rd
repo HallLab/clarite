@@ -4,12 +4,16 @@
 \alias{remove_outliers}
 \title{remove_outliers}
 \usage{
-remove_outliers(df, x = 2.5)
+remove_outliers(df, x = 2.5, skip = NULL, only = NULL)
 }
 \arguments{
 \item{df}{data frame with first column as ID}
 
 \item{x}{number of standard deviations from the mean to qualify as an outlier}
+
+\item{skip}{list of column names that are not processed for outliers}
+
+\item{only}{list of column names that are processed for outliers, any others are skipped}
 }
 \value{
 data frame with outlier values within each column replaced with NA
