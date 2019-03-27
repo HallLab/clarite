@@ -1,3 +1,5 @@
+source("R/internal.R")
+
 #' min_n
 #'
 #' Keep variables with a minimum of n samples
@@ -13,7 +15,6 @@
 #' data(NHANES)
 #' ncol(min_n(NHANES, n = 1000))
 
-
 min_n <- function(df, n=200, skip=NULL, only=NULL){
   t1 <- Sys.time()
   print("Running...")
@@ -23,38 +24,18 @@ min_n <- function(df, n=200, skip=NULL, only=NULL){
   }
 
   # Create a list of "ignored" columns which are never filtered
-  if(!is.null(skip) & !is.null(only)){
-    # Can't specify both parameters at the same time
-    stop("'skip' and 'only' may not be used at the same time")
-  } else if(!is.null(skip)){
-    # Ignore columns listed in "skip"
-    ignored <- skip
-  } else if (!is.null(only)){
-    # Ignore all columns except those in "only"
-    ignored <- setdiff(names(df), only)
-  } else {
-    # Don't ignore any columns
-    ignored <- list()
-  }
-
-  # Record how many were present before filtering
-  before <- length(df)
+  ignored <- process_skip_only(df, skip, only)
 
   # Keep columns that are ignored or that have >= n values that aren't NA
-  keep <- df[, sapply(df, function(col) ((col %in% ignored) | (length(col[!is.na(col)]))) >= n), drop=FALSE]
-  removed <- sum(!keep)
-
-  if(!"ID" %in% colnames(keep) & "ID" %in% colnames(df)) {
-    keep <- cbind(df$ID, keep)
-    names(keep)[[1]] <- "ID"
-  }
+  keep <- (colSums(!is.na(df)) >= n) | ignored  # Boolean vector
+  filtered_df <- df[, keep, drop=FALSE]
 
   # Log how many were removed
-  print(paste(removed, "of", before, "columns removed due to <", n, "non-NA observations (ignoring", length(ignored), "columns)", sep=" "))
+  print(paste(sum(!keep), "of", length(keep), "columns removed due to <", n, "non-NA observations (ignoring", sum(ignored), "columns)", sep=" "))
 
   t2 <- Sys.time()
   print(paste("Finished in", round(as.numeric(difftime(t2,t1, units="secs")), 6), "secs", sep=" "))
 
-  return(keep)
+  return(filtered_df)
 }
 
