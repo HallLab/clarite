@@ -138,7 +138,6 @@ ewas <- function(cat=NULL, cont=NULL, y, cov=NULL, regress){
     fres <- regress_cont(d=cont, fmla=fmla, cols=c("ID", cov, y), rtype=regress)
   
   } else if(is.null(cont) & !is.null(cat)){
-    d <- as.data.frame(sapply(cat, factor))
     fres <- regress_cat(d=d, fmla=fmla, cols=c("ID", cov, y, names(cont)), rtype=regress, usenull=usenull)
   }
 
