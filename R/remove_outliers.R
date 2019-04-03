@@ -26,7 +26,7 @@ remove_outliers <- function(df, x=2.5, skip=NULL, only=NULL){
   }
 
   # Create a list of "ignored" columns which are never filtered
-  ignored <- process_skip_only(df, skip, only)
+  ignored <- get_unfiltered_cols(df, skip, only)
 
   before_nas <- colSums(is.na(df))
 

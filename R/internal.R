@@ -1,7 +1,7 @@
 # This file contains internal functions that are only meant to be used by other functions in the package
 
 # This function handles processing of 'skip' and 'only' parameters for column-filtering functions
-process_skip_only <- function(df, skip, only){
+get_unfiltered_cols <- function(df, skip, only){
   if(!is.null(skip) & !is.null(only)){
       # Can't specify both parameters at the same time
       stop("'skip' and 'only' may not be used at the same time")

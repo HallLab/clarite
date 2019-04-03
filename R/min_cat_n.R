@@ -25,7 +25,7 @@ min_cat_n <- function(df, n=200, skip=NULL, only=NULL){
   }
 
   # Create a list of "ignored" columns which are never filtered
-  ignored <- process_skip_only(df, skip, only)
+  ignored <- get_unfiltered_cols(df, skip, only)
 
   # Keep columns that have >= n unique values
   keep <- sapply(df, function(v) (min(table(v)) >= n)) | ignored  # Boolean vector
