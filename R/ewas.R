@@ -55,6 +55,13 @@ ewas <- function(cat=NULL, cont=NULL, y, cov=NULL, regress){
 
     mco <- lapply(d[, !(colnames(d) %in% cols), drop=FALSE], function (x) return(tryCatch(do.call(glm, list(stats::as.formula(fmla), family=as.name(rtype), data=as.name("d"))), error=function(e) NULL)))
     nmco<- mco[!sapply(mco, is.null)]
+    
+    # Check for non-null results (nrow = NULL and length = 0)
+    if (length(nmco) == 0){
+      warning("No non-null results for continuous variables")
+      return(data.frame())
+    }
+
     sco <- lapply(nmco, function (x) summary(x))
     #Grab sample size, beta, se beta, and pvalue
     rco <- data.frame(t(as.data.frame(sapply(nmco, function(x) as.data.frame(length(x$residuals))))),
@@ -78,6 +85,12 @@ ewas <- function(cat=NULL, cont=NULL, y, cov=NULL, regress){
       red <- lapply(d[,!(colnames(d) %in% cols), drop=FALSE], function(x) return(tryCatch(glm(stats::as.formula(gsub("\\~x", "~1", fmla)), data=d[!is.na(x), ], family=rtype), error=function(e) NULL)))
     }
     nmca<- mca[!sapply(mca, is.null)]
+    # Check for non-null results (nrow = NULL and length = 0)
+    if (length(nmca) == 0){
+      warning("No non-null results for categorical variables")
+      return(data.frame())
+    }
+
     nred<- red[!sapply(mca, is.null)]
     lrt <- mapply(function (x,y) stats::anova(x,y, test="LRT"), x=nmca, y=nred, SIMPLIFY = FALSE)
     #Grab sample size, beta, se beta, and pvalue
