@@ -1,44 +1,100 @@
 ###Continuous###
-#Regress over columns != ID, y, covariates, or categorical variables
 regress_cont <- function(d, fmla, variables, rtype){
-
-  mco <- lapply(d[variables], function (x) return(tryCatch(do.call(glm, list(stats::as.formula(fmla), family=as.name(rtype), data=as.name("d"))), error=function(e) NULL)))
-  nmco<- mco[!sapply(mco, is.null)]
-  sco <- lapply(nmco, function (x) summary(x))
-  #Grab sample size, beta, se beta, and pvalue
-  rco <- data.frame(t(as.data.frame(sapply(nmco, function(x) as.data.frame(length(x$residuals))))),
-                    t(as.data.frame(sapply(nmco, function(x) as.data.frame(x$converged)))),
-                    t(as.data.frame(sapply(sco, function(x) as.data.frame(cbind(x$coefficients[2,1],
-                                                                                x$coefficients[2,2],
-                                                                                x$coefficients[2,4]))))),
-                    NA, NA)
-  prco <- data.frame(names = gsub("\\.length.x.residuals.","", row.names(rco)), rco, row.names = NULL)
-  names(prco) <- c("Variable", "N", "Converged", "Beta", "SE", "Variable_pvalue", "LRT_pvalue", "Diff_AIC")
-  prco$pval <- ifelse(prco$Converged==TRUE, prco$Variable_pvalue, NA)
-  return(prco)
+  n <- length(variables)
+  df <- data.frame(Variable = character(n),
+                  N = numeric(n),
+                  Converged = logical(n),
+                  Beta = numeric(n),
+                  SE = numeric(n),
+                  Variable_pvalue = numeric(n),
+                  LRT_pvalue = numeric(n),
+                  Diff_AIC = numeric(n),
+                  pval = numeric(n),
+                  stringsAsFactors = FALSE
+  )
+  i = 1
+  for(var_name in variables){
+    df$Variable[i] <- var_name
+    # Update formula
+    var_fmla <- gsub("~x", paste("~", var_name, sep=""), fmla)
+    var_result <- tryCatch(glm(stats::as.formula(var_fmla), family=rtype, data=d), error=function(e) {NULL})
+    if (is.null(var_result)){
+      # Return null results
+      df$N[i] <- NA
+      df$Converged[i] <- NA
+      df$Beta[i] <- NA
+      df$SE[i] <- NA
+      df$Variable_pvalue[i] <- NA
+      df$LRT_pvalue[i] <- NA
+      df$Diff_AIC[i] <- NA
+      df$pval[i] <- NA
+    } else {
+      # Get the summary
+      var_summary <- summary(var_result)
+      # Return processed summary results
+      df$N[i] <- length(var_result$residuals)
+      df$Converged[i] <- var_result$converged
+      df$Beta[i] <- var_summary$coefficients[2,1]
+      df$SE[i] <- var_summary$coefficients[2,2]
+      df$Variable_pvalue[i] <- var_summary$coefficients[2,4]
+      df$LRT_pvalue[i] <- NA
+      df$Diff_AIC[i] <- NA
+      df$pval[i] <- var_summary$coefficients[2,4]
+    }
+    i <- i + 1
+  }
+  return(df)
 }
 
 ###Categorical###
-#Regress over columns != ID, y, covariates, or continuous variables
 regress_cat <- function(d, fmla, fmla_restricted, variables, rtype){
-  mca <- lapply(d[variables], function (x) return(tryCatch(do.call(glm, list(stats::as.formula(fmla), family=as.name(rtype), data=as.name("d"))), error=function(e) NULL)))
-  red <- lapply(d[variables], function(x) return(tryCatch(glm(stats::as.formula(fmla_restricted), data=d[!is.na(x), ], family=rtype), error=function(e) NULL)))
-
-  nmca<- mca[!sapply(mca, is.null)]
-  nred<- red[!sapply(mca, is.null)]
-  lrt <- mapply(function (x,y) stats::anova(x,y, test="LRT"), x=nmca, y=nred, SIMPLIFY = FALSE)
-  #Grab sample size, beta, se beta, and pvalue
-  rca <- data.frame(t(as.data.frame(sapply(nmca, function(x) as.data.frame(length(x$residuals))))),
-                    t(as.data.frame(sapply(nmca, function(x) as.data.frame(x$converged)))),
-                    NA, NA, NA,
-                    t(as.data.frame(sapply(lrt, function(x) as.data.frame(cbind(x$`Pr(>Chi)`[2]))))),
-                    t(as.data.frame(mapply(function (x,y) x$aic-y$aic, x=nmca, y=nred, SIMPLIFY = FALSE))))
-  prca <- data.frame(names = gsub("\\.length.x.residuals.","", row.names(rca)), rca, row.names = NULL)
-  names(prca) <- c("Variable", "N", "Converged", "Beta", "SE", "Variable_pvalue", "LRT_pvalue", "Diff_AIC")
-  prca$pval <- ifelse(prca$Converged==TRUE, prca$LRT_pvalue, NA)
-  return(prca)
+  n <- length(variables)
+  df <- data.frame(Variable = character(n),
+                  N = numeric(n),
+                  Converged = logical(n),
+                  Beta = numeric(n),
+                  SE = numeric(n),
+                  Variable_pvalue = numeric(n),
+                  LRT_pvalue = numeric(n),
+                  Diff_AIC = numeric(n),
+                  pval = numeric(n),
+                  stringsAsFactors = FALSE
+  )
+  i = 1
+  for(var_name in variables){
+    df$Variable[i] <- var_name
+    # Update formulas
+    var_fmla <- gsub("~x", paste("~", var_name, sep=""), fmla)
+    var_fmla_restricted <- gsub("~x", paste("~", var_name, sep=""), fmla_restricted)
+    var_result <- tryCatch(glm(stats::as.formula(var_fmla), family=rtype, data=d), error=function(e) {NULL})
+    restricted_result <- tryCatch(glm(stats::as.formula(var_fmla_restricted), family=rtype, data=var_result$model), error=function(e) {NULL})
+    if(!is.null(var_result) & !is.null(restricted_result)){
+      # Get LRT result
+      lrt <- stats::anova(var_result, restricted_result, test="LRT")
+      # Return processed result
+      df$N[i] <- length(var_result$residuals)
+      df$Converged[i] <- var_result$converged
+      df$Beta[i] <- NA
+      df$SE[i] <- NA
+      df$Variable_pvalue[i] <- NA
+      df$LRT_pvalue[i] <- lrt$`Pr(>Chi)`[2]
+      df$Diff_AIC[i] <- var_result$aic - restricted_result$aic
+      df$pval[i] <- lrt$`Pr(>Chi)`[2]
+    } else{
+      # Return null results
+      df$N[i] <- NA
+      df$Converged[i] <- NA
+      df$Beta[i] <- NA
+      df$SE[i] <- NA
+      df$Variable_pvalue[i] <- NA
+      df$LRT_pvalue[i] <- NA
+      df$Diff_AIC[i] <- NA
+      df$pval[i] <- NA
+    }
+    i <- i+1
+  }
+  return(df)
 }
-
 
 #' ewas
 #'
@@ -198,7 +254,7 @@ ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_cova
   }
 
   # Create a dataframe, sort by pvalue, and add the tested phenotype as a column
-  fres <- as.data.frame(lapply(fres, unlist))
+  #fres <- as.data.frame(lapply(fres, unlist))
   fres <- fres[order(fres$pval),]
   fres$phenotype <- y
 
