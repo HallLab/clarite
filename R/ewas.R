@@ -1,8 +1,51 @@
+###Continuous###
+#Regress over columns != ID, y, covariates, or categorical variables
+regress_cont <- function(d, fmla, variables, rtype){
+
+  mco <- lapply(d[variables], function (x) return(tryCatch(do.call(glm, list(stats::as.formula(fmla), family=as.name(rtype), data=as.name("d"))), error=function(e) NULL)))
+  nmco<- mco[!sapply(mco, is.null)]
+  sco <- lapply(nmco, function (x) summary(x))
+  #Grab sample size, beta, se beta, and pvalue
+  rco <- data.frame(t(as.data.frame(sapply(nmco, function(x) as.data.frame(length(x$residuals))))),
+                    t(as.data.frame(sapply(nmco, function(x) as.data.frame(x$converged)))),
+                    t(as.data.frame(sapply(sco, function(x) as.data.frame(cbind(x$coefficients[2,1],
+                                                                                x$coefficients[2,2],
+                                                                                x$coefficients[2,4]))))),
+                    "NA", "NA")
+  prco <- data.frame(names = gsub("\\.length.x.residuals.","", row.names(rco)), rco, row.names = NULL)
+  names(prco) <- c("Variable", "N", "Converged", "Beta", "SE", "Variable_pvalue", "LRT_pvalue", "Diff_AIC")
+  prco$pval <- ifelse(prco$Converged==TRUE, prco$Variable_pvalue, NA)
+  return(prco)
+}
+
+###Categorical###
+#Regress over columns != ID, y, covariates, or continuous variables
+regress_cat <- function(d, fmla, fmla_restricted, variables, rtype){
+  mca <- lapply(d[variables], function (x) return(tryCatch(do.call(glm, list(stats::as.formula(fmla), family=as.name(rtype), data=as.name("d"))), error=function(e) NULL)))
+  red <- lapply(d[variables], function(x) return(tryCatch(glm(stats::as.formula(fmla_restricted), data=d[!is.na(x), ], family=rtype), error=function(e) NULL)))
+
+  nmca<- mca[!sapply(mca, is.null)]
+  nred<- red[!sapply(mca, is.null)]
+  lrt <- mapply(function (x,y) stats::anova(x,y, test="LRT"), x=nmca, y=nred, SIMPLIFY = FALSE)
+  #Grab sample size, beta, se beta, and pvalue
+  rca <- data.frame(t(as.data.frame(sapply(nmca, function(x) as.data.frame(length(x$residuals))))),
+                    t(as.data.frame(sapply(nmca, function(x) as.data.frame(x$converged)))),
+                    "NA", "NA", "NA",
+                    t(as.data.frame(sapply(lrt, function(x) as.data.frame(cbind(x$`Pr(>Chi)`[2]))))),
+                    t(as.data.frame(mapply(function (x,y) x$aic-y$aic, x=nmca, y=nred, SIMPLIFY = FALSE))))
+  prca <- data.frame(names = gsub("\\.length.x.residuals.","", row.names(rca)), rca, row.names = NULL)
+  names(prca) <- c("Variable", "N", "Converged", "Beta", "SE", "Variable_pvalue", "LRT_pvalue", "Diff_AIC")
+  prca$pval <- ifelse(prca$Converged==TRUE, prca$LRT_pvalue, NA)
+  return(prca)
+}
+
+
 #' ewas
 #'
 #' Run environment-wide association study
-#' @param cat data frame containing categorical variables with first column as ID
-#' @param cont data frame containing continuous variables with first column as ID
+#' @param d data.frame or survey::svydesign object containing all of the data
+#' @param cat_vars List of variables to regress that are categorical or binary
+#' @param cont_vars  List of variables to regress that are continuous
 #' @param y name(s) of response variable(s)
 #' @param cov vector containing names of covariates
 #' @param regress family for the regression model as specified in glm, linear or logisitic
@@ -11,12 +54,11 @@
 #' @family analysis functions
 #' @examples
 #' \dontrun{
-#' ewas(cat, cont, y, cov, regress)
+#' ewas(d, cat_vars, cont_vars, y, cov, regress)
 #' }
 
-ewas <- function(cat=NULL, cont=NULL, y, cov=NULL, regress){
+ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cov=NULL, regress){
   t1 <- Sys.time()
-  print("Running...")
 
   if(missing(y)){
     stop("Please specify either 'continuous' or 'categorical' type for predictor variables")
@@ -24,123 +66,108 @@ ewas <- function(cat=NULL, cont=NULL, y, cov=NULL, regress){
   if(missing(regress)){
     stop("Please specify family type for glm()")
   }
-  if(is.null(cat) & is.null(cont)){
-    stop("'cat' and 'cont' may not both be null")
+  if(is.null(cat_vars)){
+    cat_vars <- list()
   }
-  if(inherits(cat, "list") | inherits(cont, "list")){
-    stop("'cat' and 'cont' must be specified as single dataframes, not lists")
-  }
-
-  # Get a list of variable names
-  variable_names <- union(names(cat), names(cont))
-
-  # Ensure phenotypes are all present
-  missing_phenotypes <- setdiff(y, variable_names)
-  if(length(missing_phenotypes)>0) {
-      stop("Phenotype(s) missing from the categorical and/or continuous variables: ", paste(missing_phenotypes, collapse=", "))
+  if(is.null(cont_vars)){
+    cont_vars <- list()
   }
 
-  # Ensure covariates are all present
-  missing_covariates <- setdiff(cov, variable_names)
+  # Ignore the phenotype and ID if they were included in the variable lists
+  remove <- c(y, "ID")
+  cat_vars <- setdiff(cat_vars, remove)
+  cont_vars <- setdiff(cont_vars, remove)
+
+  # Ensure variables aren't listed in both
+  both <- intersect(cat_vars, cont_vars)
+  if (length(both) > 0){stop("Some variables listed as both categorical and continuous: ", paste(both, collapse=", "))}
+
+  # Determine the type that was passed in
+  if(class(d) == "data.frame"){
+    use_survey <- FALSE
+    print("Running using stats::glm")
+  } else if(class(d)[2] == "survey.design") {
+    use_survey <- TRUE
+    print("Running using survey:svyglm")
+  } else {
+    stop("Data must be either a data.frame or a survey::design object")
+  }
+
+  # Ensure specified variables are all present
+  if (use_survey){
+    missing_cat_vars = setdiff(cat_vars, names(d$variables))
+    missing_cont_vars = setdiff(cont_vars, names(d$variables))
+    missing_phenotypes = setdiff(y, names(d$variables))
+    missing_covariates = setdiff(cov, names(d$variables))
+  } else {
+    missing_cat_vars = setdiff(cat_vars, names(d))
+    missing_cont_vars = setdiff(cont_vars, names(d))
+    missing_phenotypes = setdiff(y, names(d))
+    missing_covariates = setdiff(cov, names(d))
+  }
+  if(length(missing_cat_vars) > 0) {
+    stop("Some categorical variables could not be found in the data: ", paste(missing_cat_vars, collapse=", "))
+  }
+  if(length(missing_cont_vars) > 0) {
+    stop("Some continuous variables could not be found in the data: ", paste(missing_cont_vars, collapse=", "))
+  }
+  if(length(missing_phenotypes) > 0) {
+    stop("Phenotype(s) couldn't be found in the lists of variables: ", paste(missing_phenotypes, collapse=", "))
+  }
   if(length(missing_covariates)>0) {
-      stop("Covariate(s) missing from the categorical and/or continuous variables: ", paste(missing_covariates, collapse=", "))
+      stop("Covariate(s) couldn't be found in the lists of variables: ", paste(missing_covariates, collapse=", "))
   }
 
-  # Get the glm function
-  glm <- eval(parse(text="stats::glm"))
-
-  ###Continuous###
-  #Regress over columns != ID, y, covariates, or categorical variables
-  regress_cont <- function(d, fmla, cols, rtype){
-
-    mco <- lapply(d[, !(colnames(d) %in% cols), drop=FALSE], function (x) return(tryCatch(do.call(glm, list(stats::as.formula(fmla), family=as.name(rtype), data=as.name("d"))), error=function(e) NULL)))
-    nmco<- mco[!sapply(mco, is.null)]
-    sco <- lapply(nmco, function (x) summary(x))
-    #Grab sample size, beta, se beta, and pvalue
-    rco <- data.frame(t(as.data.frame(sapply(nmco, function(x) as.data.frame(length(x$residuals))))),
-                      t(as.data.frame(sapply(nmco, function(x) as.data.frame(x$converged)))),
-                      t(as.data.frame(sapply(sco, function(x) as.data.frame(cbind(x$coefficients[2,1],
-                                                                                  x$coefficients[2,2],
-                                                                                  x$coefficients[2,4]))))))
-    prco <- data.frame(names = gsub("\\.length.x.residuals.","", row.names(rco)), rco, row.names = NULL)
-    names(prco) <- c("Variable", "N", "Converged", "Beta", "SE", "Variable_pvalue")
-    prco$pval <- ifelse(prco$Converged==TRUE, prco$Variable_pvalue, NA)
-    return(prco)
-  }
-
-  ###Categorical###
-  #Regress over columns != ID, y, covariates, or continuous variables
-  regress_cat <- function(d, fmla, cols, rtype, usenull=FALSE){
-    mca <- lapply(d[, !(colnames(d) %in% cols), drop=FALSE], function (x) return(tryCatch(do.call(glm, list(stats::as.formula(fmla), family=as.name(rtype), data=as.name("d"))), error=function(e) NULL)))
-    if(usenull==FALSE){
-      red <- lapply(d[,!(colnames(d) %in% cols), drop=FALSE], function(x) return(tryCatch(glm(stats::as.formula(sub("x\\+", "", fmla)), data=d[!is.na(x), ], family=rtype), error=function(e) NULL)))
-    } else {
-      red <- lapply(d[,!(colnames(d) %in% cols), drop=FALSE], function(x) return(tryCatch(glm(stats::as.formula(gsub("\\~x", "~1", fmla)), data=d[!is.na(x), ], family=rtype), error=function(e) NULL)))
-    }
-    nmca<- mca[!sapply(mca, is.null)]
-    nred<- red[!sapply(mca, is.null)]
-    lrt <- mapply(function (x,y) stats::anova(x,y, test="LRT"), x=nmca, y=nred, SIMPLIFY = FALSE)
-    #Grab sample size, beta, se beta, and pvalue
-    rca <- data.frame(t(as.data.frame(sapply(nmca, function(x) as.data.frame(length(x$residuals))))),
-                      t(as.data.frame(sapply(nmca, function(x) as.data.frame(x$converged)))),
-                      "NA", "NA", "NA",
-                      t(as.data.frame(sapply(lrt, function(x) as.data.frame(cbind(x$`Pr(>Chi)`[2]))))),
-                      t(as.data.frame(mapply(function (x,y) x$aic-y$aic, x=nmca, y=nred, SIMPLIFY = FALSE))))
-    prca <- data.frame(names = gsub("\\.length.x.residuals.","", row.names(rca)), rca, row.names = NULL)
-    names(prca) <- c("Variable", "N", "Converged", "Beta", "SE", "Variable_pvalue", "LRT_pvalue", "Diff_AIC")
-    prca$pval <- ifelse(prca$Converged==TRUE, prca$LRT_pvalue, NA)
-    return(prca)
-  }
-
-  #Specify regression forumula
+  #Specify regression forumulas
   if(!is.null(cov)){
     fmla <- paste(y,"~x+", paste(cov, collapse="+"), sep="")
-    usenull=FALSE
+    fmla_restricted <- paste(y, "~", paste(cov, collapse="+"), sep="")
   } else {
     fmla <- paste(y,"~x", sep="")
-    usenull<-TRUE
+    fmla_restricted <- paste(y, "~1", sep="")
   }
 
   #Correct the types and check for IDs
-  if(!is.null(cat)){
-    if(is.element('ID', names(cat))==FALSE){stop("Please add ID to 'cat' as column 1")}
-    cat <- as.data.frame(sapply(cat, factor))
-  }
-
-  if(!is.null(cont)){
-    if(is.element('ID', names(cont))==FALSE){stop("Please add ID to 'cont' as column 1")}
-    cont$ID <- factor(cont$ID)
-    if(sum(sapply(cont[, -1, drop=FALSE],is.numeric))!=ncol(cont)-1){stop("Please make sure that all values in 'cont' are numeric")}
+  if (use_survey) {
+    # ID
+    if(is.element('ID', names(d$variables))==FALSE){stop("Please add ID to the data as column 1")}
+    d$variables$ID <- factor(d$variables$ID)
+    # Categorical
+    d$variables[cat_vars] <- lapply(d$variables[cat_vars], factor)
+    # Continuous
+    if(sum(sapply(d$variables[cont_vars], is.numeric))!=length(cont_vars)){
+      stop("Please make sure that all continuous variables are numeric")
+    }
+  } else {
+    # ID
+    if(is.element('ID', names(d))==FALSE){stop("Please add ID to the data as column 1")}
+    d$ID <- factor(d$ID)
+    # Categorical
+    d[cat_vars] <- lapply(d[cat_vars], factor)
+    # Continuous
+    if(sum(sapply(d[cont_vars], is.numeric))!=length(cont_vars)){
+      non_numeric_vars <- names(d[!sapply(d[cont_vars], is.numeric)])
+      stop("Some continuous variables are not numeric: ", paste(non_numeric_vars, collapse=", "))
+    }
   }
 
   #Run Regressions
-  if(!is.null(cat) & !is.null(cont)){
-    d <- merge(cat, cont, by="ID", all=TRUE)
-
-    if(dim(cont[, !(colnames(cont) %in% c("ID", cov, y)), drop=FALSE])[2]>0){
-      rcont <- regress_cont(d=d, fmla=fmla, cols=c("ID", cov, y, names(cat)), rtype=regress)
-      rcont$LRT_pvalue <- NA
-      rcont$Diff_AIC <- NA
-    } else {
-      rcont <- NULL
-      print("No continuous variables to run regressions on")
-    }
-    if(dim(cat[, !(colnames(cat) %in% c("ID", cov, y)), drop=FALSE])[2]>0){
-      rcat <- regress_cat(d=d, fmla=fmla, cols=c("ID", cov, y, names(cont)), rtype=regress, usenull=usenull)
-    } else {
-      rcat <- NULL
-      print("No categorical variables to run regressions on")
-    }
-
+  if(!is.null(cat_vars) & !is.null(cont_vars)){
+    # Regress both kinds of variables and merge
+    rcont <- regress_cont(d=d, fmla=fmla, variables=cont_vars, rtype=regress)
+    rcat <- regress_cat(d=d, fmla=fmla, fmla_restricted=fmla_restricted, variables=cat_vars, rtype=regress)
     fres <- rbind(rcont, rcat)
 
-  } else if(is.null(cat) & !is.null(cont)){
-    fres <- regress_cont(d=cont, fmla=fmla, cols=c("ID", cov, y), rtype=regress)
+  } else if(is.null(cat_vars) & !is.null(cont_vars)){
+    # Regress continuous variables
+    fres <- regress_cont(d=d, fmla=fmla, variables=cont_vars, rtype=regress)
   
   } else if(is.null(cont) & !is.null(cat)){
-    fres <- regress_cat(d=d, fmla=fmla, cols=c("ID", cov, y, names(cont)), rtype=regress, usenull=usenull)
+    # Regress categorical variables
+    fres <- regress_cat(d=d, fmla=fmla, fmla_restricted=fmla_restricted, variables=cat_vars, rtype=regress)
   }
 
+  # Create a dataframe, sort by pvalue, and add the tested phenotype as a column
   fres <- as.data.frame(lapply(fres, unlist))
   fres <- fres[order(fres$pval),]
   fres$phenotype <- y

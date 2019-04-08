@@ -4,12 +4,14 @@
 \alias{ewas}
 \title{ewas}
 \usage{
-ewas(cat = NULL, cont = NULL, y, cov = NULL, regress)
+ewas(d, cat_vars = NULL, cont_vars = NULL, y, cov = NULL, regress)
 }
 \arguments{
-\item{cat}{data frame containing categorical variables with first column as ID}
+\item{d}{data.frame or survey::svydesign object containing all of the data}
 
-\item{cont}{data frame containing continuous variables with first column as ID}
+\item{cat_vars}{List of variables to regress that are categorical or binary}
+
+\item{cont_vars}{List of variables to regress that are continuous}
 
 \item{y}{name(s) of response variable(s)}
 
@@ -25,7 +27,7 @@ Run environment-wide association study
 }
 \examples{
 \dontrun{
-ewas(cat, cont, y, cov, regress)
+ewas(d, cat_vars, cont_vars, y, cov, regress)
 }
 }
 \seealso{
