@@ -4,7 +4,8 @@
 \alias{ewas}
 \title{ewas}
 \usage{
-ewas(d, cat_vars = NULL, cont_vars = NULL, y, cov = NULL, regress)
+ewas(d, cat_vars = NULL, cont_vars = NULL, y, cat_covars = NULL,
+  cont_covars = NULL, regress)
 }
 \arguments{
 \item{d}{data.frame or survey::svydesign object containing all of the data}
@@ -15,7 +16,9 @@ ewas(d, cat_vars = NULL, cont_vars = NULL, y, cov = NULL, regress)
 
 \item{y}{name(s) of response variable(s)}
 
-\item{cov}{vector containing names of covariates}
+\item{cat_covars}{List of covariates that are categorical or binary}
+
+\item{cont_covars}{List of covariates that are continuous}
 
 \item{regress}{family for the regression model as specified in glm, linear or logisitic}
 }
@@ -27,7 +30,7 @@ Run environment-wide association study
 }
 \examples{
 \dontrun{
-ewas(d, cat_vars, cont_vars, y, cov, regress)
+ewas(d, cat_vars, cont_vars, y, cat_covars, cont_covars, regress)
 }
 }
 \seealso{

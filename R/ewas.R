@@ -11,7 +11,7 @@ regress_cont <- function(d, fmla, variables, rtype){
                     t(as.data.frame(sapply(sco, function(x) as.data.frame(cbind(x$coefficients[2,1],
                                                                                 x$coefficients[2,2],
                                                                                 x$coefficients[2,4]))))),
-                    "NA", "NA")
+                    NA, NA)
   prco <- data.frame(names = gsub("\\.length.x.residuals.","", row.names(rco)), rco, row.names = NULL)
   names(prco) <- c("Variable", "N", "Converged", "Beta", "SE", "Variable_pvalue", "LRT_pvalue", "Diff_AIC")
   prco$pval <- ifelse(prco$Converged==TRUE, prco$Variable_pvalue, NA)
@@ -30,7 +30,7 @@ regress_cat <- function(d, fmla, fmla_restricted, variables, rtype){
   #Grab sample size, beta, se beta, and pvalue
   rca <- data.frame(t(as.data.frame(sapply(nmca, function(x) as.data.frame(length(x$residuals))))),
                     t(as.data.frame(sapply(nmca, function(x) as.data.frame(x$converged)))),
-                    "NA", "NA", "NA",
+                    NA, NA, NA,
                     t(as.data.frame(sapply(lrt, function(x) as.data.frame(cbind(x$`Pr(>Chi)`[2]))))),
                     t(as.data.frame(mapply(function (x,y) x$aic-y$aic, x=nmca, y=nred, SIMPLIFY = FALSE))))
   prca <- data.frame(names = gsub("\\.length.x.residuals.","", row.names(rca)), rca, row.names = NULL)
@@ -47,17 +47,18 @@ regress_cat <- function(d, fmla, fmla_restricted, variables, rtype){
 #' @param cat_vars List of variables to regress that are categorical or binary
 #' @param cont_vars  List of variables to regress that are continuous
 #' @param y name(s) of response variable(s)
-#' @param cov vector containing names of covariates
+#' @param cat_covars List of covariates that are categorical or binary
+#' @param cont_covars List of covariates that are continuous
 #' @param regress family for the regression model as specified in glm, linear or logisitic
 #' @return data frame containing following fields Variable, Sample Size, Converged, SE, Beta, Variable p-value, LRT, AIC, pval, Phenotype
 #' @export
 #' @family analysis functions
 #' @examples
 #' \dontrun{
-#' ewas(d, cat_vars, cont_vars, y, cov, regress)
+#' ewas(d, cat_vars, cont_vars, y, cat_covars, cont_covars, regress)
 #' }
 
-ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cov=NULL, regress){
+ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_covars=NULL, regress){
   t1 <- Sys.time()
 
   if(missing(y)){
@@ -72,15 +73,27 @@ ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cov=NULL, regress){
   if(is.null(cont_vars)){
     cont_vars <- list()
   }
+  if(is.null(cat_covars)){
+    cat_covars <- list()
+  }
+  if(is.null(cont_covars)){
+    cont_covars <- list()
+  }
 
-  # Ignore the phenotype and ID if they were included in the variable lists
-  remove <- c(y, "ID")
+  # Ignore the covariates, phenotype, and ID if they were included in the variable lists
+  remove <- c(y, cat_covars, cont_covars, "ID")
   cat_vars <- setdiff(cat_vars, remove)
   cont_vars <- setdiff(cont_vars, remove)
+  # Ignore the phenotype, and ID if they were included in the covariates lists
+  remove <- c(y, "ID")
+  cat_covars <- setdiff(cat_covars, remove)
+  cont_covars <- setdiff(cont_covars, remove)
 
-  # Ensure variables aren't listed in both
+  # Ensure variables/covariates aren't listed as multiple different types
+  both <- intersect(cat_covars, cont_covars)
+  if (length(both) > 0){stop("Some covariates are listed as both categorical and continuous: ", paste(both, collapse=", "))}
   both <- intersect(cat_vars, cont_vars)
-  if (length(both) > 0){stop("Some variables listed as both categorical and continuous: ", paste(both, collapse=", "))}
+  if (length(both) > 0){stop("Some variables are listed as both categorical and continuous: ", paste(both, collapse=", "))}
 
   # Determine the type that was passed in
   if(class(d) == "data.frame"){
@@ -98,33 +111,29 @@ ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cov=NULL, regress){
     missing_cat_vars = setdiff(cat_vars, names(d$variables))
     missing_cont_vars = setdiff(cont_vars, names(d$variables))
     missing_phenotypes = setdiff(y, names(d$variables))
-    missing_covariates = setdiff(cov, names(d$variables))
+    missing_cat_covars = setdiff(cat_covars, names(d$variables))
+    missing_cont_covars = setdiff(cont_covars, names(d$variables))
   } else {
     missing_cat_vars = setdiff(cat_vars, names(d))
     missing_cont_vars = setdiff(cont_vars, names(d))
     missing_phenotypes = setdiff(y, names(d))
-    missing_covariates = setdiff(cov, names(d))
+    missing_cat_covars = setdiff(cat_covars, names(d))
+    missing_cont_covars = setdiff(cont_covars, names(d))
   }
   if(length(missing_cat_vars) > 0) {
-    stop("Some categorical variables could not be found in the data: ", paste(missing_cat_vars, collapse=", "))
+    stop("Some categorical variable(s) could not be found in the data: ", paste(missing_cat_vars, collapse=", "))
   }
   if(length(missing_cont_vars) > 0) {
-    stop("Some continuous variables could not be found in the data: ", paste(missing_cont_vars, collapse=", "))
+    stop("Some continuous variable(s) could not be found in the data: ", paste(missing_cont_vars, collapse=", "))
   }
   if(length(missing_phenotypes) > 0) {
     stop("Phenotype(s) couldn't be found in the lists of variables: ", paste(missing_phenotypes, collapse=", "))
   }
-  if(length(missing_covariates)>0) {
-      stop("Covariate(s) couldn't be found in the lists of variables: ", paste(missing_covariates, collapse=", "))
+  if(length(missing_cat_covars)>0) {
+      stop("Some categorical covariate(s) couldn't be found in the data: ", paste(missing_cat_covars, collapse=", "))
   }
-
-  #Specify regression forumulas
-  if(!is.null(cov)){
-    fmla <- paste(y,"~x+", paste(cov, collapse="+"), sep="")
-    fmla_restricted <- paste(y, "~", paste(cov, collapse="+"), sep="")
-  } else {
-    fmla <- paste(y,"~x", sep="")
-    fmla_restricted <- paste(y, "~1", sep="")
+  if(length(missing_cont_covars)>0) {
+      stop("Some continuous covariate(s) couldn't be found in the data: ", paste(missing_cont_covars, collapse=", "))
   }
 
   #Correct the types and check for IDs
@@ -134,9 +143,15 @@ ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cov=NULL, regress){
     d$variables$ID <- factor(d$variables$ID)
     # Categorical
     d$variables[cat_vars] <- lapply(d$variables[cat_vars], factor)
+    d$variables[cat_covars] <- lapply(d$variables[cat_covars], factor)
     # Continuous
     if(sum(sapply(d$variables[cont_vars], is.numeric))!=length(cont_vars)){
-      stop("Please make sure that all continuous variables are numeric")
+      non_numeric_vars <- names(d$variables[!sapply(d$variables[cont_vars], is.numeric)])
+      stop("Some continuous variables are not numeric: ", paste(non_numeric_vars, collapse=", "))
+    }
+    if(sum(sapply(d$variables[cont_covars], is.numeric))!=length(cont_covars)){
+      non_numeric_covars <- names(d$variables[!sapply(d$variables[cont_covars], is.numeric)])
+      stop("Some continuous covariates are not numeric: ", paste(non_numeric_covars, collapse=", "))
     }
   } else {
     # ID
@@ -144,11 +159,26 @@ ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cov=NULL, regress){
     d$ID <- factor(d$ID)
     # Categorical
     d[cat_vars] <- lapply(d[cat_vars], factor)
+    d[cat_covars] <- lapply(d[cat_covars], factor)
     # Continuous
     if(sum(sapply(d[cont_vars], is.numeric))!=length(cont_vars)){
       non_numeric_vars <- names(d[!sapply(d[cont_vars], is.numeric)])
       stop("Some continuous variables are not numeric: ", paste(non_numeric_vars, collapse=", "))
     }
+    if(sum(sapply(d[cont_covars], is.numeric))!=length(cont_covars)){
+      non_numeric_covars <- names(d[!sapply(d[cont_covars], is.numeric)])
+      stop("Some continuous covariates are not numeric: ", paste(non_numeric_covars, collapse=", "))
+    }
+  }
+
+  #Specify regression forumulas and combined list of covariates
+  cov <- c(cat_covars, cont_covars)
+  if(length(cov)>0){
+    fmla <- paste(y,"~x+", paste(cov, collapse="+"), sep="")
+    fmla_restricted <- paste(y, "~", paste(cov, collapse="+"), sep="")
+  } else {
+    fmla <- paste(y,"~x", sep="")
+    fmla_restricted <- paste(y, "~1", sep="")
   }
 
   #Run Regressions
