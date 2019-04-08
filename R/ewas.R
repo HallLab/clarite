@@ -1,5 +1,5 @@
 ###Continuous###
-regress_cont <- function(d, fmla, variables, rtype){
+regress_cont <- function(d, fmla, variables, rtype, use_survey){
   n <- length(variables)
   df <- data.frame(Variable = character(n),
                   N = numeric(n),
@@ -17,7 +17,11 @@ regress_cont <- function(d, fmla, variables, rtype){
     df$Variable[i] <- var_name
     # Update formula
     var_fmla <- gsub("~x", paste("~", var_name, sep=""), fmla)
-    var_result <- tryCatch(glm(stats::as.formula(var_fmla), family=rtype, data=d), error=function(e) {NULL})
+    if(use_survey){
+      var_result <- tryCatch(survey::svyglm(stats::as.formula(var_fmla), family=rtype, design=d), error=function(e) {NULL})
+    } else {
+      var_result <- tryCatch(glm(stats::as.formula(var_fmla), family=rtype, data=d), error=function(e) {NULL})
+    }
     if (is.null(var_result)){
       # Return null results
       df$N[i] <- NA
@@ -47,7 +51,7 @@ regress_cont <- function(d, fmla, variables, rtype){
 }
 
 ###Categorical###
-regress_cat <- function(d, fmla, fmla_restricted, variables, rtype){
+regress_cat <- function(d, fmla, fmla_restricted, variables, rtype, use_survey){
   n <- length(variables)
   df <- data.frame(Variable = character(n),
                   N = numeric(n),
@@ -66,8 +70,13 @@ regress_cat <- function(d, fmla, fmla_restricted, variables, rtype){
     # Update formulas
     var_fmla <- gsub("~x", paste("~", var_name, sep=""), fmla)
     var_fmla_restricted <- gsub("~x", paste("~", var_name, sep=""), fmla_restricted)
-    var_result <- tryCatch(glm(stats::as.formula(var_fmla), family=rtype, data=d), error=function(e) {NULL})
-    restricted_result <- tryCatch(glm(stats::as.formula(var_fmla_restricted), family=rtype, data=var_result$model), error=function(e) {NULL})
+    if(use_survey){
+      var_result <- tryCatch(survey::svyglm(stats::as.formula(var_fmla), family=rtype, design=d), error=function(e) {NULL})
+      restricted_result <- tryCatch(survey::svyglm(stats::as.formula(var_fmla_restricted), family=rtype, design=var_result$model), error=function(e) {NULL})
+    } else {
+      var_result <- tryCatch(glm(stats::as.formula(var_fmla), family=rtype, data=d), error=function(e) {NULL})
+      restricted_result <- tryCatch(glm(stats::as.formula(var_fmla_restricted), family=rtype, data=var_result$model), error=function(e) {NULL})
+    }
     if(!is.null(var_result) & !is.null(restricted_result)){
       # Get LRT result
       lrt <- stats::anova(var_result, restricted_result, test="LRT")
@@ -240,17 +249,17 @@ ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_cova
   #Run Regressions
   if(!is.null(cat_vars) & !is.null(cont_vars)){
     # Regress both kinds of variables and merge
-    rcont <- regress_cont(d=d, fmla=fmla, variables=cont_vars, rtype=regress)
-    rcat <- regress_cat(d=d, fmla=fmla, fmla_restricted=fmla_restricted, variables=cat_vars, rtype=regress)
+    rcont <- regress_cont(d=d, fmla=fmla, variables=cont_vars, rtype=regress, use_survey=use_survey)
+    rcat <- regress_cat(d=d, fmla=fmla, fmla_restricted=fmla_restricted, variables=cat_vars, rtype=regress, use_survey=use_survey)
     fres <- rbind(rcont, rcat)
 
   } else if(is.null(cat_vars) & !is.null(cont_vars)){
     # Regress continuous variables
-    fres <- regress_cont(d=d, fmla=fmla, variables=cont_vars, rtype=regress)
+    fres <- regress_cont(d=d, fmla=fmla, variables=cont_vars, rtype=regress, use_survey=use_survey)
   
   } else if(is.null(cont) & !is.null(cat)){
     # Regress categorical variables
-    fres <- regress_cat(d=d, fmla=fmla, fmla_restricted=fmla_restricted, variables=cat_vars, rtype=regress)
+    fres <- regress_cat(d=d, fmla=fmla, fmla_restricted=fmla_restricted, variables=cat_vars, rtype=regress, use_survey=use_survey)
   }
 
   # Create a dataframe, sort by pvalue, and add the tested phenotype as a column
