@@ -161,7 +161,7 @@ ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_cova
   if (length(both) > 0){stop("Some variables are listed as both categorical and continuous: ", paste(both, collapse=", "))}
 
   # Determine the type that was passed in
-  if(class(d) == "data.frame"){
+  if(class(d)[1] == "data.frame"){
     use_survey <- FALSE
     print("Running using stats::glm")
   } else if(class(d)[2] == "survey.design") {
