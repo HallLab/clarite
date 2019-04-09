@@ -1,5 +1,6 @@
 ###Continuous###
 regress_cont <- function(d, fmla, variables, rtype, use_survey){
+  # Create a placeholder dataframe for results, anything not updated will be NA
   n <- length(variables)
   df <- data.frame(Variable = character(n),
                   N = numeric(n),
@@ -12,37 +13,30 @@ regress_cont <- function(d, fmla, variables, rtype, use_survey){
                   pval = numeric(n),
                   stringsAsFactors = FALSE
   )
+  df[] <- NA  # Fill df with NA values
   i = 1
   for(var_name in variables){
+    # Iterate through variables, updating df with results
     df$Variable[i] <- var_name
-    # Update formula
-    var_fmla <- gsub("~x", paste("~", var_name, sep=""), fmla)
+   # Update formula with the current variable
+    fmla_var <- gsub("~x", paste("~", var_name, sep=""), fmla)
+    # Run GLM
     if(use_survey){
-      var_result <- tryCatch(survey::svyglm(stats::as.formula(var_fmla), family=rtype, design=d), error=function(e) {NULL})
+      # Use survey::svyglm
+      var_result <- tryCatch(survey::svyglm(stats::as.formula(fmla_var), family=rtype, design=d), error=function(e) {NULL})
     } else {
-      var_result <- tryCatch(glm(stats::as.formula(var_fmla), family=rtype, data=d), error=function(e) {NULL})
+      # Use stats::glm
+      var_result <- tryCatch(glm(stats::as.formula(fmla_var), family=rtype, data=d), error=function(e) {NULL})
     }
-    if (is.null(var_result)){
-      # Return null results
-      df$N[i] <- NA
-      df$Converged[i] <- NA
-      df$Beta[i] <- NA
-      df$SE[i] <- NA
-      df$Variable_pvalue[i] <- NA
-      df$LRT_pvalue[i] <- NA
-      df$Diff_AIC[i] <- NA
-      df$pval[i] <- NA
-    } else {
-      # Get the summary
+    # Collect Results
+    if (!is.null(var_result)){
       var_summary <- summary(var_result)
-      # Return processed summary results
+      # Update with processed summary results
       df$N[i] <- length(var_result$residuals)
       df$Converged[i] <- var_result$converged
       df$Beta[i] <- var_summary$coefficients[2,1]
       df$SE[i] <- var_summary$coefficients[2,2]
       df$Variable_pvalue[i] <- var_summary$coefficients[2,4]
-      df$LRT_pvalue[i] <- NA
-      df$Diff_AIC[i] <- NA
       df$pval[i] <- var_summary$coefficients[2,4]
     }
     i <- i + 1
@@ -51,7 +45,9 @@ regress_cont <- function(d, fmla, variables, rtype, use_survey){
 }
 
 ###Categorical###
+# Note categorical is trickier since the difference between survey and data.frame is more extensive than using a different function
 regress_cat <- function(d, fmla, fmla_restricted, variables, rtype, use_survey){
+  # Create a placeholder dataframe for results, anything not updated will be NA
   n <- length(variables)
   df <- data.frame(Variable = character(n),
                   N = numeric(n),
@@ -64,41 +60,37 @@ regress_cat <- function(d, fmla, fmla_restricted, variables, rtype, use_survey){
                   pval = numeric(n),
                   stringsAsFactors = FALSE
   )
+  df[] <- NA  # Fill df with NA values
   i = 1
   for(var_name in variables){
+    # Iterate through variables, updating df with results
     df$Variable[i] <- var_name
-    # Update formulas
-    var_fmla <- gsub("~x", paste("~", var_name, sep=""), fmla)
-    var_fmla_restricted <- gsub("~x", paste("~", var_name, sep=""), fmla_restricted)
+    # Update formula with the current variable (restricted formula doesn't have it)
+    fmla_var <- gsub("~x", paste("~", var_name, sep=""), fmla)
+    # Run GLM Functions
     if(use_survey){
-      var_result <- tryCatch(survey::svyglm(stats::as.formula(var_fmla), family=rtype, design=d), error=function(e) {NULL})
-      restricted_result <- tryCatch(survey::svyglm(stats::as.formula(var_fmla_restricted), family=rtype, design=var_result$model), error=function(e) {NULL})
+      # Results using survey with survey::regTermTest
+      var_result <- tryCatch(survey::svyglm(stats::as.formula(fmla_var), family=rtype, design=d), error=function(e) {NULL})
+      if(!is.null(var_result)) {
+        lrt <- survey::regTermTest(model=var_result, test.terms=var_name, df=NULL, method = "LRT")
+        df$N[i] <- length(var_result$residuals)
+        df$Converged[i] <- var_result$converged
+        df$LRT_pvalue[i] <- lrt$`Pr(>Chi)`[2]
+        df$Diff_AIC[i] <- var_result$aic - restricted_result$aic
+        df$pval[i] <- lrt$`Pr(>Chi)`[2]
+      }
     } else {
-      var_result <- tryCatch(glm(stats::as.formula(var_fmla), family=rtype, data=d), error=function(e) {NULL})
-      restricted_result <- tryCatch(glm(stats::as.formula(var_fmla_restricted), family=rtype, data=var_result$model), error=function(e) {NULL})
-    }
-    if(!is.null(var_result) & !is.null(restricted_result)){
-      # Get LRT result
-      lrt <- stats::anova(var_result, restricted_result, test="LRT")
-      # Return processed result
-      df$N[i] <- length(var_result$residuals)
-      df$Converged[i] <- var_result$converged
-      df$Beta[i] <- NA
-      df$SE[i] <- NA
-      df$Variable_pvalue[i] <- NA
-      df$LRT_pvalue[i] <- lrt$`Pr(>Chi)`[2]
-      df$Diff_AIC[i] <- var_result$aic - restricted_result$aic
-      df$pval[i] <- lrt$`Pr(>Chi)`[2]
-    } else{
-      # Return null results
-      df$N[i] <- NA
-      df$Converged[i] <- NA
-      df$Beta[i] <- NA
-      df$SE[i] <- NA
-      df$Variable_pvalue[i] <- NA
-      df$LRT_pvalue[i] <- NA
-      df$Diff_AIC[i] <- NA
-      df$pval[i] <- NA
+      # Results using data.frame with stats::anova
+      var_result <- tryCatch(glm(stats::as.formula(fmla_var), family=rtype, data=d), error=function(e) {NULL})
+      restricted_result <- tryCatch(glm(stats::as.formula(fmla_restricted), family=rtype, data=var_result$model), error=function(e) {NULL})
+      if(!is.null(var_result) & !is.null(restricted_result)){
+        lrt <- stats::anova(var_result, restricted_result, test="Chisq")
+        df$N[i] <- length(var_result$residuals)
+        df$Converged[i] <- var_result$converged
+        df$LRT_pvalue[i] <- lrt$`Pr(>Chi)`[2]
+        df$Diff_AIC[i] <- var_result$aic - restricted_result$aic
+        df$pval[i] <- lrt$`Pr(>Chi)`[2]
+      }
     }
     i <- i+1
   }
