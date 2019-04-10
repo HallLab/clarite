@@ -1,3 +1,9 @@
+# Catch errors from glm and similar, warning instead
+warn_on_e <- function(var_name, e){
+  warning(paste("NULL result for ", var_name, " due to: ", e, sep=""), call=FALSE)
+  return(NULL)
+}
+
 ###Continuous###
 regress_cont <- function(d, fmla, variables, rtype, use_survey){
   # Create a placeholder dataframe for results, anything not updated will be NA
@@ -23,10 +29,10 @@ regress_cont <- function(d, fmla, variables, rtype, use_survey){
     # Run GLM
     if(use_survey){
       # Use survey::svyglm
-      var_result <- tryCatch(survey::svyglm(stats::as.formula(fmla_var), family=rtype, design=d), error=function(e) {warning(e);NULL})
+      var_result <- tryCatch(survey::svyglm(stats::as.formula(fmla_var), family=rtype, design=d), error=function(e) warn_on_e(var_name, e))
     } else {
       # Use stats::glm
-      var_result <- tryCatch(glm(stats::as.formula(fmla_var), family=rtype, data=d), error=function(e) {warning(e);NULL})
+      var_result <- tryCatch(glm(stats::as.formula(fmla_var), family=rtype, data=d), error=function(e) warn_on_e(var_name, e))
     }
     # Collect Results
     if (!is.null(var_result)){
@@ -73,8 +79,8 @@ regress_cat <- function(d, fmla, fmla_restricted, variables, rtype, use_survey){
     # Run GLM Functions
     if(use_survey){
       # Results using surveyglm
-      var_result <- tryCatch(survey::svyglm(stats::as.formula(fmla_var), family=rtype, design=d), error=function(e) {warning(e);NULL})
-      restricted_result <- tryCatch(survey::svyglm(stats::as.formula(fmla_restricted), family=rtype, design=d), error=function(e) {warning(e);NULL})
+      var_result <- tryCatch(survey::svyglm(stats::as.formula(fmla_var), family=rtype, design=d), error=function(e) warn_on_e(var_name, e))
+      restricted_result <- tryCatch(survey::svyglm(stats::as.formula(fmla_restricted), family=rtype, design=d), error=function(e) warn_on_e(var_name, e))
       if(!is.null(var_result) & !is.null(restricted_result)){
         # Get the LRT using anova
         lrt <- anova(var_result, restricted_result, method = "LRT")
@@ -86,10 +92,11 @@ regress_cat <- function(d, fmla, fmla_restricted, variables, rtype, use_survey){
       }
     } else {
       # Results using data.frame with stats::anova
-      var_result <- tryCatch(glm(stats::as.formula(fmla_var), family=rtype, data=d), error=function(e) {NULL})
-      restricted_result <- tryCatch(glm(stats::as.formula(fmla_restricted), family=rtype, data=var_result$model), error=function(e) {NULL})
+      var_result <- tryCatch(glm(stats::as.formula(fmla_var), family=rtype, data=d), error=function(e) warn_on_e(var_name, e))
+      restricted_result <- tryCatch(glm(stats::as.formula(fmla_restricted), family=rtype, data=var_result$model), error=function(e) warn_on_e(var_name, e))
       if(!is.null(var_result) & !is.null(restricted_result)){
-        lrt <- stats::anova(var_result, restricted_result, method = "LRT")
+        lrt <- anova(var_result, restricted_result, test = "LRT")
+        print(summary(lrt))
         df$N[i] <- length(var_result$residuals)
         df$Converged[i] <- var_result$converged
         df$LRT_pvalue[i] <- lrt$`Pr(>Chi)`[2]
