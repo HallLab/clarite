@@ -23,10 +23,10 @@ regress_cont <- function(d, fmla, variables, rtype, use_survey){
     # Run GLM
     if(use_survey){
       # Use survey::svyglm
-      var_result <- tryCatch(survey::svyglm(stats::as.formula(fmla_var), family=rtype, design=d), error=function(e) {NULL})
+      var_result <- tryCatch(survey::svyglm(stats::as.formula(fmla_var), family=rtype, design=d), error=function(e) {warning(e);NULL})
     } else {
       # Use stats::glm
-      var_result <- tryCatch(glm(stats::as.formula(fmla_var), family=rtype, data=d), error=function(e) {NULL})
+      var_result <- tryCatch(glm(stats::as.formula(fmla_var), family=rtype, data=d), error=function(e) {warning(e);NULL})
     }
     # Collect Results
     if (!is.null(var_result)){
@@ -47,6 +47,9 @@ regress_cont <- function(d, fmla, variables, rtype, use_survey){
 ###Categorical###
 # Note categorical is trickier since the difference between survey and data.frame is more extensive than using a different function
 regress_cat <- function(d, fmla, fmla_restricted, variables, rtype, use_survey){
+  # Store the variables input into the glm in the parent scope to avoid a missing object error in the nested anova function
+  d <<- d
+  rtype <<- rtype
   # Create a placeholder dataframe for results, anything not updated will be NA
   n <- length(variables)
   df <- data.frame(Variable = character(n),
@@ -69,19 +72,16 @@ regress_cat <- function(d, fmla, fmla_restricted, variables, rtype, use_survey){
     fmla_var <- gsub("~x", paste("~", var_name, sep=""), fmla)
     # Run GLM Functions
     if(use_survey){
-      # Results using survey with survey::regTermTest
+      # Results using surveyglm
       var_result <- tryCatch(survey::svyglm(stats::as.formula(fmla_var), family=rtype, design=d), error=function(e) {warning(e);NULL})
-      if(!is.null(var_result)) {
-        # Store the variables input into the glm in the parent scope to avoid a missing object error in the nested regTermTest function
-        d <<- d
-        rtype <<- rtype
-        # Get the LRT using survey::regTermTest
-        lrt <- survey::regTermTest(model=var_result, test.terms=var_name, df=Inf, method = "LRT")
-        # TODO: Try with anova
+      restricted_result <- tryCatch(survey::svyglm(stats::as.formula(fmla_restricted), family=rtype, design=d), error=function(e) {warning(e);NULL})
+      if(!is.null(var_result) & !is.null(restricted_result)){
+        # Get the LRT using anova
+        lrt <- anova(var_result, restricted_result, method = "LRT")
         df$N[i] <- length(var_result$residuals)
         df$Converged[i] <- var_result$converged
         df$LRT_pvalue[i] <- lrt$p
-        df$Diff_AIC[i] <- NA
+        df$Diff_AIC[i] <- var_result$aic - restricted_result$aic
         df$pval[i] <- lrt$p
       }
     } else {
@@ -89,7 +89,7 @@ regress_cat <- function(d, fmla, fmla_restricted, variables, rtype, use_survey){
       var_result <- tryCatch(glm(stats::as.formula(fmla_var), family=rtype, data=d), error=function(e) {NULL})
       restricted_result <- tryCatch(glm(stats::as.formula(fmla_restricted), family=rtype, data=var_result$model), error=function(e) {NULL})
       if(!is.null(var_result) & !is.null(restricted_result)){
-        lrt <- stats::anova(var_result, restricted_result, test="Chisq")
+        lrt <- stats::anova(var_result, restricted_result, method = "LRT")
         df$N[i] <- length(var_result$residuals)
         df$Converged[i] <- var_result$converged
         df$LRT_pvalue[i] <- lrt$`Pr(>Chi)`[2]
