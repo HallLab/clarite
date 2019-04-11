@@ -96,7 +96,6 @@ regress_cat <- function(d, fmla, fmla_restricted, variables, rtype, use_survey){
       restricted_result <- tryCatch(glm(stats::as.formula(fmla_restricted), family=rtype, data=var_result$model), error=function(e) warn_on_e(var_name, e))
       if(!is.null(var_result) & !is.null(restricted_result)){
         lrt <- anova(var_result, restricted_result, test = "LRT")
-        print(summary(lrt))
         df$N[i] <- length(var_result$residuals)
         df$Converged[i] <- var_result$converged
         df$LRT_pvalue[i] <- lrt$`Pr(>Chi)`[2]
