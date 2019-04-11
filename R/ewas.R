@@ -286,17 +286,17 @@ ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_cova
   covariates <- c(cat_covars, cont_covars)
 
   #Run Regressions
-  if(!is.null(cat_vars) & !is.null(cont_vars)){
+  if(length(cat_vars) > 0 & length(cont_vars) > 0){
     # Regress both kinds of variables and merge
     rcont <- regress_cont(d=d, covariates=covariates, phenotype=y, variables=cont_vars, rtype=regress, use_survey=use_survey)
     rcat <- regress_cat(d=d, covariates=covariates, phenotype=y, variables=cat_vars, rtype=regress, use_survey=use_survey)
     fres <- rbind(rcont, rcat)
 
-  } else if(is.null(cat_vars) & !is.null(cont_vars)){
+  } else if(length(cat_vars) == 0 & length(cont_vars) > 0){
     # Regress continuous variables
     fres <- regress_cont(d=d, covariates=covariates, phenotype=y, variables=cont_vars, rtype=regress, use_survey=use_survey)
   
-  } else if(is.null(cont) & !is.null(cat)){
+  } else if(length(cat_vars) > 0 & length(cont_vars) == 0){
     # Regress categorical variables
     fres <- regress_cat(d=d, covariates=covariates, phenotype=y, variables=cat_vars, rtype=regress, use_survey=use_survey)
   }
