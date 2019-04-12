@@ -21,6 +21,7 @@ get_varying_covariates <- function(df, covariates, phenotype, variable){
 
 ###Continuous###
 regress_cont <- function(d, covariates, phenotype, variables, rtype, use_survey){
+  print(paste("Processing ", length(variables), " continuous variables", sep=""))
   # Create a placeholder dataframe for results, anything not updated will be NA
   n <- length(variables)
   df <- data.frame(Variable = character(n),
@@ -46,7 +47,7 @@ regress_cont <- function(d, covariates, phenotype, variables, rtype, use_survey)
       subset_data <- subset(d, !is.na(d$variables[var_name]))  # Use the survey subset function
     } else {
       varying_covariates <- get_varying_covariates(d, covariates, phenotype, var_name)
-      subset_data <- d[!is.na(d[var_name])]  # use a subset of the data directly
+      subset_data <- d[!is.na(d[var_name]),]  # use a subset of the data directly
     }
 
     # Create a regression formula
@@ -83,6 +84,7 @@ regress_cont <- function(d, covariates, phenotype, variables, rtype, use_survey)
 ###Categorical###
 # Note categorical is trickier since the difference between survey and data.frame is more extensive than using a different function
 regress_cat <- function(d, covariates, phenotype, variables, rtype, use_survey){
+  print(paste("Processing ", length(variables), " categorical variables", sep=""))
   # Create a placeholder dataframe for results, anything not updated will be NA
   n <- length(variables)
   df <- data.frame(Variable = character(n),
@@ -108,7 +110,7 @@ regress_cat <- function(d, covariates, phenotype, variables, rtype, use_survey){
       subset_data <- subset(d, !is.na(d$variables[var_name]))  # Use the survey subset function
     } else {
       varying_covariates <- get_varying_covariates(d, covariates, phenotype, var_name)
-      subset_data <- d[!is.na(d[var_name])]  # use a subset of the data directly
+      subset_data <- d[!is.na(d[var_name]),]  # use a subset of the data directly
     }
 
     # Create a regression formula and a restricted regression formula
@@ -209,10 +211,10 @@ ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_cova
   # Determine the type that was passed in
   if(class(d)[1] == "data.frame"){
     use_survey <- FALSE
-    print("Running using stats::glm")
+    print("Using stats::glm")
   } else if(class(d)[2] == "survey.design") {
     use_survey <- TRUE
-    print("Running using survey:svyglm")
+    print("Using survey:svyglm")
   } else {
     stop("Data must be either a data.frame or a survey::design object")
   }
@@ -256,13 +258,17 @@ ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_cova
     d$variables[cat_vars] <- lapply(d$variables[cat_vars], factor)
     d$variables[cat_covars] <- lapply(d$variables[cat_covars], factor)
     # Continuous
-    if(sum(sapply(d$variables[cont_vars], is.numeric))!=length(cont_vars)){
-      non_numeric_vars <- names(d$variables[!sapply(d$variables[cont_vars], is.numeric)])
-      stop("Some continuous variables are not numeric: ", paste(non_numeric_vars, collapse=", "))
+    if(length(cont_vars) > 0){
+      if(sum(sapply(d$variables[cont_vars], is.numeric))!=length(cont_vars)){
+        non_numeric_vars <- names(d$variables[!sapply(d$variables[cont_vars], is.numeric)])
+        stop("Some continuous variables are not numeric: ", paste(non_numeric_vars, collapse=", "))
+      }
     }
-    if(sum(sapply(d$variables[cont_covars], is.numeric))!=length(cont_covars)){
-      non_numeric_covars <- names(d$variables[!sapply(d$variables[cont_covars], is.numeric)])
-      stop("Some continuous covariates are not numeric: ", paste(non_numeric_covars, collapse=", "))
+    if (length(cont_covars) > 0){
+      if(sum(sapply(d$variables[cont_covars], is.numeric))!=length(cont_covars)){
+        non_numeric_covars <- names(d$variables[!sapply(d$variables[cont_covars], is.numeric)])
+        stop("Some continuous covariates are not numeric: ", paste(non_numeric_covars, collapse=", "))
+      }
     }
   } else {
     # ID
@@ -272,13 +278,17 @@ ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_cova
     d[cat_vars] <- lapply(d[cat_vars], factor)
     d[cat_covars] <- lapply(d[cat_covars], factor)
     # Continuous
-    if(sum(sapply(d[cont_vars], is.numeric))!=length(cont_vars)){
-      non_numeric_vars <- names(d[!sapply(d[cont_vars], is.numeric)])
-      stop("Some continuous variables are not numeric: ", paste(non_numeric_vars, collapse=", "))
+    if(length(cont_vars) > 0){
+      if(sum(sapply(d[cont_vars], is.numeric))!=length(cont_vars)){
+        non_numeric_vars <- names(d[!sapply(d[cont_vars], is.numeric)])
+        stop("Some continuous variables are not numeric: ", paste(non_numeric_vars, collapse=", "))
+      }
     }
-    if(sum(sapply(d[cont_covars], is.numeric))!=length(cont_covars)){
-      non_numeric_covars <- names(d[!sapply(d[cont_covars], is.numeric)])
-      stop("Some continuous covariates are not numeric: ", paste(non_numeric_covars, collapse=", "))
+    if (length(cont_covars) > 0){
+      if(sum(sapply(d[cont_covars], is.numeric))!=length(cont_covars)){
+        non_numeric_covars <- names(d[!sapply(d[cont_covars], is.numeric)])
+        stop("Some continuous covariates are not numeric: ", paste(non_numeric_covars, collapse=", "))
+      }
     }
   }
 
