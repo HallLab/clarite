@@ -240,7 +240,7 @@ ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_cova
     stop("Some continuous variable(s) could not be found in the data: ", paste(missing_cont_vars, collapse=", "))
   }
   if(length(missing_phenotypes) > 0) {
-    stop("Phenotype(s) couldn't be found in the lists of variables: ", paste(missing_phenotypes, collapse=", "))
+    stop("Phenotype(s) couldn't be found in the data: ", paste(missing_phenotypes, collapse=", "))
   }
   if(length(missing_cat_covars)>0) {
       stop("Some categorical covariate(s) couldn't be found in the data: ", paste(missing_cat_covars, collapse=", "))
