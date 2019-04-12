@@ -59,6 +59,9 @@ regress_cont <- function(d, covariates, phenotype, variables, rtype, use_survey)
 
     # Run GLM
     if(use_survey){
+      # Update scope of the rtype and subset_data variables (surveyglm doesn't handle this well)
+      rtype <<- rtype
+      subset_data <<- subset_data
       # Use survey::svyglm
       var_result <- tryCatch(survey::svyglm(stats::as.formula(fmla), family=rtype, design=subset_data), error=function(e) warn_on_e(var_name, e))
     } else {
@@ -123,9 +126,12 @@ regress_cat <- function(d, covariates, phenotype, variables, rtype, use_survey){
     }
     # Run GLM Functions
     if(use_survey){
+      # Update scope of the rtype and subset_data variables (surveyglm doesn't handle this well)
+      rtype <<- rtype
+      subset_data <<- subset_data
       # Results using surveyglm
-      var_result <- tryCatch(survey::svyglm(stats::as.formula(fmla), family="rtype", design="subset_data"), error=function(e) warn_on_e(var_name, e))
-      restricted_result <- tryCatch(survey::svyglm(stats::as.formula(fmla_restricted), family="rtype", design="subset_data"), error=function(e) warn_on_e(var_name, e))
+      var_result <- tryCatch(survey::svyglm(stats::as.formula(fmla), family=rtype, design=subset_data), error=function(e) warn_on_e(var_name, e))
+      restricted_result <- tryCatch(survey::svyglm(stats::as.formula(fmla_restricted), family=rtype, design=subset_data), error=function(e) warn_on_e(var_name, e))
       if(!is.null(var_result) & !is.null(restricted_result)){
         # Get the LRT using anova
         lrt <- anova(var_result, restricted_result, method = "LRT")
@@ -255,8 +261,8 @@ ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_cova
     if(is.element('ID', names(d$variables))==FALSE){stop("Please add ID to the data as column 1")}
     d$variables$ID <- factor(d$variables$ID)
     # Categorical
-    d$variables[cat_vars] <- lapply(d$variables[cat_vars], factor)
-    d$variables[cat_covars] <- lapply(d$variables[cat_covars], factor)
+    if(length(cat_vars) > 0){d$variables[cat_vars] <- lapply(d$variables[cat_vars], factor)}
+    if(length(cat_covars) > 0){d$variables[cat_covars] <- lapply(d$variables[cat_covars], factor)}
     # Continuous
     if(length(cont_vars) > 0){
       if(sum(sapply(d$variables[cont_vars], is.numeric))!=length(cont_vars)){
@@ -275,8 +281,8 @@ ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_cova
     if(is.element('ID', names(d))==FALSE){stop("Please add ID to the data as column 1")}
     d$ID <- factor(d$ID)
     # Categorical
-    d[cat_vars] <- lapply(d[cat_vars], factor)
-    d[cat_covars] <- lapply(d[cat_covars], factor)
+    if(length(cat_vars) > 0){d[cat_vars] <- lapply(d[cat_vars], factor)}
+    if(length(cat_covars) > 0){d[cat_covars] <- lapply(d[cat_covars], factor)}
     # Continuous
     if(length(cont_vars) > 0){
       if(sum(sapply(d[cont_vars], is.numeric))!=length(cont_vars)){
@@ -309,6 +315,9 @@ ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_cova
   } else if(length(cat_vars) > 0 & length(cont_vars) == 0){
     # Regress categorical variables
     fres <- regress_cat(d=d, covariates=covariates, phenotype=y, variables=cat_vars, rtype=regress, use_survey=use_survey)
+  } else {
+    warning("No variables were specified")
+    return(data.frame())
   }
 
   # Create a dataframe, sort by pvalue, and add the tested phenotype as a column
