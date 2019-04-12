@@ -4,8 +4,23 @@ warn_on_e <- function(var_name, e){
   return(NULL)
 }
 
+# Get required data for regressing a specific variable
+get_varying_covariates <- function(df, covariates, phenotype, variable){
+  # Get number of unique values in covariates among observations where the variable is not NA
+  cov_counts <- sapply(covariates, function(c) {length(unique(df[!is.na(df[c]) & !is.na(df[variable]), c]))})
+  varying_covariates <- covariates[cov_counts >= 2]
+  nonvarying_covariates <- covariates[cov_counts <2]
+  # Warn if nonvarying_covariates exist
+  if (length(nonvarying_covariates) > 0){
+    warning(paste(variable, ": Some covariates ignored because they don't vary when this variable is not NA: ",
+     paste(nonvarying_covariates, collapse=", "), sep=""))
+  }
+  # Return the list of covariates that are kept
+  return(varying_covariates)
+}
+
 ###Continuous###
-regress_cont <- function(d, fmla, variables, rtype, use_survey){
+regress_cont <- function(d, covariates, phenotype, variables, rtype, use_survey){
   # Create a placeholder dataframe for results, anything not updated will be NA
   n <- length(variables)
   df <- data.frame(Variable = character(n),
@@ -24,15 +39,30 @@ regress_cont <- function(d, fmla, variables, rtype, use_survey){
   for(var_name in variables){
     # Iterate through variables, updating df with results
     df$Variable[i] <- var_name
-   # Update formula with the current variable
-    fmla_var <- gsub("~x", paste("~", var_name, sep=""), fmla)
+
+    # Check Covariates and subset the data to use only observations where the variable is not NA
+    if (use_survey){
+      varying_covariates <- get_varying_covariates(d$variables, covariates, phenotype, var_name)
+      subset_data <- subset(d, !is.na(d$variables[var_name]))  # Use the survey subset function
+    } else {
+      varying_covariates <- get_varying_covariates(d, covariates, phenotype, var_name)
+      subset_data <- d[!is.na(d[var_name])]  # use a subset of the data directly
+    }
+
+    # Create a regression formula
+    if(length(varying_covariates)>0){
+      fmla <- paste(phenotype, "~", var_name, "+", paste(varying_covariates, collapse="+"), sep="")
+    } else {
+      fmla <- paste(phenotype, "~", var_name, sep="")
+    }
+
     # Run GLM
     if(use_survey){
       # Use survey::svyglm
-      var_result <- tryCatch(survey::svyglm(stats::as.formula(fmla_var), family=rtype, design=d), error=function(e) warn_on_e(var_name, e))
+      var_result <- tryCatch(survey::svyglm(stats::as.formula(fmla), family=rtype, design=subset_data), error=function(e) warn_on_e(var_name, e))
     } else {
       # Use stats::glm
-      var_result <- tryCatch(glm(stats::as.formula(fmla_var), family=rtype, data=d), error=function(e) warn_on_e(var_name, e))
+      var_result <- tryCatch(glm(stats::as.formula(fmla), family=rtype, data=subset_data), error=function(e) warn_on_e(var_name, e))
     }
     # Collect Results
     if (!is.null(var_result)){
@@ -52,10 +82,7 @@ regress_cont <- function(d, fmla, variables, rtype, use_survey){
 
 ###Categorical###
 # Note categorical is trickier since the difference between survey and data.frame is more extensive than using a different function
-regress_cat <- function(d, fmla, fmla_restricted, variables, rtype, use_survey){
-  # Store the variables input into the glm in the parent scope to avoid a missing object error in the nested anova function
-  d <<- d
-  rtype <<- rtype
+regress_cat <- function(d, covariates, phenotype, variables, rtype, use_survey){
   # Create a placeholder dataframe for results, anything not updated will be NA
   n <- length(variables)
   df <- data.frame(Variable = character(n),
@@ -74,13 +101,29 @@ regress_cat <- function(d, fmla, fmla_restricted, variables, rtype, use_survey){
   for(var_name in variables){
     # Iterate through variables, updating df with results
     df$Variable[i] <- var_name
-    # Update formula with the current variable (restricted formula doesn't have it)
-    fmla_var <- gsub("~x", paste("~", var_name, sep=""), fmla)
+
+    # Check Covariates and subset the data to use only observations where the variable is not NA
+    if (use_survey){
+      varying_covariates <- get_varying_covariates(d$variables, covariates, phenotype, var_name)
+      subset_data <- subset(d, !is.na(d$variables[var_name]))  # Use the survey subset function
+    } else {
+      varying_covariates <- get_varying_covariates(d, covariates, phenotype, var_name)
+      subset_data <- d[!is.na(d[var_name])]  # use a subset of the data directly
+    }
+
+    # Create a regression formula and a restricted regression formula
+    if(length(varying_covariates)>0){
+      fmla <- paste(phenotype, "~", var_name, "+", paste(varying_covariates, collapse="+"), sep="")
+      fmla_restricted <- paste(phenotype, "~", paste(varying_covariates, collapse="+"), sep="")
+    } else {
+      fmla <- paste(phenotype, "~", var_name, sep="")
+      fmla_restricted <- paste(phenotype, "~1", sep="")
+    }
     # Run GLM Functions
     if(use_survey){
       # Results using surveyglm
-      var_result <- tryCatch(survey::svyglm(stats::as.formula(fmla_var), family=rtype, design=d), error=function(e) warn_on_e(var_name, e))
-      restricted_result <- tryCatch(survey::svyglm(stats::as.formula(fmla_restricted), family=rtype, design=d), error=function(e) warn_on_e(var_name, e))
+      var_result <- tryCatch(survey::svyglm(stats::as.formula(fmla), family="rtype", design="subset_data"), error=function(e) warn_on_e(var_name, e))
+      restricted_result <- tryCatch(survey::svyglm(stats::as.formula(fmla_restricted), family="rtype", design="subset_data"), error=function(e) warn_on_e(var_name, e))
       if(!is.null(var_result) & !is.null(restricted_result)){
         # Get the LRT using anova
         lrt <- anova(var_result, restricted_result, method = "LRT")
@@ -92,8 +135,8 @@ regress_cat <- function(d, fmla, fmla_restricted, variables, rtype, use_survey){
       }
     } else {
       # Results using data.frame with stats::anova
-      var_result <- tryCatch(glm(stats::as.formula(fmla_var), family=rtype, data=d), error=function(e) warn_on_e(var_name, e))
-      restricted_result <- tryCatch(glm(stats::as.formula(fmla_restricted), family=rtype, data=var_result$model), error=function(e) warn_on_e(var_name, e))
+      var_result <- tryCatch(glm(stats::as.formula(fmla), family=rtype, data=subset_data), error=function(e) warn_on_e(var_name, e))
+      restricted_result <- tryCatch(glm(stats::as.formula(fmla_restricted), family=rtype, data=subset_data), error=function(e) warn_on_e(var_name, e))
       if(!is.null(var_result) & !is.null(restricted_result)){
         lrt <- anova(var_result, restricted_result, test = "LRT")
         df$N[i] <- length(var_result$residuals)
@@ -239,30 +282,23 @@ ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_cova
     }
   }
 
-  #Specify regression forumulas and combined list of covariates
-  cov <- c(cat_covars, cont_covars)
-  if(length(cov)>0){
-    fmla <- paste(y,"~x+", paste(cov, collapse="+"), sep="")
-    fmla_restricted <- paste(y, "~", paste(cov, collapse="+"), sep="")
-  } else {
-    fmla <- paste(y,"~x", sep="")
-    fmla_restricted <- paste(y, "~1", sep="")
-  }
+  # Get a combined list of covariates
+  covariates <- c(cat_covars, cont_covars)
 
   #Run Regressions
-  if(!is.null(cat_vars) & !is.null(cont_vars)){
+  if(length(cat_vars) > 0 & length(cont_vars) > 0){
     # Regress both kinds of variables and merge
-    rcont <- regress_cont(d=d, fmla=fmla, variables=cont_vars, rtype=regress, use_survey=use_survey)
-    rcat <- regress_cat(d=d, fmla=fmla, fmla_restricted=fmla_restricted, variables=cat_vars, rtype=regress, use_survey=use_survey)
+    rcont <- regress_cont(d=d, covariates=covariates, phenotype=y, variables=cont_vars, rtype=regress, use_survey=use_survey)
+    rcat <- regress_cat(d=d, covariates=covariates, phenotype=y, variables=cat_vars, rtype=regress, use_survey=use_survey)
     fres <- rbind(rcont, rcat)
 
-  } else if(is.null(cat_vars) & !is.null(cont_vars)){
+  } else if(length(cat_vars) == 0 & length(cont_vars) > 0){
     # Regress continuous variables
-    fres <- regress_cont(d=d, fmla=fmla, variables=cont_vars, rtype=regress, use_survey=use_survey)
+    fres <- regress_cont(d=d, covariates=covariates, phenotype=y, variables=cont_vars, rtype=regress, use_survey=use_survey)
   
-  } else if(is.null(cont) & !is.null(cat)){
+  } else if(length(cat_vars) > 0 & length(cont_vars) == 0){
     # Regress categorical variables
-    fres <- regress_cat(d=d, fmla=fmla, fmla_restricted=fmla_restricted, variables=cat_vars, rtype=regress, use_survey=use_survey)
+    fres <- regress_cat(d=d, covariates=covariates, phenotype=y, variables=cat_vars, rtype=regress, use_survey=use_survey)
   }
 
   # Create a dataframe, sort by pvalue, and add the tested phenotype as a column
