@@ -10,9 +10,9 @@ get_varying_covariates <- function(df, covariates, phenotype, variable){
   cov_counts <- sapply(covariates, function(c) {length(unique(df[!is.na(df[c]) & !is.na(df[variable]), c]))})
   varying_covariates <- covariates[cov_counts >= 2]
   nonvarying_covariates <- covariates[cov_counts <2]
-  # Warn if nonvarying_covariates exist
+  # Print a warning if nonvarying_covariates exist (too often to throw actual warnings)
   if (length(nonvarying_covariates) > 0){
-    warning(paste(variable, ": Some covariates ignored because they don't vary when this variable is not NA: ",
+    print(paste("    Some covariates ignored because they don't vary when '", variable, "' is not NA: ",
      paste(nonvarying_covariates, collapse=", "), sep=""))
   }
   # Return the list of covariates that are kept
@@ -327,6 +327,10 @@ ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_cova
 
   t2 <- Sys.time()
   print(paste("Finished in", round(as.numeric(difftime(t2,t1, units="secs")), 6), "secs", sep=" "))
+  n_null_results <- sum(is.null(fres$pval))
+  if (n_null_results > 0){
+    warning(paste(n_null_results, "of", nrow(fres), "variables had a NULL result due to an error (see earlier warnings for details)"))
+  }
 
   return(fres)
 }
