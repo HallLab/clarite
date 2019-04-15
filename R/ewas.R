@@ -72,12 +72,19 @@ regress_cont <- function(d, covariates, phenotype, variables, rtype, use_survey)
     if (!is.null(var_result)){
       var_summary <- summary(var_result)
       # Update with processed summary results
-      df$N[i] <- length(var_result$residuals)
-      df$Converged[i] <- var_result$converged
-      df$Beta[i] <- var_summary$coefficients[2,1]
-      df$SE[i] <- var_summary$coefficients[2,2]
-      df$Variable_pvalue[i] <- var_summary$coefficients[2,4]
-      df$pval[i] <- var_summary$coefficients[2,4]
+      # Assume non-convergence if no p values are generated
+      num_coeff_cols <- length(var_summary$coefficients)/nrow(var_summary$coefficients)
+      if (num_coeff_cols < 4){
+        df$N[i] <- length(var_result$residuals)
+        df$Converged[i] <- FALSE
+      } else { 
+        df$N[i] <- length(var_result$residuals)
+        df$Converged[i] <- TRUE
+        df$Beta[i] <- var_summary$coefficients[2,1]
+        df$SE[i] <- var_summary$coefficients[2,2]
+        df$Variable_pvalue[i] <- var_summary$coefficients[2,4]
+        df$pval[i] <- var_summary$coefficients[2,4]
+      }
     }
     i <- i + 1
   }
