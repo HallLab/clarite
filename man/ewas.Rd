@@ -5,7 +5,8 @@
 \title{ewas}
 \usage{
 ewas(d, cat_vars = NULL, cont_vars = NULL, y, cat_covars = NULL,
-  cont_covars = NULL, regress)
+  cont_covars = NULL, regress = "gaussian",
+  allowed_nonvarying = NULL)
 }
 \arguments{
 \item{d}{data.frame or survey::svydesign object containing all of the data}
@@ -20,7 +21,9 @@ ewas(d, cat_vars = NULL, cont_vars = NULL, y, cat_covars = NULL,
 
 \item{cont_covars}{List of covariates that are continuous}
 
-\item{regress}{family for the regression model as specified in glm, linear or logisitic}
+\item{regress}{family for the regression model as specified in glm ('gaussian' by default)}
+
+\item{allowed_nonvarying}{list of covariates that are excluded from the regression when they do not vary instead of returning a NULL result.}
 }
 \value{
 data frame containing following fields Variable, Sample Size, Converged, SE, Beta, Variable p-value, LRT, AIC, pval, Phenotype

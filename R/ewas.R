@@ -5,14 +5,21 @@ warn_on_e <- function(var_name, e){
 }
 
 # Get required data for regressing a specific variable
-get_varying_covariates <- function(df, covariates, phenotype, variable){
+get_varying_covariates <- function(df, covariates, phenotype, variable, allowed_nonvarying){
   # Get number of unique values in covariates among observations where the variable is not NA
   cov_counts <- sapply(covariates, function(c) {length(unique(df[!is.na(df[c]) & !is.na(df[variable]), c]))})
   varying_covariates <- covariates[cov_counts >= 2]
   nonvarying_covariates <- covariates[cov_counts <2]
-  # Print a warning if nonvarying_covariates exist (too often to throw actual warnings)
-  if (length(nonvarying_covariates) > 0){
-    print(paste("    Some covariates ignored because they don't vary when '", variable, "' is not NA: ",
+  # Compare to the covariates that are allowed to vary
+  not_allowed_nonvarying <- setdiff(nonvarying_covariates, allowed_nonvarying)
+  if(length(not_allowed_nonvarying) > 0){
+    # Null Result
+    print(paste("    NULL result: Some covariates don't vary when '", variable, "' is not NA and aren't specified as allowed: ",
+     paste(not_allowed_nonvarying, collapse=", "), sep=""))
+     return(NULL)
+  } else if(length(nonvarying_covariates) > 0){
+    # Ignore those
+    print(paste("    Some covariates don't vary when '", variable, "' is not NA but are allowed to do so: ",
      paste(nonvarying_covariates, collapse=", "), sep=""))
   }
   # Return the list of covariates that are kept
@@ -20,7 +27,7 @@ get_varying_covariates <- function(df, covariates, phenotype, variable){
 }
 
 ###Continuous###
-regress_cont <- function(d, covariates, phenotype, variables, rtype, use_survey){
+regress_cont <- function(d, covariates, phenotype, variables, rtype, use_survey, allowed_nonvarying){
   print(paste("Processing ", length(variables), " continuous variables", sep=""))
   # Create a placeholder dataframe for results, anything not updated will be NA
   n <- length(variables)
@@ -43,11 +50,17 @@ regress_cont <- function(d, covariates, phenotype, variables, rtype, use_survey)
 
     # Check Covariates and subset the data to use only observations where the variable is not NA
     if (use_survey){
-      varying_covariates <- get_varying_covariates(d$variables, covariates, phenotype, var_name)
+      varying_covariates <- get_varying_covariates(d$variables, covariates, phenotype, var_name, allowed_nonvarying)
       subset_data <- subset(d, !is.na(d$variables[var_name]))  # Use the survey subset function
     } else {
-      varying_covariates <- get_varying_covariates(d, covariates, phenotype, var_name)
+      varying_covariates <- get_varying_covariates(d, covariates, phenotype, var_name, allowed_nonvarying)
       subset_data <- d[!is.na(d[var_name]),]  # use a subset of the data directly
+    }
+
+    # Skip to the next variable if 'get_varying_covarites' returned NULL (b/c it found a nonvarying covariate the wasn't allowed)
+    if (is.null(varying_covariates)){
+      i <- i + 1
+      next
     }
 
     # Create a regression formula
@@ -93,7 +106,7 @@ regress_cont <- function(d, covariates, phenotype, variables, rtype, use_survey)
 
 ###Categorical###
 # Note categorical is trickier since the difference between survey and data.frame is more extensive than using a different function
-regress_cat <- function(d, covariates, phenotype, variables, rtype, use_survey){
+regress_cat <- function(d, covariates, phenotype, variables, rtype, use_survey, allowed_nonvarying){
   print(paste("Processing ", length(variables), " categorical variables", sep=""))
   # Create a placeholder dataframe for results, anything not updated will be NA
   n <- length(variables)
@@ -116,11 +129,17 @@ regress_cat <- function(d, covariates, phenotype, variables, rtype, use_survey){
 
     # Check Covariates and subset the data to use only observations where the variable is not NA
     if (use_survey){
-      varying_covariates <- get_varying_covariates(d$variables, covariates, phenotype, var_name)
+      varying_covariates <- get_varying_covariates(d$variables, covariates, phenotype, var_name, allowed_nonvarying)
       subset_data <- subset(d, !is.na(d$variables[var_name]))  # Use the survey subset function
     } else {
-      varying_covariates <- get_varying_covariates(d, covariates, phenotype, var_name)
+      varying_covariates <- get_varying_covariates(d, covariates, phenotype, var_name, allowed_nonvarying)
       subset_data <- d[!is.na(d[var_name]),]  # use a subset of the data directly
+    }
+
+    # Skip to the next variable if 'get_varying_covarites' returned NULL (b/c it found a nonvarying covariate the wasn't allowed)
+    if (is.null(varying_covariates)){
+      i <- i + 1
+      next
     }
 
     # Create a regression formula and a restricted regression formula
@@ -175,7 +194,8 @@ regress_cat <- function(d, covariates, phenotype, variables, rtype, use_survey){
 #' @param y name(s) of response variable(s)
 #' @param cat_covars List of covariates that are categorical or binary
 #' @param cont_covars List of covariates that are continuous
-#' @param regress family for the regression model as specified in glm, linear or logisitic
+#' @param regress family for the regression model as specified in glm ('gaussian' by default)
+#' @param allowed_nonvarying list of covariates that are excluded from the regression when they do not vary instead of returning a NULL result.
 #' @return data frame containing following fields Variable, Sample Size, Converged, SE, Beta, Variable p-value, LRT, AIC, pval, Phenotype
 #' @export
 #' @family analysis functions
@@ -184,7 +204,7 @@ regress_cat <- function(d, covariates, phenotype, variables, rtype, use_survey){
 #' ewas(d, cat_vars, cont_vars, y, cat_covars, cont_covars, regress)
 #' }
 
-ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_covars=NULL, regress){
+ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_covars=NULL, regress="gaussian", allowed_nonvarying=NULL){
   t1 <- Sys.time()
 
   if(missing(y)){
@@ -204,6 +224,9 @@ ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_cova
   }
   if(is.null(cont_covars)){
     cont_covars <- list()
+  }
+  if(is.null(allowed_nonvarying)){
+    allowed_nonvarying <- list()
   }
 
   # Ignore the covariates, phenotype, and ID if they were included in the variable lists
@@ -311,17 +334,17 @@ ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_cova
   #Run Regressions
   if(length(cat_vars) > 0 & length(cont_vars) > 0){
     # Regress both kinds of variables and merge
-    rcont <- regress_cont(d=d, covariates=covariates, phenotype=y, variables=cont_vars, rtype=regress, use_survey=use_survey)
-    rcat <- regress_cat(d=d, covariates=covariates, phenotype=y, variables=cat_vars, rtype=regress, use_survey=use_survey)
+    rcont <- regress_cont(d=d, covariates=covariates, phenotype=y, variables=cont_vars, rtype=regress, use_survey=use_survey, allowed_nonvarying=allowed_nonvarying)
+    rcat <- regress_cat(d=d, covariates=covariates, phenotype=y, variables=cat_vars, rtype=regress, use_survey=use_survey, allowed_nonvarying=allowed_nonvarying)
     fres <- rbind(rcont, rcat)
 
   } else if(length(cat_vars) == 0 & length(cont_vars) > 0){
     # Regress continuous variables
-    fres <- regress_cont(d=d, covariates=covariates, phenotype=y, variables=cont_vars, rtype=regress, use_survey=use_survey)
+    fres <- regress_cont(d=d, covariates=covariates, phenotype=y, variables=cont_vars, rtype=regress, use_survey=use_survey, allowed_nonvarying=allowed_nonvarying)
   
   } else if(length(cat_vars) > 0 & length(cont_vars) == 0){
     # Regress categorical variables
-    fres <- regress_cat(d=d, covariates=covariates, phenotype=y, variables=cat_vars, rtype=regress, use_survey=use_survey)
+    fres <- regress_cat(d=d, covariates=covariates, phenotype=y, variables=cat_vars, rtype=regress, use_survey=use_survey, allowed_nonvarying=allowed_nonvarying)
   } else {
     warning("No variables were specified")
     return(data.frame())
