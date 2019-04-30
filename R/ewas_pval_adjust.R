@@ -14,7 +14,6 @@
 
 ewas_pval_adjust <- function(ewas_result, bonferroni=TRUE, fdr=TRUE){
   t1 <- Sys.time()
-  print("Running...")
 
   # Ensure the input is correct
   expected_col_names <- list("Variable", "N", "Converged",  "Beta", "SE", "Variable_pvalue",

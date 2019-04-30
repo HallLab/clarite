@@ -4,18 +4,26 @@
 \alias{ewas}
 \title{ewas}
 \usage{
-ewas(cat = NULL, cont = NULL, y, cov = NULL, regress)
+ewas(d, cat_vars = NULL, cont_vars = NULL, y, cat_covars = NULL,
+  cont_covars = NULL, regress = "gaussian",
+  allowed_nonvarying = NULL)
 }
 \arguments{
-\item{cat}{data frame containing categorical variables with first column as ID}
+\item{d}{data.frame or survey::svydesign object containing all of the data}
 
-\item{cont}{data frame containing continuous variables with first column as ID}
+\item{cat_vars}{List of variables to regress that are categorical or binary}
+
+\item{cont_vars}{List of variables to regress that are continuous}
 
 \item{y}{name(s) of response variable(s)}
 
-\item{cov}{vector containing names of covariates}
+\item{cat_covars}{List of covariates that are categorical or binary}
 
-\item{regress}{family for the regression model as specified in glm, linear or logisitic}
+\item{cont_covars}{List of covariates that are continuous}
+
+\item{regress}{family for the regression model as specified in glm ('gaussian' by default)}
+
+\item{allowed_nonvarying}{list of covariates that are excluded from the regression when they do not vary instead of returning a NULL result.}
 }
 \value{
 data frame containing following fields Variable, Sample Size, Converged, SE, Beta, Variable p-value, LRT, AIC, pval, Phenotype
@@ -25,7 +33,7 @@ Run environment-wide association study
 }
 \examples{
 \dontrun{
-ewas(cat, cont, y, cov, regress)
+ewas(d, cat_vars, cont_vars, y, cat_covars, cont_covars, regress)
 }
 }
 \seealso{
