@@ -1,8 +1,9 @@
 Package: clarite
 Title: CLeaning to Anlaysis: Reproducibility-based Interface for Traits and Exposures
-Version: 1.0.0
+Version: 1.1.0
 Authors@R: c(person("Anastasia", "Lucas", email = "anastasia.lucas.bioinfo@gmail.com", role = c("aut", "cre")),
-	     person("Deven", "Orie", email = "deven.orie@gmail.com", role = "ctb"))
+	     person("Deven", "Orie", email = "deven.orie@gmail.com", role = "ctb"),
+		 person("John", "McGuigan", email = "jrm5100@psu.edu", role = "ctb"))
 Maintainer: Molly Hall <mah546@psu.edu>
 BugReports: https://github.com/HallLab/clarite/issues
 Description: The goal of 'clarite' is to guide a dataset from the raw data stage to EWAS analysis and 
@@ -11,7 +12,7 @@ Description: The goal of 'clarite' is to guide a dataset from the raw data stage
 	     informed by the descriptive statistics, to running analyses on the filtered dataset and 
 	     visualizing the results.
 Depends: R (>= 3.2.1)
-Suggests: ggplot2, gridExtra, RColorBrewer, NHANES
+Suggests: ggplot2, gridExtra, RColorBrewer, NHANES, survey
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
