@@ -26,7 +26,7 @@ ewas(d, cat_vars = NULL, cont_vars = NULL, y, cat_covars = NULL,
 \item{allowed_nonvarying}{list of covariates that are excluded from the regression when they do not vary instead of returning a NULL result.}
 }
 \value{
-data frame containing following fields Variable, Sample Size, Converged, SE, Beta, Variable p-value, LRT, AIC, pval, Phenotype
+data frame containing following fields Variable, Sample Size, Converged, SE, Beta, Variable p-value, LRT, AIC, pval, phenotype
 }
 \description{
 Run environment-wide association study
@@ -37,6 +37,7 @@ ewas(d, cat_vars, cont_vars, y, cat_covars, cont_covars, regress)
 }
 }
 \seealso{
-Other analysis functions: \code{\link{ewas_pval_adjust}}
+Other analysis functions: \code{\link{ewas_pval_adjust}},
+  \code{\link{weighted_ewas}}
 }
 \concept{analysis functions}

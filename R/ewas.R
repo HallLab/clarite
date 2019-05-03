@@ -27,162 +27,118 @@ get_varying_covariates <- function(df, covariates, phenotype, variable, allowed_
 }
 
 ###Continuous###
-regress_cont <- function(d, covariates, phenotype, variables, rtype, use_survey, allowed_nonvarying){
-  print(paste("Processing ", length(variables), " continuous variables", sep=""))
-  # Create a placeholder dataframe for results, anything not updated will be NA
-  n <- length(variables)
-  df <- data.frame(Variable = character(n),
-                  N = numeric(n),
-                  Converged = logical(n),
-                  Beta = numeric(n),
-                  SE = numeric(n),
-                  Variable_pvalue = numeric(n),
-                  LRT_pvalue = numeric(n),
-                  Diff_AIC = numeric(n),
-                  pval = numeric(n),
-                  stringsAsFactors = FALSE
-  )
-  df[] <- NA  # Fill df with NA values
-  i = 1
-  for(var_name in variables){
-    # Iterate through variables, updating df with results
-    df$Variable[i] <- var_name
+regress_cont <- function(result_df, result_idx, d, covariates, phenotype, var_name, rtype, use_survey, allowed_nonvarying){
 
-    # Check Covariates and subset the data to use only observations where the variable is not NA
-    if (use_survey){
-      varying_covariates <- get_varying_covariates(d$variables, covariates, phenotype, var_name, allowed_nonvarying)
-      subset_data <- subset(d, !is.na(d$variables[var_name]))  # Use the survey subset function
-    } else {
-      varying_covariates <- get_varying_covariates(d, covariates, phenotype, var_name, allowed_nonvarying)
-      subset_data <- d[!is.na(d[var_name]),]  # use a subset of the data directly
-    }
-
-    # Skip to the next variable if 'get_varying_covarites' returned NULL (b/c it found a nonvarying covariate the wasn't allowed)
-    if (is.null(varying_covariates)){
-      i <- i + 1
-      next
-    }
-
-    # Create a regression formula
-    if(length(varying_covariates)>0){
-      fmla <- paste(phenotype, "~", var_name, "+", paste(varying_covariates, collapse="+"), sep="")
-    } else {
-      fmla <- paste(phenotype, "~", var_name, sep="")
-    }
-
-    # Run GLM
-    if(use_survey){
-      # Update scope of the rtype and subset_data variables (surveyglm doesn't handle this well)
-      rtype <<- rtype
-      subset_data <<- subset_data
-      # Use survey::svyglm
-      var_result <- tryCatch(survey::svyglm(stats::as.formula(fmla), family=rtype, design=subset_data), error=function(e) warn_on_e(var_name, e))
-    } else {
-      # Use stats::glm
-      var_result <- tryCatch(glm(stats::as.formula(fmla), family=rtype, data=subset_data), error=function(e) warn_on_e(var_name, e))
-    }
-    # Collect Results
-    if (!is.null(var_result)){
-      var_summary <- summary(var_result)
-      # Update with processed summary results
-      # Assume non-convergence if no p values are generated
-      num_coeff_cols <- length(var_summary$coefficients)/nrow(var_summary$coefficients)
-      if (num_coeff_cols < 4){
-        df$N[i] <- length(var_result$residuals)
-        df$Converged[i] <- FALSE
-      } else { 
-        df$N[i] <- length(var_result$residuals)
-        df$Converged[i] <- TRUE
-        df$Beta[i] <- var_summary$coefficients[2,1]
-        df$SE[i] <- var_summary$coefficients[2,2]
-        df$Variable_pvalue[i] <- var_summary$coefficients[2,4]
-        df$pval[i] <- var_summary$coefficients[2,4]
-      }
-    }
-    i <- i + 1
+  # Check Covariates and subset the data to use only observations where the variable is not NA
+  if (use_survey){
+    varying_covariates <- get_varying_covariates(d$variables, covariates, phenotype, var_name, allowed_nonvarying)
+    subset_data <- subset(d, !is.na(d$variables[var_name]))  # Use the survey subset function
+  } else {
+    varying_covariates <- get_varying_covariates(d, covariates, phenotype, var_name, allowed_nonvarying)
+    subset_data <- d[!is.na(d[var_name]),]  # use a subset of the data directly
   }
-  return(df)
+
+  # Skip to the next variable if 'get_varying_covarites' returned NULL (b/c it found a nonvarying covariate the wasn't allowed)
+  if (is.null(varying_covariates)){
+    return()
+  }
+
+  # Create a regression formula
+  if(length(varying_covariates)>0){
+    fmla <- paste(phenotype, "~", var_name, "+", paste(varying_covariates, collapse="+"), sep="")
+  } else {
+    fmla <- paste(phenotype, "~", var_name, sep="")
+  }
+
+  # Run GLM
+  if(use_survey){
+    # Update scope of the rtype and subset_data variables (surveyglm doesn't handle this well)
+    rtype <<- rtype
+    subset_data <<- subset_data
+    # Use survey::svyglm
+    var_result <- tryCatch(survey::svyglm(stats::as.formula(fmla), family=rtype, design=subset_data), error=function(e) warn_on_e(var_name, e))
+  } else {
+    # Use stats::glm
+    var_result <- tryCatch(glm(stats::as.formula(fmla), family=rtype, data=subset_data), error=function(e) warn_on_e(var_name, e))
+  }
+  # Collect Results
+  if (!is.null(var_result)){
+    var_summary <- summary(var_result)
+    # Update with processed summary results
+    # Assume non-convergence if no p values are generated
+    num_coeff_cols <- length(var_summary$coefficients)/nrow(var_summary$coefficients)
+    if (num_coeff_cols < 4){
+      result_df$N[result_idx] <- length(var_result$residuals)
+      result_df$Converged[result_idx] <- FALSE
+    } else { 
+      result_df$N[result_idx] <- length(var_result$residuals)
+      result_df$Converged[result_idx] <- TRUE
+      result_df$Beta[result_idx] <- var_summary$coefficients[2,1]
+      result_df$SE[result_idx] <- var_summary$coefficients[2,2]
+      result_df$Variable_pvalue[result_idx] <- var_summary$coefficients[2,4]
+      result_df$pval[result_idx] <- var_summary$coefficients[2,4]
+    }
+  }
+  return()
 }
 
 ###Categorical###
 # Note categorical is trickier since the difference between survey and data.frame is more extensive than using a different function
-regress_cat <- function(d, covariates, phenotype, variables, rtype, use_survey, allowed_nonvarying){
-  print(paste("Processing ", length(variables), " categorical variables", sep=""))
-  # Create a placeholder dataframe for results, anything not updated will be NA
-  n <- length(variables)
-  df <- data.frame(Variable = character(n),
-                  N = numeric(n),
-                  Converged = logical(n),
-                  Beta = numeric(n),
-                  SE = numeric(n),
-                  Variable_pvalue = numeric(n),
-                  LRT_pvalue = numeric(n),
-                  Diff_AIC = numeric(n),
-                  pval = numeric(n),
-                  stringsAsFactors = FALSE
-  )
-  df[] <- NA  # Fill df with NA values
-  i = 1
-  for(var_name in variables){
-    # Iterate through variables, updating df with results
-    df$Variable[i] <- var_name
+regress_cat <- function(result_df, result_idx, d, covariates, phenotype, var_name, rtype, use_survey, allowed_nonvarying){
 
-    # Check Covariates and subset the data to use only observations where the variable is not NA
-    if (use_survey){
-      varying_covariates <- get_varying_covariates(d$variables, covariates, phenotype, var_name, allowed_nonvarying)
-      subset_data <- subset(d, !is.na(d$variables[var_name]))  # Use the survey subset function
-    } else {
-      varying_covariates <- get_varying_covariates(d, covariates, phenotype, var_name, allowed_nonvarying)
-      subset_data <- d[!is.na(d[var_name]),]  # use a subset of the data directly
-    }
-
-    # Skip to the next variable if 'get_varying_covarites' returned NULL (b/c it found a nonvarying covariate the wasn't allowed)
-    if (is.null(varying_covariates)){
-      i <- i + 1
-      next
-    }
-
-    # Create a regression formula and a restricted regression formula
-    if(length(varying_covariates)>0){
-      fmla <- paste(phenotype, "~", var_name, "+", paste(varying_covariates, collapse="+"), sep="")
-      fmla_restricted <- paste(phenotype, "~", paste(varying_covariates, collapse="+"), sep="")
-    } else {
-      fmla <- paste(phenotype, "~", var_name, sep="")
-      fmla_restricted <- paste(phenotype, "~1", sep="")
-    }
-    # Run GLM Functions
-    if(use_survey){
-      # Update scope of the rtype and subset_data variables (surveyglm doesn't handle this well)
-      rtype <<- rtype
-      subset_data <<- subset_data
-      # Results using surveyglm
-      var_result <- tryCatch(survey::svyglm(stats::as.formula(fmla), family=rtype, design=subset_data), error=function(e) warn_on_e(var_name, e))
-      restricted_result <- tryCatch(survey::svyglm(stats::as.formula(fmla_restricted), family=rtype, design=subset_data), error=function(e) warn_on_e(var_name, e))
-      if(!is.null(var_result) & !is.null(restricted_result)){
-        # Get the LRT using anova
-        lrt <- anova(var_result, restricted_result, method = "LRT")
-        df$N[i] <- length(var_result$residuals)
-        df$Converged[i] <- var_result$converged
-        df$LRT_pvalue[i] <- lrt$p
-        df$Diff_AIC[i] <- var_result$aic - restricted_result$aic
-        df$pval[i] <- lrt$p
-      }
-    } else {
-      # Results using data.frame with stats::anova
-      var_result <- tryCatch(glm(stats::as.formula(fmla), family=rtype, data=subset_data), error=function(e) warn_on_e(var_name, e))
-      restricted_result <- tryCatch(glm(stats::as.formula(fmla_restricted), family=rtype, data=subset_data), error=function(e) warn_on_e(var_name, e))
-      if(!is.null(var_result) & !is.null(restricted_result)){
-        lrt <- anova(var_result, restricted_result, test = "LRT")
-        df$N[i] <- length(var_result$residuals)
-        df$Converged[i] <- var_result$converged
-        df$LRT_pvalue[i] <- lrt$`Pr(>Chi)`[2]
-        df$Diff_AIC[i] <- var_result$aic - restricted_result$aic
-        df$pval[i] <- lrt$`Pr(>Chi)`[2]
-      }
-    }
-    i <- i+1
+  # Check Covariates and subset the data to use only observations where the variable is not NA
+  if (use_survey){
+    varying_covariates <- get_varying_covariates(d$variables, covariates, phenotype, var_name, allowed_nonvarying)
+    subset_data <- subset(d, !is.na(d$variables[var_name]))  # Use the survey subset function
+  } else {
+    varying_covariates <- get_varying_covariates(d, covariates, phenotype, var_name, allowed_nonvarying)
+    subset_data <- d[!is.na(d[var_name]),]  # use a subset of the data directly
   }
-  return(df)
+
+  # Return without updates if 'get_varying_covarites' returned NULL (b/c it found a nonvarying covariate the wasn't allowed)
+  if (is.null(varying_covariates)){
+    return()
+  }
+
+  # Create a regression formula and a restricted regression formula
+  if(length(varying_covariates)>0){
+    fmla <- paste(phenotype, "~", var_name, "+", paste(varying_covariates, collapse="+"), sep="")
+    fmla_restricted <- paste(phenotype, "~", paste(varying_covariates, collapse="+"), sep="")
+  } else {
+    fmla <- paste(phenotype, "~", var_name, sep="")
+    fmla_restricted <- paste(phenotype, "~1", sep="")
+  }
+  # Run GLM Functions
+  if(use_survey){
+    # Update scope of the rtype and subset_data variables (surveyglm doesn't handle this well)
+    rtype <<- rtype
+    subset_data <<- subset_data
+    # Results using surveyglm
+    var_result <- tryCatch(survey::svyglm(stats::as.formula(fmla), family=rtype, design=subset_data), error=function(e) warn_on_e(var_name, e))
+    restricted_result <- tryCatch(survey::svyglm(stats::as.formula(fmla_restricted), family=rtype, design=subset_data), error=function(e) warn_on_e(var_name, e))
+    if(!is.null(var_result) & !is.null(restricted_result)){
+      # Get the LRT using anova
+      lrt <- anova(var_result, restricted_result, method = "LRT")
+      result_df$N[result_idx] <- length(var_result$residuals)
+      result_df$Converged[result_idx] <- var_result$converged
+      result_df$LRT_pvalue[result_idx] <- lrt$p
+      result_df$Diff_AIC[result_idx] <- var_result$aic - restricted_result$aic
+      result_df$pval[result_idx] <- lrt$p
+    }
+  } else {
+    # Results using data.frame with stats::anova
+    var_result <- tryCatch(glm(stats::as.formula(fmla), family=rtype, data=subset_data), error=function(e) warn_on_e(var_name, e))
+    restricted_result <- tryCatch(glm(stats::as.formula(fmla_restricted), family=rtype, data=subset_data), error=function(e) warn_on_e(var_name, e))
+    if(!is.null(var_result) & !is.null(restricted_result)){
+      lrt <- anova(var_result, restricted_result, test = "LRT")
+      result_df$N[result_idx] <- length(var_result$residuals)
+      result_df$Converged[result_idx] <- var_result$converged
+      result_df$LRT_pvalue[result_idx] <- lrt$`Pr(>Chi)`[2]
+      result_df$Diff_AIC[result_idx] <- var_result$aic - restricted_result$aic
+      result_df$pval[result_idx] <- lrt$`Pr(>Chi)`[2]
+    }
+  }
+  return()
 }
 
 #' ewas
@@ -196,14 +152,13 @@ regress_cat <- function(d, covariates, phenotype, variables, rtype, use_survey, 
 #' @param cont_covars List of covariates that are continuous
 #' @param regress family for the regression model as specified in glm ('gaussian' by default)
 #' @param allowed_nonvarying list of covariates that are excluded from the regression when they do not vary instead of returning a NULL result.
-#' @return data frame containing following fields Variable, Sample Size, Converged, SE, Beta, Variable p-value, LRT, AIC, pval, Phenotype
+#' @return data frame containing following fields Variable, Sample Size, Converged, SE, Beta, Variable p-value, LRT, AIC, pval, phenotype
 #' @export
 #' @family analysis functions
 #' @examples
 #' \dontrun{
 #' ewas(d, cat_vars, cont_vars, y, cat_covars, cont_covars, regress)
 #' }
-
 ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_covars=NULL, regress="gaussian", allowed_nonvarying=NULL){
   t1 <- Sys.time()
 
@@ -366,3 +321,197 @@ ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_cova
 }
 
 
+#' weighted_ewas
+#'
+#' Run environment-wide association study using svydesign from the survey package
+#' @param d data.frame containing all of the data
+#' @param cat_vars List of variables to regress that are categorical or binary
+#' @param cont_vars  List of variables to regress that are continuous
+#' @param y name(s) of response variable(s)
+#' @param cat_covars List of covariates that are categorical or binary
+#' @param cont_covars List of covariates that are continuous
+#' @param regress family for the regression model as specified in glm ('gaussian' by default)
+#' @param allowed_nonvarying list of covariates that are excluded from the regression when they do not vary instead of returning a NULL result.
+#' @param weights string name of a single weight to use for every variable, or a named list that maps variable names to the weights that should be used for that variable's regression
+#' @param ... other arguments passed to svydesign, like "id" or "strat"
+#' @return data frame containing following fields Variable, Sample Size, Converged, SE, Beta, Variable p-value, LRT, AIC, pval, phenotype, weight
+#' @export
+#' @family analysis functions
+#' @examples
+#' \dontrun{
+#' multiple_weight_ewas(d, cat_vars, cont_vars, y, cat_covars, cont_covars, regress)
+#' }
+weighted_ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_covars=NULL,
+                          regress="gaussian", allowed_nonvarying=NULL,
+                          weights, ...){
+  # Record start time
+  t1 <- Sys.time()
+
+  # Validate inputs
+  #################
+  if(missing(y)){
+    stop("Please specify either 'continuous' or 'categorical' type for predictor variables")
+  }
+  if(missing(regress)){
+    stop("Please specify family type for glm()")
+  }
+  if(is.null(cat_vars)){
+    cat_vars <- list()
+  }
+  if(is.null(cont_vars)){
+    cont_vars <- list()
+  }
+  if(is.null(cat_covars)){
+    cat_covars <- list()
+  }
+  if(is.null(cont_covars)){
+    cont_covars <- list()
+  }
+  if(is.null(allowed_nonvarying)){
+    allowed_nonvarying <- list()
+  }
+
+  # Ignore the covariates, phenotype, and ID if they were included in the variable lists
+  remove <- c(y, cat_covars, cont_covars, "ID")
+  cat_vars <- setdiff(cat_vars, remove)
+  cont_vars <- setdiff(cont_vars, remove)
+  # Ignore the phenotype, and ID if they were included in the covariates lists
+  remove <- c(y, "ID")
+  cat_covars <- setdiff(cat_covars, remove)
+  cont_covars <- setdiff(cont_covars, remove)
+
+  # Ensure variables/covariates aren't listed as multiple different types
+  both <- intersect(cat_covars, cont_covars)
+  if (length(both) > 0){stop("Some covariates are listed as both categorical and continuous: ", paste(both, collapse=", "))}
+  both <- intersect(cat_vars, cont_vars)
+  if (length(both) > 0){stop("Some variables are listed as both categorical and continuous: ", paste(both, collapse=", "))}
+
+  # Check data
+  if(class(d)[1] != "data.frame"){
+    stop("Data must be a data.frame object")
+  }
+
+  # Check weights
+  if(class(weights) == "character"){
+    single_weight <- TRUE
+    if(!(weights %in% names(d))){
+      stop(paste(weights, "was specified as the weight, but was not found in the dataframe", sep=" "))
+    }
+  } else if(class(weights) == "list"){
+    single_weight <- FALSE
+  } else {
+    stop("weights must be a string or a list")
+  }
+
+  #Correct the types and check for IDs
+  #####################################
+  # ID
+  if(is.element('ID', names(d))==FALSE){stop("Please add ID to the data as column 1")}
+  d$ID <- factor(d$ID)
+  # Categorical
+  if(length(cat_vars) > 0){d[cat_vars] <- lapply(d[cat_vars], factor)}
+  if(length(cat_covars) > 0){d[cat_covars] <- lapply(d[cat_covars], factor)}
+  # Continuous
+  if(length(cont_vars) > 0){
+    if(sum(sapply(d[cont_vars], is.numeric))!=length(cont_vars)){
+      non_numeric_vars <- names(d[!sapply(d[cont_vars], is.numeric)])
+      stop("Some continuous variables are not numeric: ", paste(non_numeric_vars, collapse=", "))
+    }
+  }
+  if (length(cont_covars) > 0){
+    if(sum(sapply(d[cont_covars], is.numeric))!=length(cont_covars)){
+      non_numeric_covars <- names(d[!sapply(d[cont_covars], is.numeric)])
+      stop("Some continuous covariates are not numeric: ", paste(non_numeric_covars, collapse=", "))
+    }
+  }
+
+  # Get a combined list of covariates
+  covariates <- c(cat_covars, cont_covars)
+
+  # Create a placeholder dataframe for results, anything not updated will be NA
+  n <- length(cat_vars) + length(cont_vars)
+  ewas_result_df <- data.frame(Variable = character(n),
+                              N = numeric(n),
+                              Converged = logical(n),
+                              Beta = numeric(n),
+                              SE = numeric(n),
+                              Variable_pvalue = numeric(n),
+                              LRT_pvalue = numeric(n),
+                              Diff_AIC = numeric(n),
+                              pval = numeric(n),
+                              phenotype = character(n),
+                              weight = character(n),
+                              stringsAsFactors = FALSE
+  )
+  ewas_result_df[] <- NA  # Fill df with NA values
+  i = 0 # Increment before processing each variable
+  
+  # Process categorical variables, if any
+  print(paste("Processing ", length(cat_vars), " categorical variables", sep=""))
+  for(var_name in cat_vars){
+    # Get new row in the results
+    i <- i + 1
+    # Update var name and phenotype
+    ewas_result_df$Variable[i] <- var_name
+    ewas_result_df$phenotype <- y
+    # Get weight
+    if(single_weight){
+      weight <- weights
+    } else {
+      weight = weights[[var_name]]
+    }
+    # Record weight, moving on if no weight was provided for the variable
+    ewas_result_df$weight[i] <- weight
+    if(is.null(weight) | !(weight %in% d)){
+      next
+    }
+    data = d[!is.na(d[weight]), ]
+    # Create survey design object
+    sd <- survey::svydesign(weights = data[weight],
+                            data = data,
+                            ...)
+    # Regress, updating the dataframe
+    regress_cat(ewas_result_df, i,
+                d, covariates, phenotype, var_name, rtype,
+                use_survey, allowed_nonvarying)
+  }
+
+  # Process continuous variables, if any
+  print(paste("Processing ", length(cont_vars), " continuous variables", sep=""))
+  for(var_name in cont_vars){
+    # Get new row in the results
+    i <- i + 1
+    # Update var name and phenotype
+    ewas_result_df$Variable[i] <- var_name
+    ewas_result_df$phenotype <- y
+    # Get weight
+    if(single_weight){
+      weight <- weights
+    } else {
+      weight = weights[[var_name]]
+    }
+    # Record weight, moving on if no weight was provided for the variable
+    ewas_result_df$weight[i] <- weight
+    if(is.null(weight) | !(weight %in% d)){
+      next
+    }
+    data = d[!is.na(d[weight]), ]
+    # Create survey design object
+    sd <- survey::svydesign(weights = data[weight],
+                            data = data,
+                            ...)
+    # Regress, updating the dataframe
+    regress_cont(ewas_result_df, i,
+                 d, covariates, phenotype, var_name, rtype,
+                 use_survey, allowed_nonvarying)
+  }
+
+  t2 <- Sys.time()
+  print(paste("Finished in", round(as.numeric(difftime(t2,t1, units="secs")), 6), "secs", sep=" "))
+  n_null_results <- sum(is.null(ewas_result_df$pval))
+  if (n_null_results > 0){
+    warning(paste(n_null_results, "of", nrow(ewas_result_df), "variables had a NULL result due to an error (see earlier warnings for details)"))
+  }
+
+  return(ewas_result_df)
+}

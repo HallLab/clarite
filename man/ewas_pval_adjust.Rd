@@ -25,6 +25,7 @@ ewas_pval_adjust(ewas_result)
 }
 }
 \seealso{
-Other analysis functions: \code{\link{ewas}}
+Other analysis functions: \code{\link{ewas}},
+  \code{\link{weighted_ewas}}
 }
 \concept{analysis functions}
