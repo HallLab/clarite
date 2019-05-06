@@ -5,11 +5,11 @@
 \title{ewas}
 \usage{
 ewas(d, cat_vars = NULL, cont_vars = NULL, y, cat_covars = NULL,
-  cont_covars = NULL, regress = "gaussian",
-  allowed_nonvarying = NULL)
+  cont_covars = NULL, regression_family = "gaussian",
+  allowed_nonvarying = NULL, weights = NULL, ...)
 }
 \arguments{
-\item{d}{data.frame or survey::svydesign object containing all of the data}
+\item{d}{data.frame containing all of the data}
 
 \item{cat_vars}{List of variables to regress that are categorical or binary}
 
@@ -21,23 +21,26 @@ ewas(d, cat_vars = NULL, cont_vars = NULL, y, cat_covars = NULL,
 
 \item{cont_covars}{List of covariates that are continuous}
 
-\item{regress}{family for the regression model as specified in glm ('gaussian' by default)}
+\item{regression_family}{family for the regression model as specified in glm ('gaussian' by default)}
 
 \item{allowed_nonvarying}{list of covariates that are excluded from the regression when they do not vary instead of returning a NULL result.}
+
+\item{weights}{NULL by default (for unweighted).  May be set to a string name of a single weight to use for every variable, or a named list that maps variable names to the weights that should be used for that variable's regression}
+
+\item{...}{other arguments passed to svydesign (like "id" or "strat") which are ignored if 'weights' is NULL}
 }
 \value{
-data frame containing following fields Variable, Sample Size, Converged, SE, Beta, Variable p-value, LRT, AIC, pval, phenotype
+data frame containing following fields Variable, Sample Size, Converged, SE, Beta, Variable p-value, LRT, AIC, pval, phenotype, weight
 }
 \description{
-Run environment-wide association study
+Run environment-wide association study using svydesign from the survey package
 }
 \examples{
 \dontrun{
-ewas(d, cat_vars, cont_vars, y, cat_covars, cont_covars, regress)
+ewas(d, cat_vars, cont_vars, y, cat_covars, cont_covars, regression_family)
 }
 }
 \seealso{
-Other analysis functions: \code{\link{ewas_pval_adjust}},
-  \code{\link{weighted_ewas}}
+Other analysis functions: \code{\link{ewas_pval_adjust}}
 }
 \concept{analysis functions}
