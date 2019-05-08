@@ -307,7 +307,7 @@ ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_cova
     
     # Run Regression for the single variable
     if(is.null(weights)){
-      result <- regress_cat(d, covariates, phenotype, var_name, regression_family, allowed_nonvarying)
+      result <- regress_cat(d, covariates, phenotype=y, var_name, regression_family, allowed_nonvarying)
     } else {
       # Get weight
       if(single_weight){
@@ -328,7 +328,7 @@ ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_cova
                               data = data,
                               ...)
       # Regress, updating the dataframe if results were returned
-      result <- regress_cat(sd, covariates, phenotype, var_name, regression_family, allowed_nonvarying)
+      result <- regress_cat(sd, covariates, phenotype=y, var_name, regression_family, allowed_nonvarying)
     }
     
     # Save results
@@ -348,7 +348,7 @@ ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_cova
     
     # Run regression for the single variable
     if(is.null(weights)){
-      result <- regress_cont(d, covariates, phenotype, var_name, regression_family, allowed_nonvarying)
+      result <- regress_cont(d, covariates, phenotype=y, var_name, regression_family, allowed_nonvarying)
     } else {
       # Get weight
       if(single_weight){
@@ -369,7 +369,7 @@ ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_cova
                               data = data,
                               ...)
       # Regress, updating the dataframe if results were returned
-      result <- regress_cont(sd, covariates, phenotype, var_name, regression_family, allowed_nonvarying)
+      result <- regress_cont(sd, covariates, phenotype=y, var_name, regression_family, allowed_nonvarying)
     }
     if(!is.null(result)){
       ewas_result_df[i, c("N", "Converged", "Beta", "SE", "Variable_pvalue", "pval")] <- result
