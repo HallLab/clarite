@@ -260,14 +260,15 @@ ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_cova
   # Continuous
   if(length(cont_vars) > 0){
     if(sum(sapply(d[cont_vars], is.numeric))!=length(cont_vars)){
-      non_numeric_vars <- names(d[!sapply(d[cont_vars], is.numeric)])
-      stop("Some continuous variables are not numeric: ", paste(non_numeric_vars, collapse=", "))
+      # TODO: This isn't right
+      non_numeric_cont_vars <- setdiff(cont_vars, names(d[sapply(d, is.numeric)]))
+      stop("Some continuous variables are not numeric: ", paste(non_numeric_cont_vars, collapse=", "))
     }
   }
   if (length(cont_covars) > 0){
     if(sum(sapply(d[cont_covars], is.numeric))!=length(cont_covars)){
-      non_numeric_covars <- names(d[!sapply(d[cont_covars], is.numeric)])
-      stop("Some continuous covariates are not numeric: ", paste(non_numeric_covars, collapse=", "))
+      non_numeric_cont_covars <- setdiff(cont_covars, names(d[sapply(d, is.numeric)]))
+      stop("Some continuous covariates are not numeric: ", paste(non_numeric_cont_covars, collapse=", "))
     }
   }
 
