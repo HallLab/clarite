@@ -136,7 +136,8 @@ regress_cat <- function(d, covariates, phenotype, var_name, regression_family, a
     restricted_result <- tryCatch(survey::svyglm(stats::as.formula(fmla_restricted), family=regression_family, design=subset_data), error=function(e) warn_on_e(var_name, e))
     if(!is.null(var_result) & !is.null(restricted_result)){
       # Get the LRT using anova
-      lrt <- anova(var_result, restricted_result, method = "LRT")
+      lrt <- list(p=NA)  # Start with NA for p in case anova fails
+      tryCatch(lrt <- anova(var_result, restricted_result, method = "LRT"), error=function(e) warn_on_e(var_name, e))
       return(data.frame(
         N = length(var_result$residuals),
         Converged = var_result$converged,
