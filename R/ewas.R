@@ -7,7 +7,7 @@ warn_on_e <- function(var_name, e){
 # Get required data for regressing a specific variable
 get_varying_covariates <- function(df, covariates, phenotype, variable, allowed_nonvarying){
   # Get number of unique values in covariates among observations where the variable is not NA
-  cov_counts <- sapply(covariates, function(c) {length(unique(df[!is.na(df[c]) & !is.na(df[variable]), c]))})
+  cov_counts <- sapply(covariates, function(c) {length(unique(df[!is.na(df[c]) & !is.na(df[variable]) & !is.na(df[phenotype]), c]))})
   varying_covariates <- covariates[cov_counts >= 2]
   nonvarying_covariates <- covariates[cov_counts <2]
   # Compare to the covariates that are allowed to vary
@@ -104,13 +104,13 @@ regress_cat <- function(d, covariates, phenotype, var_name, regression_family, a
     use_survey <- TRUE
   }
 
-  # Check Covariates and subset the data to use only observations where the variable is not NA
+  # Check Covariates and subset the data to use only observations where the variable and the phenotype are not NA
   if (use_survey){
     varying_covariates <- get_varying_covariates(d$variables, covariates, phenotype, var_name, allowed_nonvarying)
-    subset_data <- subset(d, !is.na(d$variables[var_name]))  # Use the survey subset function
+    subset_data <- subset(d, !is.na(d$variables[var_name]) & !is.na(d$variables[phenotype]))  # Use the survey subset function
   } else {
     varying_covariates <- get_varying_covariates(d, covariates, phenotype, var_name, allowed_nonvarying)
-    subset_data <- d[!is.na(d[var_name]),]  # use a subset of the data directly
+    subset_data <- d[!is.na(d[var_name]) & !is.na(d[phenotype]),]  # use a subset of the data directly
   }
 
   # Return null if 'get_varying_covarites' returned NULL (b/c it found a nonvarying covariate the wasn't allowed)
