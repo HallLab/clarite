@@ -33,6 +33,9 @@ eman <- function(d, ewas=TRUE, groups=NULL, line=NULL, title=NULL, morecolors=FA
     #require("ggplot2")
   #}
 
+  # Specify the number of 'positions' between each category
+  gap_size <- 4
+
   if(ewas==TRUE){
     if("Variable_pvalue" %in% names(d) & "LRT_pvalue" %in% names(d)){
       d$pvalue <- ifelse(!is.na(d$Variable_pvalue), d$Variable_pvalue, ifelse(!is.na(d$LRT_pvalue), d$LRT_pvalue, NA))
@@ -46,9 +49,15 @@ eman <- function(d, ewas=TRUE, groups=NULL, line=NULL, title=NULL, morecolors=FA
   if(is.null(groups)==TRUE){
     if("Shape" %in% names(d)){
       p <- ggplot2::ggplot() + ggplot2::geom_point(data=d, aes(x=factor(Variable), y=-log10(pvalue), shape=factor(Shape)))
-      p <- p + ggplot2::theme(axis.text.x = ggplot2::element_text(angle=90), axis.title.x=ggplot2::element_blank(), legend.position="bottom", legend.title=ggplot2::element_blank())
+      p <- p + ggplot2::theme(axis.text.x = ggplot2::element_text(angle=90, hjust=0.95, vjust=0.2),
+                              axis.title.x=ggplot2::element_blank(),
+                              legend.position="bottom",
+                              legend.title=ggplot2::element_blank())
     } else {
-      p <- ggplot2::ggplot(d, aes(x=factor(Variable), y=-log10(pvalue))) + ggplot2::geom_point() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle=90), axis.title.x=ggplot2::element_blank())
+      p <- ggplot2::ggplot(d, aes(x=factor(Variable), y=-log10(pvalue)))
+      p <- p + ggplot2::geom_point()
+      p <- p + ggplot2::theme(axis.text.x=ggplot2::element_text(angle=90),
+                              axis.title.x=ggplot2::element_blank())
     }
   } else {
 
@@ -59,7 +68,8 @@ eman <- function(d, ewas=TRUE, groups=NULL, line=NULL, title=NULL, morecolors=FA
 
     #Order variables according to group
     dg_order <- dg[order(dg$Color, dg$Variable), ]
-    dg_order$pos_index <- seq.int(nrow(dg_order))
+    # Position with gap 'positions' between each category
+    dg_order$pos_index <- seq.int(nrow(dg_order)) + (as.numeric((factor(dg_order$Color))) * gap_size)
 
     #Set up dataframe with color and position info
     maxRows <- by(dg_order, dg_order$Color, function(x) x[which.max(x$pos_index),])
@@ -91,7 +101,9 @@ eman <- function(d, ewas=TRUE, groups=NULL, line=NULL, title=NULL, morecolors=FA
     names(newcols) <-c(levels(factor(lims$Color)), levels(factor(lims$shademap)))
 
     #Start plotting
-    p <- ggplot2::ggplot() + ggplot2::geom_rect(data = lims, aes(xmin = posmin-.5, xmax = posmax+.5, ymin = 0, ymax = Inf, fill=factor(shademap)), alpha = 0.5)
+    p <- ggplot2::ggplot() + ggplot2::geom_rect(data = lims,
+                                                aes(xmin = posmin - gap_size/2 - 0.5, xmax = posmax + gap_size/2 + 0.5, ymin = 0, ymax = Inf, fill=factor(shademap)),
+                                                alpha = 0.7)
     #Add shape info if available
     if("Shape" %in% names(dg)){
       p <- p + ggplot2::geom_point(data=dg_order, aes(x=pos_index, y=-log10(pvalue), color=Color, shape=factor(Shape)))
@@ -99,9 +111,18 @@ eman <- function(d, ewas=TRUE, groups=NULL, line=NULL, title=NULL, morecolors=FA
       p <- p + ggplot2::geom_point(data=dg_order, aes(x=pos_index, y=-log10(pvalue), color=Color))
     }
     p <- p + ggplot2::scale_x_continuous(breaks=lims$av, labels=lims$Color, expand=c(0,0))
-    p <- p + ggplot2::geom_rect(data = lims, aes(xmin = posmin-.5, xmax = posmax+.5, ymin = -Inf, ymax = 0, fill=Color), alpha = 1)
-    p <- p + ggplot2::scale_colour_manual(name = "Color",values = newcols, ggplot2::guides(alpha=FALSE)) + ggplot2::scale_fill_manual(name = "Color",values = newcols, ggplot2::guides(alpha=FALSE))
-    p <- p + ggplot2::theme(axis.text.x=ggplot2::element_text(angle=90), panel.grid.minor.x = ggplot2::element_blank(), panel.grid.major.x=ggplot2::element_blank(), axis.title.x=ggplot2::element_blank(), legend.position="bottom", legend.title=ggplot2::element_blank())
+    # Plot category colors at the bottom
+    p <- p + ggplot2::geom_rect(data = lims,
+                                aes(xmin = posmin - gap_size/2 - 0.5, xmax = posmax + gap_size/2 + 0.5, ymin = -Inf, ymax = 0, fill=Color),
+                                alpha = 1)
+    p <- p + ggplot2::scale_colour_manual(name = "Color",values = newcols, ggplot2::guides(alpha=FALSE))
+    p <- p + ggplot2::scale_fill_manual(name = "Color",values = newcols, ggplot2::guides(alpha=FALSE))
+    p <- p + ggplot2::theme(axis.text.x=ggplot2::element_text(angle=90, hjust=0.95, vjust=0.2),
+                            panel.grid.minor.x = ggplot2::element_blank(),
+                            panel.grid.major.x=ggplot2::element_blank(),
+                            axis.title.x=ggplot2::element_blank(),
+                            legend.position="bottom",
+                            legend.title=ggplot2::element_blank())
   }
 
   #Add title and y axis title
