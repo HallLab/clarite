@@ -64,12 +64,16 @@ eman <- function(d, ewas=TRUE, groups=NULL, line=NULL, title=NULL, morecolors=FA
     subd <- d[, colnames(d) %in% c("Variable", "pvalue", "Shape")]
     colnames(groups)[2] <- "Color"
     dg <- merge(subd, groups, by="Variable")
-    dg$Color <- factor(dg$Color)
 
     #Order variables according to group
     dg_order <- dg[order(dg$Color, dg$Variable), ]
-    # Position with gap 'positions' between each category
-    dg_order$pos_index <- seq.int(nrow(dg_order)) + (as.numeric((factor(dg_order$Color))) * gap_size)
+
+    # Make factor, preserving order
+    dg_order$Variable <- factor(dg_order$Variable, levels=unique(dg_order$Variable))
+    dg_order$Color <- factor(dg_order$Color, levels=unique(dg_order$Color))
+    
+    # Sequential positions with padding between each group
+    dg_order$pos_index <- as.integer(dg_order$Variable) + (gap_size * as.integer(dg_order$Color))
 
     #Set up dataframe with color and position info
     maxRows <- by(dg_order, dg_order$Color, function(x) x[which.max(x$pos_index),])
