@@ -1,1 +1,0 @@
-Both an individual script and GUI program. Running each does not change the orignial scripts. When Running the GUI program. A copy of the R file is made, and the user input is appended to the copied R Script. These new R files are then executed and stored in the R/GUI Generated Directory.
