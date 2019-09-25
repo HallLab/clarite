@@ -1,5 +1,5 @@
 Package: clarite
-Title: CLeaning to Anlaysis: Reproducibility-based Interface for Traits and Exposures
+Title: CLeaning to Analysis: Reproducibility-based Interface for Traits and Exposures
 Version: 1.4.0
 Authors@R: c(person("Anastasia", "Lucas", email = "anastasia.lucas.bioinfo@gmail.com", role = c("aut", "cre")),
 	     person("Deven", "Orie", email = "deven.orie@gmail.com", role = "ctb"),
