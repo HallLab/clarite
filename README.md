@@ -15,9 +15,6 @@ A development version of the package can be installed using devtools.
 
 `devtools::install_github('HallLab/clarite')`
 
-There also exists a beta version of a GUI for clarite, `clarite.py`, which is written in Python 2.7 
-and will call R functions in the background.
-
 ## Example Workflow
 
 The following image depicts a typical workflow for a project from raw data stage to analysis, in this case an

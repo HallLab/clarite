@@ -197,7 +197,7 @@ regress_cat <- function(d, covariates, phenotype, var_name, regression_family, a
 
 #' ewas
 #'
-#' Run environment-wide association study using svydesign from the survey package
+#' Run environment-wide association study, optionally using \code{\link[survey]{svydesign}} from the \pkg{survey} package
 #' @param d data.frame containing all of the data
 #' @param cat_vars List of variables to regress that are categorical or binary
 #' @param cont_vars  List of variables to regress that are continuous
