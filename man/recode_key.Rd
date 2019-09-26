@@ -9,17 +9,30 @@ recode_key(df, key)
 \arguments{
 \item{df}{data frame}
 
-\item{key}{data frame with two columns, "Variable" and "Missing Value"}
+\item{key}{data frame with two columns, "Variable" and "Missing.Value"}
 }
 \value{
 data frame with all missing values recoded to NA
 }
 \description{
-Recode based on a data key if multiple columns have different missing values\cr
-Note: this is not recommended if the value to replace is a float
+Recode multiple values to NA based on a data key listing values specific to each column.\cr
+Empty strings ("") and "NA" will be replaced by NA regardless of keys\cr
+\strong{Note}: Replaced values must be a factor, integer, or numeric (other values are ignored).  Float values may fail to convert due to rounding.
 }
 \examples{
-\dontrun{
-recode_key(df, key)
+# Create an example dataset
+df <- data.frame("ID" = 1:3,
+                 "Age" = c(21,15, 34),
+                 "Name" = c("John","Jane", "Jill"),
+                 "Value1" = c("a", "b", "NA"),
+                 "Value2" = c(1, 98, 99))
+# Recode 'Value1' ("NA" is NA) and 'Value2' (98 and 99 are both NA)
+key <- data.frame("Variable" = c("Value2", "Value2"),
+                  "Missing Value" = c(98, 99))
+# Run the function
+recoded <- recode_key(df, key)
 }
+\seealso{
+Other functions for recoding missing values: \code{\link{recode_missing}}
 }
+\concept{functions for recoding missing values}
