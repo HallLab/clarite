@@ -33,18 +33,23 @@ recode_key <- function(df, key) {
   }
   
   for (row in 1:nrow(key)) {
+    # Get the variable name where replacement is occuring
     variable_name <- as.character(key[row, "Variable"])
-    replaced_value  <- key[row, "Missing.Value"]
-    replaced_value_kind <- class(utils::type.convert(as.character(replaced_value)))
+    
+    # Ensure the variable name is present in df
+    if(!is.element(variable_name, names(df))){
+      stop(paste(c(variable_name, " was listed as a variable in the key but isn't a column in df"), sep=" "))
+    }
 
-	  if(replaced_value_kind=="factor"){
-	    replaced_value <- factor(replaced_value, levels=levels(df[[variable_name]]))
-    	df[[variable_name]][df[[variable_name]]==replaced_value] <- NA
-	  } else if (replaced_value_kind=="integer" | replaced_value_kind=="numeric") {
-	    df[[variable_name]][df[[variable_name]]==as.numeric(as.character(replaced_value))] <- NA
-	  } else {
-	    print(paste(c("Skipped converting", variable_name, "since it was a", replaced_value_kind)))
-	  }
+    # Get the replacement value
+    replaced_value  <- key[row, "Missing.Value"]
+
+    # Convert the replaced value into a string, since it may be a factor in the key
+    # Any other necessary conversion (for comparison to a numeric or factor) will be done automatically
+	  replaced_value <- as.character(replaced_value)
+
+    # Replace with NA
+	  df[[variable_name]][df[[variable_name]]==replaced_value] <- NA
   }
   
   # Replace empty and "NA" strings
