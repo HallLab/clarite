@@ -43,7 +43,7 @@ recode_key <- function(df, key) {
 	  } else if (replaced_value_kind=="integer" | replaced_value_kind=="numeric") {
 	    df[[variable_name]][df[[variable_name]]==as.numeric(as.character(replaced_value))] <- NA
 	  } else {
-	    print("Skipped converting " + var_name + " since it was a " + replaced_value_kind)
+	    print(paste(c("Skipped converting", variable_name, "since it was a", replaced_value_kind)))
 	  }
   }
   
