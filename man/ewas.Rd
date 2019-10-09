@@ -6,7 +6,8 @@
 \usage{
 ewas(d, cat_vars = NULL, cont_vars = NULL, y, cat_covars = NULL,
   cont_covars = NULL, regression_family = "gaussian",
-  allowed_nonvarying = NULL, min_n = 200, weights = NULL, ...)
+  allowed_nonvarying = NULL, min_n = 200, weights = NULL,
+  ids = NULL, ...)
 }
 \arguments{
 \item{d}{data.frame containing all of the data}
@@ -28,6 +29,8 @@ ewas(d, cat_vars = NULL, cont_vars = NULL, y, cat_covars = NULL,
 \item{min_n}{minimum number of observations required (after dropping those with NA values) before running the regression (200 by default)}
 
 \item{weights}{NULL by default (for unweighted).  May be set to a string name of a single weight to use for every variable, or a named list that maps variable names to the weights that should be used for that variable's regression}
+
+\item{ids}{NULL by default (for no clusters).  May be set to a string name of a column in the data which provides cluster IDs.}
 
 \item{...}{other arguments passed to svydesign (like "id" or "strat") which are ignored if 'weights' is NULL}
 }

@@ -59,7 +59,7 @@ regress_cont <- function(d, covariates, phenotype, var_name, regression_family, 
   }
 
   # Return null if 'get_varying_covarites' returned NULL (b/c it found a nonvarying covariate the wasn't allowed)
-  if (is.null(varying_covariates)){
+  if (is.null(varying_covariates) && !is.null(covariates)){
     return()
   }
 
@@ -144,7 +144,7 @@ regress_cat <- function(d, covariates, phenotype, var_name, regression_family, a
   }
 
   # Return null if 'get_varying_covarites' returned NULL (b/c it found a nonvarying covariate the wasn't allowed)
-  if (is.null(varying_covariates)){
+  if (is.null(varying_covariates) && !is.null(covariates)){
     return()
   }
 
@@ -208,6 +208,7 @@ regress_cat <- function(d, covariates, phenotype, var_name, regression_family, a
 #' @param allowed_nonvarying list of covariates that are excluded from the regression when they do not vary instead of returning a NULL result.
 #' @param min_n minimum number of observations required (after dropping those with NA values) before running the regression (200 by default)
 #' @param weights NULL by default (for unweighted).  May be set to a string name of a single weight to use for every variable, or a named list that maps variable names to the weights that should be used for that variable's regression
+#' @param ids NULL by default (for no clusters).  May be set to a string name of a column in the data which provides cluster IDs.
 #' @param ... other arguments passed to svydesign (like "id" or "strat") which are ignored if 'weights' is NULL
 #' @return data frame containing following fields Variable, Sample Size, Converged, SE, Beta, Variable p-value, LRT, AIC, pval, phenotype, weight
 #' @export
@@ -217,7 +218,8 @@ regress_cat <- function(d, covariates, phenotype, var_name, regression_family, a
 #' ewas(d, cat_vars, cont_vars, y, cat_covars, cont_covars, regression_family)
 #' }
 ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_covars=NULL,
-                 regression_family="gaussian", allowed_nonvarying=NULL, min_n=200, weights=NULL, ...){
+                 regression_family="gaussian", allowed_nonvarying=NULL, min_n=200, weights=NULL,
+                 ids=NULL, ...){
   # Record start time
   t1 <- Sys.time()
 
@@ -356,7 +358,11 @@ ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_cova
       ewas_result_df$weight[i] <- weight
       data = d[!is.na(d[weight]), ]
       # Create survey design object
-      sd <- survey::svydesign(weights = data[weight],
+      if (is.null(ids)){
+        ids = ~1
+      }
+      sd <- survey::svydesign(ids = ids,
+                              weights = data[weight],
                               data = data,
                               ...)
       # Regress, updating the dataframe if results were returned
@@ -397,7 +403,11 @@ ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_cova
       ewas_result_df$weight[i] <- weight
       data = d[!is.na(d[weight]), ]
       # Create survey design object
-      sd <- survey::svydesign(weights = data[weight],
+      if (is.null(ids)){
+        ids = ~1
+      }
+      sd <- survey::svydesign(ids = ids,
+                              weights = data[weight],
                               data = data,
                               ...)
       # Regress, updating the dataframe if results were returned
