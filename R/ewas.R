@@ -304,8 +304,8 @@ ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_cova
     }
   }
 
-  # Get a combined list of covariates
-  covariates <- c(cat_covars, cont_covars)
+  # Get a combined vector of covariates (must 'unlist' lists to vectors)
+  covariates <- c(unlist(cat_covars), unlist(cont_covars))
 
   # Run Regressions
   #################
