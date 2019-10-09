@@ -209,7 +209,7 @@ regress_cat <- function(d, covariates, phenotype, var_name, regression_family, a
 #'
 #' Run environment-wide association study, optionally using \code{\link[survey]{svydesign}} from the \pkg{survey} package
 #' Note: It is possible to specify \emph{ids} and/or \emph{strata}.  When \emph{ids} is specified without \emph{strata}, 
-#' the standard error is infinite and the anova calculation for categorical variables failes.  This is due to the 
+#' the standard error is infinite and the anova calculation for categorical variables fails.  This is due to the 
 #' \href{http://r-survey.r-forge.r-project.org/survey/exmample-lonely.html}{lonely psu} problem.
 #' @param d data.frame containing all of the data
 #' @param cat_vars List of variables to regress that are categorical or binary

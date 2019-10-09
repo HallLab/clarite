@@ -42,7 +42,7 @@ data frame containing following fields Variable, Sample Size, Converged, SE, Bet
 \description{
 Run environment-wide association study, optionally using \code{\link[survey]{svydesign}} from the \pkg{survey} package
 Note: It is possible to specify \emph{ids} and/or \emph{strata}.  When \emph{ids} is specified without \emph{strata}, 
-the standard error is infinite and the anova calculation for categorical variables failes.  This is due to the 
+the standard error is infinite and the anova calculation for categorical variables fails.  This is due to the 
 \href{http://r-survey.r-forge.r-project.org/survey/exmample-lonely.html}{lonely psu} problem.
 }
 \examples{
