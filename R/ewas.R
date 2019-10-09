@@ -38,7 +38,12 @@ regress_cont <- function(d, covariates, phenotype, var_name, regression_family, 
 
   # Check Covariates and subset the data to use only observations without NAs (NA weights already removed)
   if (use_survey){
-    subset_data <- subset(d, complete.cases(d$variables[c(phenotype, var_name, covariates)]))  # Use the survey subset function
+    subset_len = sum(complete.cases(d$variables[c(phenotype, var_name, covariates)]))
+    if(subset_len < nrow(d)){
+      subset_data <- subset(d, complete.cases(d$variables[c(phenotype, var_name, covariates)]))  # Use the survey subset function
+    } else {
+      subset_data <- d
+    }
     varying_covariates <- get_varying_covariates(subset_data$variables, covariates, phenotype, var_name, allowed_nonvarying)
   } else {
     subset_data <- d[complete.cases(d[c(phenotype, var_name, covariates)]), ]  # use a subset of the data directly
@@ -124,7 +129,12 @@ regress_cat <- function(d, covariates, phenotype, var_name, regression_family, a
 
   # Check Covariates and subset the data to use only observations without NAs (NA weights already removed)
   if (use_survey){
-    subset_data <- subset(d, complete.cases(d$variables[c(phenotype, var_name, covariates)]))  # Use the survey subset function
+    subset_len = sum(complete.cases(d$variables[c(phenotype, var_name, covariates)]))
+    if(subset_len < nrow(d)){
+      subset_data <- subset(d, complete.cases(d$variables[c(phenotype, var_name, covariates)]))  # Use the survey subset function
+    } else {
+      subset_data <- d
+    }
     varying_covariates <- get_varying_covariates(subset_data$variables, covariates, phenotype, var_name, allowed_nonvarying)
   } else {
     subset_data <- d[complete.cases(d[c(phenotype, var_name, covariates)]), ]  # use a subset of the data directly
@@ -198,6 +208,9 @@ regress_cat <- function(d, covariates, phenotype, var_name, regression_family, a
 #' ewas
 #'
 #' Run environment-wide association study, optionally using \code{\link[survey]{svydesign}} from the \pkg{survey} package
+#' Note: It is possible to specify \emph{ids} and/or \emph{strata}.  When \emph{ids} is specified without \emph{strata}, 
+#' the standard error is infinite and the anova calculation for categorical variables failes.  This is due to the 
+#' \href{http://r-survey.r-forge.r-project.org/survey/exmample-lonely.html}{lonely psu} problem.
 #' @param d data.frame containing all of the data
 #' @param cat_vars List of variables to regress that are categorical or binary
 #' @param cont_vars  List of variables to regress that are continuous
@@ -209,6 +222,7 @@ regress_cat <- function(d, covariates, phenotype, var_name, regression_family, a
 #' @param min_n minimum number of observations required (after dropping those with NA values) before running the regression (200 by default)
 #' @param weights NULL by default (for unweighted).  May be set to a string name of a single weight to use for every variable, or a named list that maps variable names to the weights that should be used for that variable's regression
 #' @param ids NULL by default (for no clusters).  May be set to a string name of a column in the data which provides cluster IDs.
+#' @param strata NULL by default (for no strata).  May be set to a string name of a column in the data which provides strata IDs.
 #' @param ... other arguments passed to svydesign (like "id" or "strat") which are ignored if 'weights' is NULL
 #' @return data frame containing following fields Variable, Sample Size, Converged, SE, Beta, Variable p-value, LRT, AIC, pval, phenotype, weight
 #' @export
@@ -219,7 +233,7 @@ regress_cat <- function(d, covariates, phenotype, var_name, regression_family, a
 #' }
 ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_covars=NULL,
                  regression_family="gaussian", allowed_nonvarying=NULL, min_n=200, weights=NULL,
-                 ids=NULL, ...){
+                 ids=NULL, strata=NULL, ...){
   # Record start time
   t1 <- Sys.time()
 
@@ -245,6 +259,9 @@ ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_cova
   }
   if(is.null(allowed_nonvarying)){
     allowed_nonvarying <- list()
+  }
+  if(!is.null(ids) && is.null(strata)){
+    warning("PSU IDs were specified without strata, preventing calculation of standard error unless fpc is used.")
   }
 
   # Ignore the covariates, phenotype, and ID if they were included in the variable lists
@@ -358,13 +375,31 @@ ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_cova
       ewas_result_df$weight[i] <- weight
       data = d[!is.na(d[weight]), ]
       # Create survey design object
-      if (is.null(ids)){
-        ids = ~1
+      if(is.null(ids)&&is.null(strata)){
+        sd <- survey::svydesign(ids = ~1,
+                                weights = data[weight],
+                                data = data,
+                                strata = NULL,
+                                ...)
+      } else if(!is.null(ids) && is.null(strata)){
+        sd <- survey::svydesign(ids = as.formula(paste("~", ids)),
+                                weights = data[weight],
+                                data = data,
+                                strata = NULL,
+                                ...)
+      } else if(is.null(ids) && !is.null(strata)){
+        sd <- survey::svydesign(ids = ~1,
+                                weights = data[weight],
+                                data = data,
+                                strata = as.formula(paste("~", strata)),
+                                ...)
+      } else {
+        sd <- survey::svydesign(ids = as.formula(paste("~", ids)),
+                                weights = data[weight],
+                                data = data,
+                                strata = as.formula(paste("~", strata)),
+                                ...)
       }
-      sd <- survey::svydesign(ids = ids,
-                              weights = data[weight],
-                              data = data,
-                              ...)
       # Regress, updating the dataframe if results were returned
       result <- regress_cat(sd, covariates, phenotype=y, var_name, regression_family, allowed_nonvarying, min_n)
     }
@@ -403,13 +438,31 @@ ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_cova
       ewas_result_df$weight[i] <- weight
       data = d[!is.na(d[weight]), ]
       # Create survey design object
-      if (is.null(ids)){
-        ids = ~1
+      if(is.null(ids)&&is.null(strata)){
+        sd <- survey::svydesign(ids = ~1,
+                                weights = data[weight],
+                                data = data,
+                                strata = NULL,
+                                ...)
+      } else if(!is.null(ids) && is.null(strata)){
+        sd <- survey::svydesign(ids = as.formula(paste("~", ids)),
+                                weights = data[weight],
+                                data = data,
+                                strata = NULL,
+                                ...)
+      } else if(is.null(ids) && !is.null(strata)){
+        sd <- survey::svydesign(ids = ~1,
+                                weights = data[weight],
+                                data = data,
+                                strata = as.formula(paste("~", strata)),
+                                ...)
+      } else {
+        sd <- survey::svydesign(ids = as.formula(paste("~", ids)),
+                                weights = data[weight],
+                                data = data,
+                                strata = as.formula(paste("~", strata)),
+                                ...)
       }
-      sd <- survey::svydesign(ids = ids,
-                              weights = data[weight],
-                              data = data,
-                              ...)
       # Regress, updating the dataframe if results were returned
       result <- regress_cont(sd, covariates, phenotype=y, var_name, regression_family, allowed_nonvarying, min_n)
     }

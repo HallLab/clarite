@@ -7,7 +7,7 @@
 ewas(d, cat_vars = NULL, cont_vars = NULL, y, cat_covars = NULL,
   cont_covars = NULL, regression_family = "gaussian",
   allowed_nonvarying = NULL, min_n = 200, weights = NULL,
-  ids = NULL, ...)
+  ids = NULL, strata = NULL, ...)
 }
 \arguments{
 \item{d}{data.frame containing all of the data}
@@ -32,6 +32,8 @@ ewas(d, cat_vars = NULL, cont_vars = NULL, y, cat_covars = NULL,
 
 \item{ids}{NULL by default (for no clusters).  May be set to a string name of a column in the data which provides cluster IDs.}
 
+\item{strata}{NULL by default (for no strata).  May be set to a string name of a column in the data which provides strata IDs.}
+
 \item{...}{other arguments passed to svydesign (like "id" or "strat") which are ignored if 'weights' is NULL}
 }
 \value{
@@ -39,6 +41,9 @@ data frame containing following fields Variable, Sample Size, Converged, SE, Bet
 }
 \description{
 Run environment-wide association study, optionally using \code{\link[survey]{svydesign}} from the \pkg{survey} package
+Note: It is possible to specify \emph{ids} and/or \emph{strata}.  When \emph{ids} is specified without \emph{strata}, 
+the standard error is infinite and the anova calculation for categorical variables failes.  This is due to the 
+\href{http://r-survey.r-forge.r-project.org/survey/exmample-lonely.html}{lonely psu} problem.
 }
 \examples{
 \dontrun{
