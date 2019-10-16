@@ -266,8 +266,8 @@ ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_cova
   if(!is.null(fpc) && !(fpc %in% colnames(d))){
     stop(paste("'fpc' was specified (", fpc, ") but not found in the data", sep=""))
   }
-  if(!is.null(ids) && is.null(strata)){
-    warning("PSU IDs were specified without strata, preventing calculation of standard error unless fpc is used.")
+  if(!is.null(ids) && is.null(strata) && is.null(fpc)){
+    warning("PSU IDs were specified without strata or fpc, preventing calculation of standard error")
   }
 
   # Ignore the covariates, phenotype, and ID if they were included in the variable lists
