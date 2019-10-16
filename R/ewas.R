@@ -223,7 +223,8 @@ regress_cat <- function(d, covariates, phenotype, var_name, regression_family, a
 #' @param weights NULL by default (for unweighted).  May be set to a string name of a single weight to use for every variable, or a named list that maps variable names to the weights that should be used for that variable's regression
 #' @param ids NULL by default (for no clusters).  May be set to a string name of a column in the data which provides cluster IDs.
 #' @param strata NULL by default (for no strata).  May be set to a string name of a column in the data which provides strata IDs.
-#' @param ... other arguments passed to svydesign (like "id" or "strat") which are ignored if 'weights' is NULL
+#' @param fpc NULL by default (for no fpc).  May be set to a string name of a column in the data which provides fpc values.
+#' @param ... other arguments passed to svydesign which are ignored if 'weights' is NULL
 #' @return data frame containing following fields Variable, Sample Size, Converged, SE, Beta, Variable p-value, LRT, AIC, pval, phenotype, weight
 #' @export
 #' @family analysis functions
@@ -233,17 +234,13 @@ regress_cat <- function(d, covariates, phenotype, var_name, regression_family, a
 #' }
 ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_covars=NULL,
                  regression_family="gaussian", allowed_nonvarying=NULL, min_n=200, weights=NULL,
-                 ids=NULL, strata=NULL, ...){
+                 ids=NULL, strata=NULL, fpc=NULL, ...){
   # Record start time
   t1 <- Sys.time()
-
   # Validate inputs
   #################
   if(missing(y)){
-    stop("Please specify either 'continuous' or 'categorical' type for predictor variables")
-  }
-  if(missing(regression_family)){
-    stop("Please specify family type for glm()")
+    stop("Please specify an outcome 'y' variable")
   }
   if(is.null(cat_vars)){
     cat_vars <- list()
@@ -259,6 +256,15 @@ ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_cova
   }
   if(is.null(allowed_nonvarying)){
     allowed_nonvarying <- list()
+  }
+  if(!is.null(ids) && !(ids %in% colnames(d))){
+    stop(paste("'ids' was specified (", ids, ") but not found in the data", sep=""))
+  }
+  if(!is.null(strata) && !(strata %in% colnames(d))){
+    stop(paste("'strata' was specified (", strata, ") but not found in the data", sep=""))
+  }
+  if(!is.null(fpc) && !(fpc %in% colnames(d))){
+    stop(paste("'fpc' was specified (", fpc, ") but not found in the data", sep=""))
   }
   if(!is.null(ids) && is.null(strata)){
     warning("PSU IDs were specified without strata, preventing calculation of standard error unless fpc is used.")
@@ -374,30 +380,27 @@ ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_cova
       }
       ewas_result_df$weight[i] <- weight
       data = d[!is.na(d[weight]), ]
+      # Get strata and fpc if they are null
+      if(!is.null(strata)){
+        strata <- data[strata]
+      }
+      if(!is.null(fpc)){
+        fpc <- data[fpc]
+      }
       # Create survey design object
-      if(is.null(ids)&&is.null(strata)){
+      if(is.null(ids)){
         sd <- survey::svydesign(ids = ~1,
                                 weights = data[weight],
                                 data = data,
-                                strata = NULL,
+                                strata = strata,
+                                fpc = fpc,
                                 ...)
-      } else if(!is.null(ids) && is.null(strata)){
-        sd <- survey::svydesign(ids = as.formula(paste("~", ids)),
+      } else{
+        sd <- survey::svydesign(ids = data[ids],
                                 weights = data[weight],
                                 data = data,
-                                strata = NULL,
-                                ...)
-      } else if(is.null(ids) && !is.null(strata)){
-        sd <- survey::svydesign(ids = ~1,
-                                weights = data[weight],
-                                data = data,
-                                strata = as.formula(paste("~", strata)),
-                                ...)
-      } else {
-        sd <- survey::svydesign(ids = as.formula(paste("~", ids)),
-                                weights = data[weight],
-                                data = data,
-                                strata = as.formula(paste("~", strata)),
+                                strata = strata,
+                                fpc = fpc,
                                 ...)
       }
       # Regress, updating the dataframe if results were returned
@@ -437,30 +440,27 @@ ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_cova
       }
       ewas_result_df$weight[i] <- weight
       data = d[!is.na(d[weight]), ]
+      # Get strata and fpc if they are null
+      if(!is.null(strata)){
+        strata <- data[strata]
+      }
+      if(!is.null(fpc)){
+        fpc <- data[fpc]
+      }
       # Create survey design object
-      if(is.null(ids)&&is.null(strata)){
+      if(is.null(ids)){
         sd <- survey::svydesign(ids = ~1,
                                 weights = data[weight],
                                 data = data,
-                                strata = NULL,
+                                strata = strata,
+                                fpc = fpc,
                                 ...)
-      } else if(!is.null(ids) && is.null(strata)){
-        sd <- survey::svydesign(ids = as.formula(paste("~", ids)),
+      } else{
+        sd <- survey::svydesign(ids = data[ids],
                                 weights = data[weight],
                                 data = data,
-                                strata = NULL,
-                                ...)
-      } else if(is.null(ids) && !is.null(strata)){
-        sd <- survey::svydesign(ids = ~1,
-                                weights = data[weight],
-                                data = data,
-                                strata = as.formula(paste("~", strata)),
-                                ...)
-      } else {
-        sd <- survey::svydesign(ids = as.formula(paste("~", ids)),
-                                weights = data[weight],
-                                data = data,
-                                strata = as.formula(paste("~", strata)),
+                                strata = strata,
+                                fpc = fpc,
                                 ...)
       }
       # Regress, updating the dataframe if results were returned
