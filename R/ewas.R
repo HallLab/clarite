@@ -257,14 +257,20 @@ ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_cova
   if(is.null(allowed_nonvarying)){
     allowed_nonvarying <- list()
   }
-  if(!is.null(ids) && !(ids %in% colnames(d))){
-    stop(paste("'ids' was specified (", ids, ") but not found in the data", sep=""))
+  if(!is.null(ids)){
+    if(!(ids %in% colnames(d))){
+      stop(paste("'ids' was specified (", ids, ") but not found in the data", sep=""))
+    }
   }
-  if(!is.null(strata) && !(strata %in% colnames(d))){
-    stop(paste("'strata' was specified (", strata, ") but not found in the data", sep=""))
+  if(!is.null(strata)){
+    if(!(strata %in% colnames(d))){
+      stop(paste("'strata' was specified (", strata, ") but not found in the data", sep=""))
+    }
   }
-  if(!is.null(fpc) && !(fpc %in% colnames(d))){
-    stop(paste("'fpc' was specified (", fpc, ") but not found in the data", sep=""))
+  if(!is.null(fpc)){
+    if(!(fpc %in% colnames(d))){
+      stop(paste("'fpc' was specified (", fpc, ") but not found in the data", sep=""))
+    }
   }
   if(!is.null(ids) && is.null(strata) && is.null(fpc)){
     warning("PSU IDs were specified without strata or fpc, preventing calculation of standard error")
