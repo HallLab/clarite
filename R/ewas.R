@@ -386,27 +386,27 @@ ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_cova
       }
       ewas_result_df$weight[i] <- weight
       data = d[!is.na(d[weight]), ]
-      # Get strata and fpc if they are null
+      # Get strata and fpc if they are not null
       if(!is.null(strata)){
-        strata <- data[strata]
+        strata_values <- data[strata]
       }
       if(!is.null(fpc)){
-        fpc <- data[fpc]
+        fpc_values <- data[fpc]
       }
       # Create survey design object
       if(is.null(ids)){
         sd <- survey::svydesign(ids = ~1,
                                 weights = data[weight],
                                 data = data,
-                                strata = strata,
-                                fpc = fpc,
+                                strata = strata_values,
+                                fpc = fpc_values,
                                 ...)
       } else{
         sd <- survey::svydesign(ids = data[ids],
                                 weights = data[weight],
                                 data = data,
-                                strata = strata,
-                                fpc = fpc,
+                                strata = strata_values,
+                                fpc = fpc_values,
                                 ...)
       }
       # Regress, updating the dataframe if results were returned
@@ -446,27 +446,27 @@ ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_cova
       }
       ewas_result_df$weight[i] <- weight
       data = d[!is.na(d[weight]), ]
-      # Get strata and fpc if they are null
+      # Get strata and fpc if they are not null
       if(!is.null(strata)){
-        strata <- data[strata]
+        strata_values <- data[strata]
       }
       if(!is.null(fpc)){
-        fpc <- data[fpc]
+        fpc_values <- data[fpc]
       }
       # Create survey design object
       if(is.null(ids)){
         sd <- survey::svydesign(ids = ~1,
                                 weights = data[weight],
                                 data = data,
-                                strata = strata,
-                                fpc = fpc,
+                                strata = strata_values,
+                                fpc = fpc_values,
                                 ...)
       } else{
         sd <- survey::svydesign(ids = data[ids],
                                 weights = data[weight],
                                 data = data,
-                                strata = strata,
-                                fpc = fpc,
+                                strata = strata_values,
+                                fpc = fpc_values,
                                 ...)
       }
       # Regress, updating the dataframe if results were returned
