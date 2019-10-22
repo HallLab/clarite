@@ -389,9 +389,13 @@ ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_cova
       # Get strata and fpc if they are not null
       if(!is.null(strata)){
         strata_values <- data[strata]
+      } else {
+        strata_values <- NULL
       }
       if(!is.null(fpc)){
         fpc_values <- data[fpc]
+      } else {
+        fpc_values <- NULL
       }
       # Create survey design object
       if(is.null(ids)){
@@ -449,9 +453,13 @@ ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_cova
       # Get strata and fpc if they are not null
       if(!is.null(strata)){
         strata_values <- data[strata]
+      } else {
+        strata_values <- NULL
       }
       if(!is.null(fpc)){
         fpc_values <- data[fpc]
+      } else {
+        fpc_values <- NULL
       }
       # Create survey design object
       if(is.null(ids)){
