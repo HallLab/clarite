@@ -1,0 +1,584 @@
+---
+title: "CLARITE Example Analysis"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{my-vignette}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+params:
+  data_folder: "../../../data/NHANES_99-06/"
+  output_folder: "./example_output"
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(clarite)
+library(moments) # Skewness
+library(ggplot2)
+
+packageVersion("clarite")
+```
+
+CLARITE facilitates the quality control and analysis process for EWAS of metabolic-related traits
+
+Data from NHANES was used in an EWAS analysis including utilizing the provided survey weight information. The first two cycles of NHANES (1999-2000 and 2001-2002) are assigned to a ‘discovery’ dataset and the next two cycles (2003-2004 and 2005-2006) are assigned to a ‘replication’ datset.
+
+## Load Data
+
+```{r}
+data_main_table_over18 = paste(params$data_folder, "MainTable_keepvar_over18.tsv", sep="")
+data_main_table = paste(params$data_folder, "MainTable.csv", sep="")
+data_var_description = paste(params$data_folder, "VarDescription.csv", sep="")
+data_var_categories = paste(params$data_folder, "VarCat_nopf.txt", sep="")
+```
+
+### Data of all samples with age >= 18
+```{r}
+nhanes <- read.delim(data_main_table_over18, header=TRUE, sep="\t")
+```
+
+### Variable Descriptions
+
+```{r}
+descriptions <- read.csv(data_var_description)
+descriptions_info <- unique(descriptions[,colnames(descriptions) %in% c("tab_desc","module","var","var_desc")])
+head(descriptions_info)
+```
+
+### Survey Weights, as provided by NHANES
+
+
+Survey weight information is used so that the results apply to the US civillian non-institutionalized population.
+
+This includes:
+
+* SDMVPSU (Cluster ID)
+* SDMVSTRA (Nested Strata ID)
+* 2-year weights
+* 4-year weights
+
+Different variables require different weights, as many of them were measured on a subset of the full dataset. For example:
+
+* WTINT is the survey weight for interview variables.
+* WTMEC is the survey weight for variables measured in the Mobile Exam Centers (a subset of interviewed samples)
+
+2-year and 4-year weights are provided. It is important to adjust the weights when combining multiple cycles, by computing the weighted average. In this case 4-year weights (covering the first 2 cycles) are provided by NHANES and the replication weights (the 3rd and 4th cycles) were computed from the 2-year weights prior to loading them here.
+
+```{r}
+# Get survey info
+survey_design_discovery <- read.csv(paste(params$data_folder, "weights/weights_discovery.txt", sep=""), sep="\t")
+colnames(survey_design_discovery)[1] <- "ID"
+survey_design_discovery <- colfilter(survey_design_discovery, c("SDDSRVYR"), exclude=TRUE)
+head(survey_design_discovery)
+```
+
+```{r}
+survey_design_replication <- read.csv(paste(params$data_folder, "weights/weights_replication_4yr.txt", sep=""), sep="\t")
+colnames(survey_design_replication)[1] <- "ID" 
+survey_design_replication <- colfilter(survey_design_replication, c("SDDSRVYR"), exclude=TRUE)
+head(survey_design_replication)
+```
+
+```{r}
+# Get weight mapping data
+var_weights <- read.csv(paste(params$data_folder, "weights/VarWeights.csv", sep=""), fileEncoding="UTF-8-BOM", stringsAsFactors = FALSE)
+weights_discovery <- setNames(as.list(var_weights$discovery), as.list(var_weights$variable_name))
+weights_replication <- setNames(as.list(var_weights$replication), as.list(var_weights$variable_name))
+```
+
+
+### Survey Year
+
+```{r}
+# Data found in the main table
+main_table <- read.csv(data_main_table) 
+colnames(main_table)[1] <- "ID" 
+survey_year <- colfilter(main_table, c("ID", "SDDSRVYR")) 
+nhanes <- merge_data(survey_year, nhanes, union = FALSE)
+```
+
+## Define the phenotype and covariates
+
+```{r}
+covariates <- c("female", "black", "mexican", "other_hispanic", "other_eth", "SES_LEVEL", "RIDAGEYR", "SDDSRVYR")
+phenotype <- c("BMXBMI")
+```
+
+
+## Initial cleanup and variable selection
+
+### Remove any samples missing the phenotype or a covariate
+```{r}
+nhanes <- remove_incomplete_obs(nhanes, c(covariates, phenotype))
+```
+
+### Remove variables that aren't appropriate for analysis
+
+#### Physical fitness
+
+These are measurements rather than proxies for environmental exposure
+
+```{r}
+no_pf_vars <- c("CVDVOMAX","CVDESVO2","CVDS1HR","CVDS1SY","CVDS1DI","CVDS2HR","CVDS2SY", "CVDS2DI","CVDR1HR","CVDR1SY","CVDR1DI","CVDR2HR","CVDR2SY","CVDR2DI","physical_activity") 
+nhanes <- colfilter(d = nhanes, cols = c(no_pf_vars), exclude = TRUE)
+```
+
+#### Lipid Variables
+
+These are likely correlated with BMI in some way
+
+```{r}
+
+bmi_lipid_cols <- c("LBDHDD","LBDHDL","LBDLDL","LBXSTR","LBXTC","LBXTR")
+nhanes <- colfilter(nhanes, cols=bmi_lipid_cols, exclude = TRUE)
+```
+
+#### Indeterminate Variables
+
+These variables don't have clear meanings
+
+```{r}
+others <- c("house_type","hepa","hepb", "house_age", "current_past_smoking")
+nhanes <- colfilter(nhanes, cols=others, exclude = TRUE)
+```
+
+
+### Recode missing values
+
+```{r}
+# The values 7 and/or 9 in some variables need to be defined as 'NA'
+nhanes$SMQ077[nhanes$SMQ077==7] <- NA
+nhanes$DBD100[nhanes$DBD100==9] <- NA
+```
+
+### Split the data into *discovery* and *replication*
+```{r}
+# The values 7 and/or 9 in some variables need to be defined as 'NA'
+nhanes_discovery <- nhanes[nhanes$SDDSRVYR==1|nhanes$SDDSRVYR==2,]
+nhanes_replication <- nhanes[nhanes$SDDSRVYR==3|nhanes$SDDSRVYR==4,]
+```
+
+## QC
+
+### Minimum of 200 non-NA values in each variable
+
+Drop variables that have a small sample size
+```{r}
+nhanes_discovery <- min_n(nhanes_discovery, skip=c(covariates, phenotype))
+nhanes_replication <- min_n(nhanes_replication, skip=c(covariates, phenotype))
+```
+
+### Categorize Variables
+
+This is important, as different variable types must be processed in different ways. The number of unique values for each variable is a good heuristic for determining this. The default settings were used here, but different cutoffs can be specified.
+
+```{r}
+# Discovery
+discovery_bin <- get_binary(nhanes_discovery)
+discovery_cat <- get_categorical(nhanes_discovery)
+discovery_cont <- get_continuous(nhanes_discovery)
+discovery_check <- get_check(nhanes_discovery)
+
+# Replication
+replication_bin <- get_binary(nhanes_replication)
+replication_cat <- get_categorical(nhanes_replication)
+replication_cont <- get_continuous(nhanes_replication)
+replication_check <- get_check(nhanes_replication)
+```
+
+### Checking Categorization
+
+Distributions of variables may be plotted using CLARITE
+
+```{r eval=FALSE}
+multi_plot(discovery_check, file=paste(params$output_folder, "plots", sep="/"), type="hist-qq")
+```
+One variable needed correcting where the heuristic was not correct
+
+```{r}
+replication_cat_to_cont <- c("L_GLUTAMINE_gm")
+replication_cont <- merge_data(replication_cont, colfilter(replication_cat, cols = replication_cat_to_cont, exclude = FALSE))
+replication_cat <- colfilter(replication_cat, cols = replication_cat_to_cont, exclude = TRUE)
+```
+
+After examining all of the uncategorized variables, they are all continuous
+
+```{r}
+print(paste("Checked: ", paste(names(replication_check), collapse=", "), sep=" "))
+replication_cont <- merge_data(replication_cont, replication_check, union = TRUE)
+```
+
+Types should match across discovery/replication
+
+```{r}
+############################################
+# Take note of differently-typed variables #
+############################################
+print(paste("Bin > Cat:", paste(intersect(names(discovery_bin), names(replication_cat)), collapse=", ")))
+print(paste("Bin > Cont:", paste(intersect(names(discovery_bin), names(replication_cont)), collapse=", ")))
+print(paste("Cat > Bin:", paste(intersect(names(discovery_cat), names(replication_bin)), collapse=", ")))
+print(paste("Cat > Cont:", paste(intersect(names(discovery_cat), names(replication_cont)), collapse=", ")))
+print(paste("Cont > Bin:", paste(intersect(names(discovery_cont), names(replication_bin)), collapse=", ")))
+print(paste("Cont > Cont:", paste(intersect(names(discovery_cont), names(replication_cat)), collapse=", ")))
+
+# Fix based on the above
+
+# Binary in discovery that should be categorical
+move_cols <- c("BETA_CAROTENE_mcg", "CALCIUM_Unknown", "MAGNESIUM_Unknown")
+discovery_cat <- merge_data(discovery_cat, colfilter(discovery_bin, cols = move_cols, exclude = FALSE))
+discovery_bin <- colfilter(discovery_bin, cols = move_cols, exclude = TRUE)
+
+# Binary in discovery that should be continuous
+move_cols <- c("LBXPFDO")
+discovery_cont <- merge_data(discovery_cont, colfilter(discovery_bin, cols = move_cols, exclude = FALSE))
+discovery_bin <- colfilter(discovery_bin, cols = move_cols, exclude = TRUE)
+
+# Categorical in discovery that should be continuous
+move_cols <- c("DRD350AQ", "DRD350DQ", "DRD350GQ")
+discovery_cont <- merge_data(discovery_cont, colfilter(discovery_cat, cols = move_cols, exclude = FALSE))
+discovery_cat <- colfilter(discovery_cat, cols = move_cols, exclude = TRUE)
+
+#Binary in replication that should be categorical
+move_cols <- c("VITAMIN_B_12_Unknown")
+replication_cat <- merge_data(replication_cat, colfilter(replication_bin, cols = move_cols, exclude = FALSE))
+replication_bin <- colfilter(replication_bin, cols = move_cols, exclude = TRUE)
+```
+
+### Filtering
+
+Get the types of covariates to exclude them from filtering
+
+```{r}
+# Discovery
+discovery_covariates_cat = intersect(names(discovery_cat), covariates)
+discovery_covariates_bin = intersect(names(discovery_bin), covariates)
+discovery_covariates_catbin <- union(discovery_covariates_cat, discovery_covariates_bin)
+discovery_covariates_cont = intersect(names(discovery_cont), covariates)
+
+# Replication
+replication_covariates_cat = intersect(names(replication_cat), covariates)
+replication_covariates_bin = intersect(names(replication_bin), covariates)
+replication_covariates_catbin <- union(replication_covariates_cat, replication_covariates_bin)
+replication_covariates_cont = intersect(names(replication_cont), covariates)
+
+```
+
+
+These are a standard set of filters with default settings
+
+```{r}
+# Apply the min_cat filter to exclude categorical/binary with low samples of a category
+discovery_bin <- min_cat_n(discovery_bin, skip=discovery_covariates_bin)
+discovery_cat <- min_cat_n(discovery_cat, skip=discovery_covariates_cat)
+
+replication_bin <- min_cat_n(replication_bin, skip=replication_covariates_bin)
+replication_cat <- min_cat_n(replication_cat, skip=replication_covariates_cat)
+```
+
+```{r}
+# Calculate percent zero
+get0 <- function(x){
+  x <- as.numeric(as.character(x))
+  N <- sum(!is.na(x))  # Number not NA
+  NNZ <- sum(x[!is.na(x)] > 0)  # Number > 0 and not NA
+  PZ <- (N-NNZ)/N  # Number zero /  number not NA
+  out <- rbind(N=N, NNZ=NNZ, PZ=PZ)
+  return(out)
+}
+
+# Discovery Percent Zero
+zeros_disc <- as.data.frame(t(sapply(discovery_cont[,-1], get0)))
+zeros_disc <- cbind(rownames(zeros_disc), data.frame(zeros_disc, row.names = NULL))
+names(zeros_disc) <- c("var","N","NNZ","PZ")
+# Drop those with percent zero > 90%
+before <- length(discovery_cont) -1 # minus 1 for ID
+zeros_disc_filtered <- zeros_disc[zeros_disc$PZ >= 0.9, 1, drop=FALSE]
+discovery_cont <- colfilter(discovery_cont, cols=zeros_disc_filtered, exclude=TRUE)
+# Log
+sprintf("Removed %i of %i continuous variables due to the percent zero filter",
+        nrow(zeros_disc_filtered), before)
+
+# Replication Percent Zero
+zeros_repl <- as.data.frame(t(sapply(replication_cont[,-1], get0)))
+zeros_repl <- cbind(rownames(zeros_repl), data.frame(zeros_repl, row.names = NULL))
+names(zeros_repl) <- c("var","N","NNZ","PZ")
+# Drop those with percent zero > 90%
+before <- length(replication_cont) -1 # minus 1 for ID
+zeros_repl_filtered <- zeros_repl[zeros_repl$PZ >= 0.9, 1, drop=FALSE]
+replication_cont <- colfilter(replication_cont, cols=zeros_repl_filtered, exclude=TRUE)
+# Log
+sprintf("Removed %i of %i continuous variables due to the percent zero filter",
+        length(zeros_repl_filtered), before)
+
+```
+
+Only keep those present in both datasets
+```{r}
+common_bin <- intersect(names(discovery_bin), names(replication_bin))
+discovery_bin_final <- colfilter(discovery_bin, cols=common_bin, exclude=FALSE)
+replication_bin_final <- colfilter(replication_bin, cols=common_bin, exclude=FALSE)
+sprintf("%i Binary Variables in Common", length(common_bin))
+
+common_cat <- intersect(names(discovery_cat), names(replication_cat))
+discovery_cat_final <- colfilter(discovery_cat, cols=common_cat, exclude=FALSE)
+replication_cat_final <- colfilter(replication_cat, cols=common_cat, exclude=FALSE)
+sprintf("%i Categorical Variables in Common", length(common_cat))
+
+common_cont <- intersect(names(discovery_cont), names(replication_cont))
+discovery_cont_final <- colfilter(discovery_cont, cols=common_cont, exclude=FALSE)
+replication_cont_final <- colfilter(replication_cont, cols=common_cont, exclude=FALSE)
+sprintf("%i Continuous Variables in Common", length(common_cont))
+```
+
+### Summarize
+
+```{r}
+sprintf("%i Discovery Binary Variables with %i Observations",
+        length(discovery_bin_final),
+        nrow(discovery_bin_final))
+sprintf("%i Discovery Categorical Variables with %i Observations",
+        length(discovery_cat_final),
+        nrow(discovery_cat_final))
+sprintf("%i Discovery Continuous Variables with %i Observations",
+        length(discovery_cont_final),
+        nrow(discovery_cont_final))
+
+sprintf("%i Replication Binary Variables with %i Observations",
+        length(replication_bin_final),
+        nrow(replication_bin_final))
+sprintf("%i Replication Categorical Variables with %i Observations",
+        length(replication_cat_final),
+        nrow(replication_cat_final))
+sprintf("%i Replication Continuous Variables with %i Observations",
+        length(replication_cont_final),
+        nrow(replication_cont_final))
+```
+
+Combine binary and categorical together
+
+```{r}
+discovery_catbin_final <- merge_data(discovery_cat_final, discovery_bin_final, union = TRUE)
+replication_catbin_final <- merge_data(replication_cat_final, replication_bin_final, union = TRUE)
+```
+
+Get the name of variables that will be run
+```{r}
+discovery_catbin_vars = setdiff(names(discovery_catbin_final),
+                                c(discovery_covariates_catbin, phenotype, "ID", names(survey_design_discovery), names(survey_design_replication)))
+discovery_cont_vars = setdiff(names(discovery_cont_final),
+                              c(discovery_covariates_cont, phenotype, "ID", names(survey_design_discovery), names(survey_design_replication)))
+```
+
+
+## Check the phenotype distribution
+
+The phenotype appears to be skewed, so it will need to be corrected. CLARITE makes it easy to plot distributions and to transform variables.
+
+```{r}
+# Discovery
+
+# Make plot to visulize phneotype not log transformed vs. log transfomred.
+hist(discovery_cont_final$BMXBMI, breaks = 100)
+skewness(discovery_cont_final$BMXBMI)
+transBMI <- log(discovery_cont_final$BMXBMI)
+
+hist(transBMI, breaks = 100)
+skewness(transBMI)
+
+# Replace BMI with log BMI
+discovery_cont_final$logBMI <- transBMI
+discovery_cont_final <- colfilter(discovery_cont_final, cols=c("BMXBMI"),exclude = TRUE)
+
+# Replication
+
+# Make plot to visulize phneotype not log transformed vs. log transfomred.
+hist(replication_cont_final$BMXBMI, breaks = 100)
+skewness(replication_cont_final$BMXBMI)
+transBMI <- log(replication_cont_final$BMXBMI)
+
+hist(transBMI, breaks = 100)
+skewness(transBMI)
+
+# Replace BMI with log BMI
+replication_cont_final$logBMI <- transBMI
+replication_cont_final <- colfilter(replication_cont_final, cols=c("BMXBMI"),exclude = TRUE)
+
+# Update phenotype name
+phenotype <- "logBMI"
+```
+
+### Create final dataframes
+
+All variables and survey information are combined into one dataframe
+```{r}
+discovery_final <- merge_data(discovery_catbin_final, discovery_cont_final, union = FALSE)
+replication_final <- merge_data(replication_catbin_final, replication_cont_final, union = FALSE)
+
+discovery_final <- merge_data(discovery_final, survey_design_discovery, union=FALSE)
+replication_final <- merge_data(replication_final, survey_design_replication, union=FALSE)
+```
+
+Filter out variables that don't have a weight both discovery and replication
+```{r}
+# Check for weights
+catbin_has_weight <- sapply(discovery_catbin_vars,
+                     function(v){ifelse(is.null(weights_discovery[[v]]) | is.null(weights_replication[[v]]),
+                                        FALSE,
+                                        (weights_discovery[[v]] %in% names(discovery_final)) & (weights_replication[[v]] %in% names(replication_final)))}
+)
+cont_has_weight <- sapply(discovery_cont_vars,
+                     function(v){ifelse(is.null(weights_discovery[[v]]) | is.null(weights_replication[[v]]),
+                                        FALSE,
+                                        (weights_discovery[[v]] %in% names(discovery_final)) & (weights_replication[[v]] %in% names(replication_final)))}
+)
+
+# Log
+if(sum(catbin_has_weight) < length(catbin_has_weight)){
+  print(paste("Skipped", sum(!catbin_has_weight), "cat/bin variable(s) with no weight: ",
+              paste(discovery_catbin_vars[!catbin_has_weight], collapse=", ")))}
+if(sum(cont_has_weight) < length(cont_has_weight)){
+  print(paste("Skipped", sum(!cont_has_weight), "continuous variable(s) with no weight: ",
+              paste(discovery_cont_vars[!cont_has_weight], collapse=", ")))}
+
+# Update
+# NOTE: This does it for replication also, since they are copied from these vectors
+discovery_catbin_vars <- discovery_catbin_vars[catbin_has_weight]
+discovery_cont_vars <- discovery_cont_vars[cont_has_weight]
+```
+
+## EWAS
+
+Survey parameters can be passed in along with the other parameters
+
+```{r}
+discovery_results <- ewas(d = discovery_final,
+                                   cat_vars=discovery_catbin_vars,
+                                   cont_vars=discovery_cont_vars,
+                                   y=phenotype,
+                                   cat_covars=discovery_covariates_catbin,
+                                   cont_covars=discovery_covariates_cont,
+                                   regression_family="gaussian",
+                                   allowed_nonvarying=c("female", "SDDSRVYR"),
+                                   weights=weights_discovery,
+                                   id="SDMVPSU",
+                                   strat="SDMVSTRA",
+                                   nest=TRUE)
+```
+
+
+There is a separate function for adding pvalues with multiple-test-correction applied.
+
+```{r}
+discovery_results <- ewas_pval_adjust(discovery_results)
+```
+
+
+Saving results is straightforward
+```{r}
+write.table(discovery_results,
+            file = paste(params$output_folder, "BMI_Discovery_Results.txt", sep="/"),
+            sep = "\t", quote = FALSE, row.names = FALSE)
+```
+
+## Replication
+
+### Selecting top results
+
+Variables with an FDR less than 0.1 were selected 
+
+```{r}
+significant_discovery_vars <- discovery_results[discovery_results$pvalue_FDR < 0.1, "Variable"]
+
+replication_catbin_vars <- intersect(discovery_catbin_vars, significant_discovery_vars)
+replication_cont_vars <- intersect(discovery_cont_vars, significant_discovery_vars)
+```
+
+### Run the replication
+
+The variables with low FDR in the discovery dataset were analyzed in the replication dataset
+
+```{r}
+replication_results <- ewas(d = replication_final,
+                                     cat_vars=replication_catbin_vars,
+                                     cont_vars=replication_cont_vars,
+                                     y=phenotype,
+                                     cat_covars=replication_covariates_catbin,
+                                     cont_covars=replication_covariates_cont,
+                                     regression_family="gaussian",
+                                     allowed_nonvarying=c("female", "SDDSRVYR"),
+                                     weights=weights_replication,
+                                     id="SDMVPSU",
+                                     strat="SDMVSTRA",
+                                     nest=TRUE)
+
+replication_results <- ewas_pval_adjust(replication_results)
+```
+
+### Combine results
+
+```{r}
+results <- merge(discovery_results, replication_results, by="Variable", suffixes = c("_Dis", "_Rep"))
+results <- results[order(results$pvalue_FDR_Rep),order(names(results))]
+
+not_NA <- !is.na(results$pval_Dis) & !is.na(results$pval_Rep)
+
+sig_FDR_results <- not_NA & (results$pvalue_FDR_Dis < 0.1) & (results$pvalue_FDR_Rep < 0.1) 
+write.table(results[sig_FDR_results, c("Variable", "pvalue_FDR_Dis","pvalue_FDR_Rep")],
+            file = paste(params$output_folder, "Significant_Results_FDR_0.1.txt", sep="/"),
+            sep = "\t", quote = FALSE, row.names = FALSE)
+
+sig_Bonf_results05 <- not_NA & (results$pvalue_Bonf_Dis < 0.05) & (results$pvalue_Bonf_Rep < 0.05)
+write.table(results[sig_Bonf_results05, c("Variable", "pvalue_Bonf_Dis", "pvalue_Bonf_Rep")],
+            file = paste(params$output_folder, "Significant_Results_Bonferroni_0.05.txt", sep="/"),
+            sep = "\t", quote = FALSE, row.names = FALSE)
+
+sig_Bonf_results01 <- not_NA & (results$pvalue_Bonf_Dis < 0.01) & (results$pvalue_Bonf_Rep < 0.01)
+write.table(results[sig_Bonf_results01, c("Variable", "pvalue_Bonf_Dis", "pvalue_Bonf_Rep")],
+            file = paste(params$output_folder, "Significant_Results_Bonferroni_0.01.txt", sep="/"),
+            sep = "\t", quote = FALSE, row.names = FALSE)
+
+# Record significant variables for testing with possible confounding variables
+significant_in_both <- results[sig_FDR_results, "Variable"]
+```
+
+
+## Manhattan Plot
+
+CLARITE provides functionality for generating highly customizable Manhattan plots from EWAS results
+
+```{r, fig.width=7, fig.height=5}
+# Keep only p-values for each variable
+mpdata_discovery <- discovery_results[c("Variable", "pval")]
+mpdata_replication <- replication_results[c("Variable", "pval")]
+
+# Rename the pvalue columns
+names(mpdata_discovery)[2] <- "pvalue"
+names(mpdata_replication)[2] <- "pvalue"
+
+# Add "Shape"
+mpdata_discovery$Shape <- "Discovery"
+mpdata_replication$Shape <- "Replication"
+
+# Merge
+mpdata <- rbind(mpdata_discovery, mpdata_replication)
+
+# Load catagory info
+var_categories <- read.delim(data_var_categories)
+
+# Plot
+eman(mpdata, ewas = FALSE,
+     groups = var_categories,
+     line = 0.05/nrow(mpdata_discovery),
+     title = "EWAS Results: Discovery vs Replication",
+     morecolors = FALSE,
+     file = paste(params$output_folder, "BMI_Manhattan_Plot_D_R", sep="/"),
+     hgt = 7, wi = 12, res = 300)
+```
+
+

@@ -8,6 +8,10 @@
 #'    \item \href{https://www.hall-lab.org/clarite-python/cli.html}{A command line program} (part of the python package)
 #'    \item \href{https://github.com/HallLab/clarite-gui}{A GUI tool} (coming soon)
 #' }
+#' 
+#' @section Example Analysis:
+#' 
+#' An example analysis can be viewed here: \url{http://rpubs.com/HallLabDocs/clarite_example_analysis}
 #'
 #' @section Categorizing variables:
 #'

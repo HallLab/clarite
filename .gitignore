@@ -3,3 +3,4 @@
 .RData
 .vscode/
 Logs/
+inst/doc

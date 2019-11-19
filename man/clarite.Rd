@@ -21,6 +21,12 @@ It exists in several forms:
 }
 }
 
+\section{Example Analysis}{
+
+
+An example analysis can be viewed here: \url{http://rpubs.com/HallLabDocs/clarite_example_analysis}
+}
+
 \section{Categorizing variables}{
 
 
