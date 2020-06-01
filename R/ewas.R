@@ -40,7 +40,7 @@ regress_cont <- function(data, varying_covariates, phenotype, var_name, regressi
                              family=regression_family,
                              data=data,
                              na.action=na.omit),
-                        error=function(e) warn_on_e(var_name, e))
+                         error=function(e) warn_on_e(var_name, e))
   # Collect Results
   if (!is.null(var_result)){
     var_summary <- summary(var_result)
@@ -67,52 +67,51 @@ regress_cont_survey <- function(data, varying_covariates, phenotype, var_name, r
                                 weight_values, strata_values, fpc_values, id_values, ...){
   
   # Create survey design
-    if(is.null(id_values)){
-      survey_design <- survey::svydesign(ids = ~1,
-                              weights = weight_values,
-                              data = data,
-                              strata = strata_values,
-                              fpc = fpc_values,
-                              ...)
-    } else{
-      survey_design <- survey::svydesign(ids = id_values,
-                              weights = weight_values,
-                              data = data,
-                              strata = strata_values,
-                              fpc = fpc_values,
-                              ...)
-    }
+  if(is.null(id_values)){
+    survey_design <- survey::svydesign(ids = ~1,
+                                       weights = weight_values,
+                                       data = data,
+                                       strata = strata_values,
+                                       fpc = fpc_values,
+                                       ...)
+  } else{
+    survey_design <- survey::svydesign(ids = id_values,
+                                       weights = weight_values,
+                                       data = data,
+                                       strata = strata_values,
+                                       fpc = fpc_values,
+                                       ...)
+  }
   
-    # Create a regression formula
-    if(length(varying_covariates)>0){
-      fmla <- paste(phenotype, "~", var_name, "+", paste(varying_covariates, collapse="+"), sep="")
-    } else {
-      fmla <- paste(phenotype, "~", var_name, sep="")
-    }  
+  # Create a regression formula
+  if(length(varying_covariates)>0){
+    fmla <- paste(phenotype, "~", var_name, "+", paste(varying_covariates, collapse="+"), sep="")
+  } else {
+    fmla <- paste(phenotype, "~", var_name, sep="")
+  }
   
-    var_result <- tryCatch(survey::svyglm(stats::as.formula(fmla), survey_design, family=regression_family, na.action=na.omit),
-                           error=function(e) warn_on_e(var_name, e))
-  
-    # Collect Results
-    if (!is.null(var_result)){
-      var_summary <- summary(var_result)
-      # Update with processed summary results
-      # Assume non-convergence if no p values are generated
-      num_coeff_cols <- length(var_summary$coefficients)/nrow(var_summary$coefficients)
-      if (num_coeff_cols < 4){
-        return(NULL)
-      } else {
-        return(data.frame(
-          Converged = TRUE,
-          Beta = var_summary$coefficients[2,1],
-          SE = var_summary$coefficients[2,2],
-          Variable_pvalue = var_summary$coefficients[2,4],
-          pval = var_summary$coefficients[2,4]
-        ))
-      }
-    } else{
+  var_result <- tryCatch(survey::svyglm(stats::as.formula(fmla), survey_design, family=regression_family, na.action=na.omit),
+                         error=function(e) warn_on_e(var_name, e))
+  # Collect Results
+  if (!is.null(var_result)){
+    var_summary <- summary(var_result)
+    # Update with processed summary results
+    # Assume non-convergence if no p values are generated
+    num_coeff_cols <- length(var_summary$coefficients)/nrow(var_summary$coefficients)
+    if (num_coeff_cols < 4){
       return(NULL)
+    } else {
+      return(data.frame(
+        Converged = TRUE,
+        Beta = var_summary$coefficients[2,1],
+        SE = var_summary$coefficients[2,2],
+        Variable_pvalue = var_summary$coefficients[2,4],
+        pval = var_summary$coefficients[2,4]
+      ))
     }
+  } else{
+    return(NULL)
+  }
 }
 
 ###Categorical###
@@ -235,7 +234,7 @@ regress <- function(data, y, var_name, covariates, min_n, allowed_nonvarying, re
     if(single_weight){
       weight <- weights
     } else {
-      weight = weights[[var_name]]
+      weight <- weights[[var_name]]
     }
     
     # Record weight name
@@ -251,12 +250,14 @@ regress <- function(data, y, var_name, covariates, min_n, allowed_nonvarying, re
       warning(paste(var_name, " had a NULL result because its weight (", weight, ") was not found"))
       result$weight <- paste(weight, " (not found)")
       return(data.frame(result, stringsAsFactors = FALSE))
-    } else if (sum(is.na(data[!(is.na(var_name)), weight])) > 0){
+    } else if(sum(!(is.na(data[var_name])) & is.na(data[weight])) > 0){
       warning(paste(var_name, " had a NULL result because its weight (", weight, ") had ", sum(is.na(data[weight])), " missing values when the variable was not missing"))
       result$weight <- paste(weight, " (missing values)")
       return(data.frame(result, stringsAsFactors = FALSE))
     } else {
       weight_values <- data[weight]
+      # Fill NA weight values with 0 to pass an internal check by survey
+      weight_values[is.na(weight_values),] <- 0
     }
     
     # Load strata, fpc, and ids
@@ -310,8 +311,8 @@ regress <- function(data, y, var_name, covariates, min_n, allowed_nonvarying, re
 #' ewas
 #'
 #' Run environment-wide association study, optionally using \code{\link[survey]{svydesign}} from the \pkg{survey} package
-#' Note: It is possible to specify \emph{ids} and/or \emph{strata}.  When \emph{ids} is specified without \emph{strata}, 
-#' the standard error is infinite and the anova calculation for categorical variables fails.  This is due to the 
+#' Note: It is possible to specify \emph{ids} and/or \emph{strata}.  When \emph{ids} is specified without \emph{strata},
+#' the standard error is infinite and the anova calculation for categorical variables fails.  This is due to the
 #' \href{http://r-survey.r-forge.r-project.org/survey/exmample-lonely.html}{lonely psu} problem.
 #' @param d data.frame containing all of the data
 #' @param cat_vars List of variables to regress that are categorical or binary
@@ -378,7 +379,7 @@ ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_cova
   if(!is.null(ids) && is.null(strata) && is.null(fpc)){
     warning("PSU IDs were specified without strata or fpc, preventing calculation of standard error")
   }
-
+  
   # Ignore the covariates, phenotype, and ID if they were included in the variable lists
   remove <- c(y, cat_covars, cont_covars, "ID")
   cat_vars <- setdiff(cat_vars, remove)
@@ -387,18 +388,18 @@ ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_cova
   remove <- c(y, "ID")
   cat_covars <- setdiff(cat_covars, remove)
   cont_covars <- setdiff(cont_covars, remove)
-
+  
   # Ensure variables/covariates aren't listed as multiple different types
   both <- intersect(cat_covars, cont_covars)
   if (length(both) > 0){stop("Some covariates are listed as both categorical and continuous: ", paste(both, collapse=", "))}
   both <- intersect(cat_vars, cont_vars)
   if (length(both) > 0){stop("Some variables are listed as both categorical and continuous: ", paste(both, collapse=", "))}
-
+  
   # Check data
   if(class(d)[1] != "data.frame"){
     stop("Data must be a data.frame object")
   }
-
+  
   # Check weights
   if(is.null(weights)){
     print("Running EWAS without a survey design adjustment")
@@ -417,7 +418,7 @@ ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_cova
   } else {
     stop("weights must be a string or a list")
   }
-
+  
   #Correct the types and check for IDs
   #####################################
   # ID
@@ -440,30 +441,31 @@ ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_cova
       stop("Some continuous covariates are not numeric: ", paste(non_numeric_cont_covars, collapse=", "))
     }
   }
-
+  
   # Get a combined vector of covariates (must 'unlist' lists to vectors)
   covariates <- c(unlist(cat_covars), unlist(cont_covars))
-
+  
   # Run Regressions
   #################
-
+  
   # Create a placeholder dataframe for results, anything not updated will be NA
   n <- length(cat_vars) + length(cont_vars)
   ewas_result_df <- data.frame(Variable = character(n),
-                              N = numeric(n),
-                              Converged = logical(n),
-                              Beta = numeric(n),
-                              SE = numeric(n),
-                              Variable_pvalue = numeric(n),
-                              LRT_pvalue = numeric(n),
-                              Diff_AIC = numeric(n),
-                              pval = numeric(n),
-                              phenotype = character(n),
-                              weight = character(n),
-                              stringsAsFactors = FALSE)
+                               Variable_type = character(n),
+                               N = numeric(n),
+                               Converged = logical(n),
+                               Beta = numeric(n),
+                               SE = numeric(n),
+                               Variable_pvalue = numeric(n),
+                               LRT_pvalue = numeric(n),
+                               Diff_AIC = numeric(n),
+                               pval = numeric(n),
+                               phenotype = character(n),
+                               weight = character(n),
+                               stringsAsFactors = FALSE)
   ewas_result_df[] <- NA  # Fill df with NA values
   ewas_result_df$Converged <- FALSE  # Default to not converged
-  i = 0 # Increment before processing each variable
+  i <- 0 # Increment before processing each variable
   
   # Process categorical variables, if any
   print(paste("Processing ", length(cat_vars), " categorical variables", sep=""))
@@ -473,16 +475,17 @@ ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_cova
     # Update var name and phenotype
     ewas_result_df$Variable[i] <- var_name
     ewas_result_df$phenotype[i] <- y
+    ewas_result_df$Variable_type[i] <- "Categorial/Binary"
     
     result <- regress(d, y, var_name, covariates, min_n, allowed_nonvarying, regression_family, var_type="cat",
                       use_survey, single_weight, weights, strata, fpc, ids, ...)
     
     # Save results
     if(!is.null(result)){
-       ewas_result_df[i, colnames(result)] <- result
+      ewas_result_df[i, colnames(result)] <- result
     }
   }
-
+  
   # Process continuous variables, if any
   print(paste("Processing ", length(cont_vars), " continuous variables", sep=""))
   for(var_name in cont_vars){
@@ -491,6 +494,7 @@ ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_cova
     # Update var name and phenotype
     ewas_result_df$Variable[i] <- var_name
     ewas_result_df$phenotype[i] <- y
+    ewas_result_df$Variable_type[i] <- "Continuous"
     
     result <- regress(d, y, var_name, covariates, min_n, allowed_nonvarying, regression_family, var_type="cont",
                       use_survey, single_weight, weights, strata, fpc, ids, ...)
@@ -500,14 +504,14 @@ ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_cova
       ewas_result_df[i, colnames(result)] <- result
     }
   }
-
+  
   t2 <- Sys.time()
   print(paste("Finished in", round(as.numeric(difftime(t2,t1, units="secs")), 6), "secs", sep=" "))
   n_null_results <- sum(is.null(ewas_result_df$pval))
   if (n_null_results > 0){
     warning(paste(n_null_results, "of", nrow(ewas_result_df), "variables had a NULL result due to an error (see earlier warnings for details)"))
   }
-
+  
   # Sort by pval
   ewas_result_df <- ewas_result_df[order(ewas_result_df$pval),]
   return(ewas_result_df)
