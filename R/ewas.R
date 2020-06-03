@@ -268,8 +268,8 @@ regress <- function(data, y, var_name, covariates, min_n, allowed_nonvarying, re
     } else {
       # Get weights
       weight_values <- data[weight]
-      # Remove rows with missing weight values
-      weight_values <- subset(weight_values, !is.na(weight_values))
+      # Fill NA weight values with 0 to pass an internal check by survey
+      weight_values[is.na(weight_values),] <- 0
     }
     
     # Load strata, fpc, and ids
