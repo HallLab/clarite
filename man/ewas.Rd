@@ -7,7 +7,7 @@
 ewas(d, cat_vars = NULL, cont_vars = NULL, y, cat_covars = NULL,
   cont_covars = NULL, regression_family = "gaussian",
   allowed_nonvarying = NULL, min_n = 200, weights = NULL,
-  ids = NULL, strata = NULL, ...)
+  ids = NULL, strata = NULL, fpc = NULL, ...)
 }
 \arguments{
 \item{d}{data.frame containing all of the data}
@@ -34,7 +34,9 @@ ewas(d, cat_vars = NULL, cont_vars = NULL, y, cat_covars = NULL,
 
 \item{strata}{NULL by default (for no strata).  May be set to a string name of a column in the data which provides strata IDs.}
 
-\item{...}{other arguments passed to svydesign (like "id" or "strat") which are ignored if 'weights' is NULL}
+\item{fpc}{NULL by default (for no fpc).  May be set to a string name of a column in the data which provides fpc values.}
+
+\item{...}{other arguments passed to svydesign which are ignored if 'weights' is NULL}
 }
 \value{
 data frame containing following fields Variable, Sample Size, Converged, SE, Beta, Variable p-value, LRT, AIC, pval, phenotype, weight

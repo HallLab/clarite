@@ -22,3 +22,13 @@ Environment-Wide Association Study, and results visualization, all of which can 
 package. The user starts with raw data and alternates filtering (dark boxes) or summary steps (light boxes) until it is sufficiently “cleaned” and in a stage where analyses can be run.
 
 ![Image](https://github.com/RitchieLab/utility/blob/master/personal/ana/images/clariteworkflow.svg)
+
+## Citing CLARITE
+
+1. Lucas AM, et al (2019)
+[CLARITE facilitates the quality control and analysis process for EWAS of metabolic-related traits.](https://www.frontiersin.org/article/10.3389/fgene.2019.01240)
+*Frontiers in Genetics*: 10, 1240
+
+2. Passero K, et al (2020)
+[Phenome-wide association studies on cardiovascular health and fatty acids considering phenotype quality control practices for epidemiological data.](https://www.worldscientific.com/doi/abs/10.1142/9789811215636_0058)
+*Pacific Symposium on Biocomputing*: 25, 659

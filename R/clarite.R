@@ -6,8 +6,20 @@
 #'    \item This R package
 #'    \item \href{https://www.hall-lab.org/clarite-python/index.html}{A python package} (recommended)
 #'    \item \href{https://www.hall-lab.org/clarite-python/cli.html}{A command line program} (part of the python package)
-#'    \item \href{https://github.com/HallLab/clarite-gui}{A GUI tool} (coming soon)
+#'    \item \href{https://github.com/HallLab/clarite-gui}{A GUI tool}
 #' }
+#' 
+#' @section Citing CLARITE:
+#' 
+#' If you use CLARITE in a scientific publication, please consider citing:
+#' \itemize{
+#'    \item Lucas AM, et al (2019) \href{https://www.frontiersin.org/article/10.3389/fgene.2019.01240}{CLARITE facilitates the quality control and analysis process for EWAS of metabolic-related traits.} \emph{Frontiers in Genetics}: 10, 1240
+#'      \item Passero K, et al (2020) \href{https://www.worldscientific.com/doi/abs/10.1142/9789811215636_0058}{Phenome-wide association studies on cardiovascular health and fatty acids considering phenotype quality control practices for epidemiological data.} \emph{Pacific Symposium on Biocomputing}: 25, 659
+#' }
+#' 
+#' @section Example Analysis:
+#' 
+#' An example analysis can be viewed here: \url{http://rpubs.com/HallLabDocs/clarite_example_analysis}
 #'
 #' @section Categorizing variables:
 #'
