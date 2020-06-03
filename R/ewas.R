@@ -65,7 +65,6 @@ regress_cont <- function(data, varying_covariates, phenotype, var_name, regressi
 
 regress_cont_survey <- function(data, varying_covariates, phenotype, var_name, regression_family,
                                 weight_values, strata_values, fpc_values, id_values, ...){
-  
   # Create survey design
   if(is.null(id_values)){
     survey_design <- survey::svydesign(ids = ~1,
@@ -82,6 +81,9 @@ regress_cont_survey <- function(data, varying_covariates, phenotype, var_name, r
                                        fpc = fpc_values,
                                        ...)
   }
+  
+  # Subset survey design for missing the tested variable value
+  survey_design <- subset(survey_design, !is.na(data[var_name]))
   
   # Create a regression formula
   if(length(varying_covariates)>0){
@@ -169,10 +171,11 @@ regress_cat_survey <- function(data, varying_covariates, phenotype, var_name, re
                                        ...)
   }
   
-  # Manually subset the survey design to drop observations with NA for the tested variable.
+  # Manually subset the survey design to drop observations missing the tested variable value
   # This seems correct:
   #   It aligns the resulting pvalue for binary variables with the simple regression result.
   #   It prevents the overrepresentation of categorical variables in the top results
+  #   It keeps results concordant with running in R and passing the weight as a formula
   # I'm not sure why the survey library doesn't seem to handle NAs correctly in the LRT test.
   survey_design <- subset(survey_design, !is.na(data[var_name]))
   
@@ -263,9 +266,10 @@ regress <- function(data, y, var_name, covariates, min_n, allowed_nonvarying, re
       result$weight <- paste(weight, " (missing values)")
       return(data.frame(result, stringsAsFactors = FALSE))
     } else {
+      # Get weights
       weight_values <- data[weight]
-      # Fill NA weight values with 0 to pass an internal check by survey
-      weight_values[is.na(weight_values),] <- 0
+      # Remove rows with missing weight values
+      weight_values <- subset(weight_values, !is.na(weight_values))
     }
     
     # Load strata, fpc, and ids
