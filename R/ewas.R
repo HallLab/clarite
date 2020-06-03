@@ -1,91 +1,46 @@
 # Catch errors from glm and similar, warning instead
 warn_on_e <- function(var_name, e){
-  warning(paste("NULL result for ", var_name, " due to: ", e, sep=""), call=FALSE)
+  warning(paste0("NULL result for ", var_name, " due to: ", e), call=FALSE)
   return(NULL)
 }
 
 # Get required data for regressing a specific variable
-get_varying_covariates <- function(df, covariates, phenotype, variable, allowed_nonvarying){
+get_varying_covariates <- function(df, covariates, variable, allowed_nonvarying){
   # Get number of unique values in covariates among observations where the variable is not NA
-  cov_counts <- sapply(covariates, function(c) {length(unique(df[!is.na(df[c]) & !is.na(df[variable]) & !is.na(df[phenotype]), c]))})
+  cov_counts <- sapply(covariates, function(c) {length(unique(df[!is.na(df[c]) & !is.na(df[variable]), c]))})
   varying_covariates <- covariates[cov_counts >= 2]
   nonvarying_covariates <- covariates[cov_counts <2]
   # Compare to the covariates that are allowed to vary
   not_allowed_nonvarying <- setdiff(nonvarying_covariates, allowed_nonvarying)
   if(length(not_allowed_nonvarying) > 0){
     # Null Result
-    print(paste("    NULL result: Some covariates don't vary for '", variable, "' and aren't specified as allowed: ",
-     paste(not_allowed_nonvarying, collapse=", "), sep=""))
-     return(NULL)
+    print(paste0("    NULL result: Some covariates don't vary when '", variable, "' is not NA and aren't specified as allowed: ",
+                 paste(not_allowed_nonvarying, collapse = ", ")))
+    return(NULL)
   } else if(length(nonvarying_covariates) > 0){
     # Ignore those
-    print(paste("    Some covariates don't vary for '", variable, "' but are allowed to do so: ",
-     paste(nonvarying_covariates, collapse=", "), sep=""))
+    print(paste0("    Some covariates don't vary when '", variable, "' is not NA but are allowed to do so: ",
+                 paste(nonvarying_covariates, collapse = ", ")))
   }
   # Return the list of covariates that are kept
   return(varying_covariates)
 }
 
 ###Continuous###
-regress_cont <- function(d, covariates, phenotype, var_name, regression_family, allowed_nonvarying, min_n){
-
-  # Determine if a weighted ewas is being run
-  if(class(d)[1] == "data.frame"){
-    use_survey <- FALSE
-  } else if(class(d)[2] == "survey.design") {
-    use_survey <- TRUE
-  }
-
-  # Check Covariates and subset the data to use only observations without NAs (NA weights already removed)
-  if (use_survey){
-    subset_len = sum(complete.cases(d$variables[c(phenotype, var_name, covariates)]))
-    if(subset_len < nrow(d)){
-      subset_data <- subset(d, complete.cases(d$variables[c(phenotype, var_name, covariates)]))  # Use the survey subset function
-    } else {
-      subset_data <- d
-    }
-    varying_covariates <- get_varying_covariates(subset_data$variables, covariates, phenotype, var_name, allowed_nonvarying)
-  } else {
-    subset_data <- d[complete.cases(d[c(phenotype, var_name, covariates)]), ]  # use a subset of the data directly
-    varying_covariates <- get_varying_covariates(subset_data, covariates, phenotype, var_name, allowed_nonvarying)
-  }
-
-  # Return null if the sample size is less than the minimum
-  if (nrow(subset_data) < min_n){
-    print(paste("    NULL result: '", var_name, "' has less than ", min_n, " observations after dropping incomplete cases", sep=""))
-    return(data.frame(
-      N = nrow(subset_data),
-      Converged=NA,
-      Beta = NA,
-      SE = NA,
-      Variable_pvalue = NA,
-      pval = NA
-    ))
-  }
-
-  # Return null if 'get_varying_covarites' returned NULL (b/c it found a nonvarying covariate the wasn't allowed)
-  if (is.null(varying_covariates) && !is.null(covariates)){
-    return()
-  }
-
+regress_cont <- function(data, varying_covariates, phenotype, var_name, regression_family){
+  
   # Create a regression formula
   if(length(varying_covariates)>0){
     fmla <- paste(phenotype, "~", var_name, "+", paste(varying_covariates, collapse="+"), sep="")
   } else {
     fmla <- paste(phenotype, "~", var_name, sep="")
   }
-
-  # Run GLM
-  if(use_survey){
-    # Update scope of the regression_family and subset_data variables (surveyglm doesn't handle this well)
-    regression_family <<- regression_family
-    subset_data <<- subset_data
-    # Use survey::svyglm
-    var_result <- tryCatch(survey::svyglm(stats::as.formula(fmla), family=regression_family, design=subset_data), error=function(e) warn_on_e(var_name, e))
-  } else {
-    # Use stats::glm
-    var_result <- tryCatch(glm(stats::as.formula(fmla), family=regression_family, data=subset_data), error=function(e) warn_on_e(var_name, e))
-  }
+  
+  var_result <- tryCatch(glm(stats::as.formula(fmla),
+                             family=regression_family,
+                             data=data,
+                             na.action=na.omit),
+                         error=function(e) warn_on_e(var_name, e))
   # Collect Results
   if (!is.null(var_result)){
     var_summary <- summary(var_result)
@@ -93,17 +48,9 @@ regress_cont <- function(d, covariates, phenotype, var_name, regression_family, 
     # Assume non-convergence if no p values are generated
     num_coeff_cols <- length(var_summary$coefficients)/nrow(var_summary$coefficients)
     if (num_coeff_cols < 4){
-      return(data.frame(
-        N = length(var_result$residuals),
-        Converged = FALSE,
-        Beta = NA,
-        SE = NA,
-        Variable_pvalue = NA,
-        pval = NA
-        ))
+      return(NULL)
     } else {
       return(data.frame(
-        N = length(var_result$residuals),
         Converged = TRUE,
         Beta = var_summary$coefficients[2,1],
         SE = var_summary$coefficients[2,2],
@@ -112,52 +59,66 @@ regress_cont <- function(d, covariates, phenotype, var_name, regression_family, 
       ))
     }
   } else{
-    return()
+    return(NULL)
+  }
+}
+
+regress_cont_survey <- function(data, varying_covariates, phenotype, var_name, regression_family,
+                                weight_values, strata_values, fpc_values, id_values, ...){
+  # Create survey design
+  if(is.null(id_values)){
+    survey_design <- survey::svydesign(ids = ~1,
+                                       weights = weight_values,
+                                       data = data,
+                                       strata = strata_values,
+                                       fpc = fpc_values,
+                                       ...)
+  } else{
+    survey_design <- survey::svydesign(ids = id_values,
+                                       weights = weight_values,
+                                       data = data,
+                                       strata = strata_values,
+                                       fpc = fpc_values,
+                                       ...)
+  }
+  
+  # Subset survey design for missing the tested variable value
+  survey_design <- subset(survey_design, !is.na(data[var_name]))
+  
+  # Create a regression formula
+  if(length(varying_covariates)>0){
+    fmla <- paste(phenotype, "~", var_name, "+", paste(varying_covariates, collapse="+"), sep="")
+  } else {
+    fmla <- paste(phenotype, "~", var_name, sep="")
+  }
+  
+  var_result <- tryCatch(survey::svyglm(stats::as.formula(fmla), survey_design, family=regression_family, na.action=na.omit),
+                         error=function(e) warn_on_e(var_name, e))
+  # Collect Results
+  if (!is.null(var_result)){
+    var_summary <- summary(var_result)
+    # Update with processed summary results
+    # Assume non-convergence if no p values are generated
+    num_coeff_cols <- length(var_summary$coefficients)/nrow(var_summary$coefficients)
+    if (num_coeff_cols < 4){
+      return(NULL)
+    } else {
+      return(data.frame(
+        Converged = TRUE,
+        Beta = var_summary$coefficients[2,1],
+        SE = var_summary$coefficients[2,2],
+        Variable_pvalue = var_summary$coefficients[2,4],
+        pval = var_summary$coefficients[2,4]
+      ))
+    }
+  } else{
+    return(NULL)
   }
 }
 
 ###Categorical###
-# Note categorical is trickier since the difference between survey and data.frame is more extensive than using a different function
-regress_cat <- function(d, covariates, phenotype, var_name, regression_family, allowed_nonvarying, min_n){
-
-  # Determine if a weighted ewas is being run
-  if(class(d)[1] == "data.frame"){
-    use_survey <- FALSE
-  } else if(class(d)[2] == "survey.design") {
-    use_survey <- TRUE
-  }
-
-  # Check Covariates and subset the data to use only observations without NAs (NA weights already removed)
-  if (use_survey){
-    subset_len = sum(complete.cases(d$variables[c(phenotype, var_name, covariates)]))
-    if(subset_len < nrow(d)){
-      subset_data <- subset(d, complete.cases(d$variables[c(phenotype, var_name, covariates)]))  # Use the survey subset function
-    } else {
-      subset_data <- d
-    }
-    varying_covariates <- get_varying_covariates(subset_data$variables, covariates, phenotype, var_name, allowed_nonvarying)
-  } else {
-    subset_data <- d[complete.cases(d[c(phenotype, var_name, covariates)]), ]  # use a subset of the data directly
-    varying_covariates <- get_varying_covariates(subset_data, covariates, phenotype, var_name, allowed_nonvarying)
-  }
-
-  # Return null if the sample size is less than the minimum
-  if (nrow(subset_data) < min_n){
-    print(paste("    NULL result: '", var_name, "' has less than ", min_n, " observations after dropping incomplete cases", sep=""))
-    return(data.frame(
-      N = nrow(subset_data),
-      Converged=NA,
-      LRT_pvalue = NA,
-      Diff_AIC = NA,
-      pval = NA
-    ))
-  }
-
-  # Return null if 'get_varying_covarites' returned NULL (b/c it found a nonvarying covariate the wasn't allowed)
-  if (is.null(varying_covariates) && !is.null(covariates)){
-    return()
-  }
-
+regress_cat <- function(data, varying_covariates, phenotype, var_name, regression_family){
+  
   # Create a regression formula and a restricted regression formula
   if(length(varying_covariates)>0){
     fmla <- paste(phenotype, "~", var_name, "+", paste(varying_covariates, collapse="+"), sep="")
@@ -166,50 +127,204 @@ regress_cat <- function(d, covariates, phenotype, var_name, regression_family, a
     fmla <- paste(phenotype, "~", var_name, sep="")
     fmla_restricted <- paste(phenotype, "~1", sep="")
   }
+  
   # Run GLM Functions
-  if(use_survey){
-    # Update scope of the family and subset_data variables (surveyglm doesn't handle this well)
-    regression_family <<- regression_family
-    subset_data <<- subset_data
-    # Results using surveyglm
-    var_result <- tryCatch(survey::svyglm(stats::as.formula(fmla), family=regression_family, design=subset_data), error=function(e) warn_on_e(var_name, e))
-    restricted_result <- tryCatch(survey::svyglm(stats::as.formula(fmla_restricted), family=regression_family, design=subset_data), error=function(e) warn_on_e(var_name, e))
-    if(!is.null(var_result) & !is.null(restricted_result)){
-      # Get the LRT using anova
-      lrt <- list(p=NA)  # Start with NA for p in case anova fails
-      tryCatch(lrt <- anova(var_result, restricted_result, method = "LRT"), error=function(e) warn_on_e(var_name, e))
-      return(data.frame(
-        N = length(var_result$residuals),
-        Converged = var_result$converged,
-        LRT_pvalue = lrt$p,
-        Diff_AIC = var_result$aic - restricted_result$aic,
-        pval = lrt$p
-      ))
-    }
+  var_result <- tryCatch(glm(stats::as.formula(fmla), family=regression_family, data=data, na.action=na.omit),
+                         error=function(e) warn_on_e(var_name, e))
+  restricted_result <- tryCatch(glm(stats::as.formula(fmla_restricted), family=regression_family,
+                                    data=var_result$model),  # Use the same data as the full model
+                                error=function(e) warn_on_e(var_name, e))
+  
+  if(!is.null(var_result) & !is.null(restricted_result)){
+    # Get the LRT using anova
+    lrt <- list(p=NA)  # Start with NA for p in case anova fails
+    tryCatch(lrt <- anova(var_result, restricted_result, test = "LRT"), error=function(e) warn_on_e(var_name, e))
+    return(data.frame(
+      Converged = var_result$converged,
+      LRT_pvalue = lrt$`Pr(>Chi)`[2],
+      Diff_AIC = var_result$aic - restricted_result$aic,
+      pval = lrt$`Pr(>Chi)`[2]
+    ))
   } else {
-    # Results using data.frame with stats::anova
-    var_result <- tryCatch(glm(stats::as.formula(fmla), family=regression_family, data=subset_data), error=function(e) warn_on_e(var_name, e))
-    restricted_result <- tryCatch(glm(stats::as.formula(fmla_restricted), family=regression_family, data=subset_data), error=function(e) warn_on_e(var_name, e))
-    if(!is.null(var_result) & !is.null(restricted_result)){
-      # Get the LRT using anova
-      lrt <- anova(var_result, restricted_result, test = "LRT")
-      return(data.frame(
-        N = length(var_result$residuals),
-        Converged = var_result$converged,
-        LRT_pvalue = lrt$`Pr(>Chi)`[2],
-        Diff_AIC = var_result$aic - restricted_result$aic,
-        pval = lrt$`Pr(>Chi)`[2]
-      ))
+    return(NULL)
+  }
+}
+
+
+regress_cat_survey <- function(data, varying_covariates, phenotype, var_name, regression_family,
+                               weight_values, strata_values, fpc_values, id_values, ...) {
+  
+  # Create survey design
+  if(is.null(id_values)){
+    survey_design <- survey::svydesign(ids = ~1,
+                                       weights = weight_values,
+                                       data = data,
+                                       strata = strata_values,
+                                       fpc = fpc_values,
+                                       ...)
+  } else{
+    survey_design <- survey::svydesign(ids = id_values,
+                                       weights = weight_values,
+                                       data = data,
+                                       strata = strata_values,
+                                       fpc = fpc_values,
+                                       ...)
+  }
+  
+  # Manually subset the survey design to drop observations missing the tested variable value
+  # This seems correct:
+  #   It aligns the resulting pvalue for binary variables with the simple regression result.
+  #   It prevents the overrepresentation of categorical variables in the top results
+  #   It keeps results concordant with running in R and passing the weight as a formula
+  # I'm not sure why the survey library doesn't seem to handle NAs correctly in the LRT test.
+  survey_design <- subset(survey_design, !is.na(data[var_name]))
+  
+  # Create a regression formula and a restricted regression formula
+  if(length(varying_covariates)>0){
+    fmla <- paste(phenotype, "~", var_name, "+", paste(varying_covariates, collapse="+"), sep="")
+    fmla_restricted <- paste(phenotype, "~", paste(varying_covariates, collapse="+"), sep="")
+  } else {
+    fmla <- paste(phenotype, "~", var_name, sep="")
+    fmla_restricted <- paste(phenotype, "~1", sep="")
+  }
+  
+  # Results using surveyglm
+  survey_design <<- survey_design  # needed to make the anova function work
+  regression_family <<- regression_family  # needed to make the anova function work
+  var_result <- tryCatch(survey::svyglm(stats::as.formula(fmla), design=survey_design, family=regression_family, na.action=na.omit),
+                         error=function(e) warn_on_e(var_name, e))
+  # Restricted result uses the design from the full result to ensure the same observations are used.
+  # Otherwise some dropped by 'na.omit' may be included in the restricted model.
+  restricted_result <- tryCatch(survey::svyglm(stats::as.formula(fmla_restricted), design=var_result$survey.design,
+                                               family=regression_family),
+                                error=function(e) warn_on_e(var_name, e))
+  
+  # Collect results
+  if(!is.null(var_result) & !is.null(restricted_result)){
+    # Get the LRT using anova
+    lrt <- list(p=NA)  # Start with NA for p in case anova fails
+    tryCatch(lrt <- anova(var_result, restricted_result, method = "LRT"), error=function(e) warn_on_e(var_name, e))
+    return(data.frame(
+      Converged = var_result$converged,
+      LRT_pvalue = lrt$p,
+      Diff_AIC = var_result$aic - restricted_result$aic,
+      pval = lrt$p
+    ))
+  } else {
+    return(NULL)
+  }
+}
+
+# General Regression function which applies some filters/tests before calling the actual regression
+regress <- function(data, y, var_name, covariates, min_n, allowed_nonvarying, regression_family, var_type,
+                    use_survey, single_weight, weights, strata, fpc, ids, ...){
+  # The result list will be used to update results for this variable
+  result = list()
+  
+  # Figure out which observations will drop due to NAs and record N
+  subset_data <- complete.cases(data[, c(y, var_name, covariates)])  # Returns a boolean array
+  non_na_obs <- sum(subset_data)
+  result$N <- non_na_obs
+  
+  # Skip regression if the min_n filter isn't met
+  if (non_na_obs < min_n){
+    warning(paste(var_name, " had a NULL result due to the min_n filter (", non_na_obs, " < ", min_n))
+    return(data.frame(result, stringsAsFactors = FALSE))
+  }
+  
+  # Skip regression if any covariates are constant (after removing NAs) without being specified as allowed
+  varying_covariates <- get_varying_covariates(data[subset_data,], covariates, var_name, allowed_nonvarying)
+  # If 'get_varying_covarites' returned NULL it found a nonvarying covariate the wasn't allowed)
+  if (is.null(varying_covariates) && !is.null(covariates)){
+    return(data.frame(result, stringsAsFactors = FALSE))
+  }
+  
+  # Gather survey info if needed
+  if(use_survey){
+    # Get weight
+    if(single_weight){
+      weight <- weights
+    } else {
+      weight <- weights[[var_name]]
+    }
+    
+    # Record weight name
+    if(is.null(weight)){
+      warning(paste(var_name, " had a NULL result because no weight was specified"))
+      return(NULL)
+    } else {
+      result$weight <- weight
+    }
+    
+    # Get weight values, returning early if there is a problem with the weight
+    if(!(weight %in% names(data))){
+      warning(paste(var_name, " had a NULL result because its weight (", weight, ") was not found"))
+      result$weight <- paste(weight, " (not found)")
+      return(data.frame(result, stringsAsFactors = FALSE))
+    } else if(sum(!(is.na(data[var_name])) & is.na(data[weight])) > 0){
+      warning(paste(var_name, " had a NULL result because its weight (", weight, ") had ", sum(is.na(data[weight])), " missing values when the variable was not missing"))
+      result$weight <- paste(weight, " (missing values)")
+      return(data.frame(result, stringsAsFactors = FALSE))
+    } else {
+      # Get weights
+      weight_values <- data[weight]
+      # Fill NA weight values with 0 to pass an internal check by survey
+      weight_values[is.na(weight_values),] <- 0
+    }
+    
+    # Load strata, fpc, and ids
+    if(!is.null(strata)){
+      strata_values <- data[strata]
+    } else {
+      strata_values <- NULL
+    }
+    if(!is.null(fpc)){
+      fpc_values <- data[fpc]
+    } else {
+      fpc_values <- NULL
+    }
+    if(!is.null(ids)){
+      id_values <- data[ids]
+    } else {
+      id_values <- NULL
     }
   }
-  return()
+  
+  # Run Regression for the single variable
+  if(!use_survey){
+    if(var_type == 'cat'){
+      regression_result <- regress_cat(data, varying_covariates, phenotype=y, var_name, regression_family)
+    } else if(var_type == 'cont'){
+      regression_result <- regress_cont(data, varying_covariates, phenotype=y, var_name, regression_family)
+    }
+  } else {
+    if(var_type == 'cat'){
+      regression_result <- regress_cat_survey(data, varying_covariates, phenotype=y, var_name, regression_family,
+                                              weight_values, strata_values, fpc_values, id_values, ...)
+    } else if(var_type == 'cont'){
+      regression_result <- regress_cont_survey(data, varying_covariates, phenotype=y, var_name, regression_family,
+                                               weight_values, strata_values, fpc_values, id_values, ...)
+    }
+  }
+  
+  # Update result with the regression results
+  if(!is.null(regression_result)){
+    regression_result[names(result)] <- result
+  } else {
+    regression_result <- data.frame(result, stringsAsFactors = FALSE)
+  }
+  
+  # Return
+  return(regression_result)
+  
 }
+
 
 #' ewas
 #'
 #' Run environment-wide association study, optionally using \code{\link[survey]{svydesign}} from the \pkg{survey} package
-#' Note: It is possible to specify \emph{ids} and/or \emph{strata}.  When \emph{ids} is specified without \emph{strata}, 
-#' the standard error is infinite and the anova calculation for categorical variables fails.  This is due to the 
+#' Note: It is possible to specify \emph{ids} and/or \emph{strata}.  When \emph{ids} is specified without \emph{strata},
+#' the standard error is infinite and the anova calculation for categorical variables fails.  This is due to the
 #' \href{http://r-survey.r-forge.r-project.org/survey/exmample-lonely.html}{lonely psu} problem.
 #' @param d data.frame containing all of the data
 #' @param cat_vars List of variables to regress that are categorical or binary
@@ -237,6 +352,7 @@ ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_cova
                  ids=NULL, strata=NULL, fpc=NULL, ...){
   # Record start time
   t1 <- Sys.time()
+  
   # Validate inputs
   #################
   if(missing(y)){
@@ -275,7 +391,7 @@ ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_cova
   if(!is.null(ids) && is.null(strata) && is.null(fpc)){
     warning("PSU IDs were specified without strata or fpc, preventing calculation of standard error")
   }
-
+  
   # Ignore the covariates, phenotype, and ID if they were included in the variable lists
   remove <- c(y, cat_covars, cont_covars, "ID")
   cat_vars <- setdiff(cat_vars, remove)
@@ -284,34 +400,37 @@ ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_cova
   remove <- c(y, "ID")
   cat_covars <- setdiff(cat_covars, remove)
   cont_covars <- setdiff(cont_covars, remove)
-
+  
   # Ensure variables/covariates aren't listed as multiple different types
   both <- intersect(cat_covars, cont_covars)
   if (length(both) > 0){stop("Some covariates are listed as both categorical and continuous: ", paste(both, collapse=", "))}
   both <- intersect(cat_vars, cont_vars)
   if (length(both) > 0){stop("Some variables are listed as both categorical and continuous: ", paste(both, collapse=", "))}
-
+  
   # Check data
   if(class(d)[1] != "data.frame"){
     stop("Data must be a data.frame object")
   }
-
+  
   # Check weights
   if(is.null(weights)){
     print("Running EWAS without a survey design adjustment")
+    use_survey <- FALSE
   } else if(class(weights) == "character"){
     single_weight <- TRUE
     if(!(weights %in% names(d))){
       stop(paste(weights, "was specified as the weight, but was not found in the dataframe", sep=" "))
     }
     print("Running EWAS with a single weight used for all variables")
+    use_survey <- TRUE
   } else if(class(weights) == "list"){
     single_weight <- FALSE
     print("Running EWAS with specific weights assigned for each variable")
+    use_survey <- TRUE
   } else {
     stop("weights must be a string or a list")
   }
-
+  
   #Correct the types and check for IDs
   #####################################
   # ID
@@ -334,30 +453,31 @@ ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_cova
       stop("Some continuous covariates are not numeric: ", paste(non_numeric_cont_covars, collapse=", "))
     }
   }
-
+  
   # Get a combined vector of covariates (must 'unlist' lists to vectors)
   covariates <- c(unlist(cat_covars), unlist(cont_covars))
-
+  
   # Run Regressions
   #################
-
+  
   # Create a placeholder dataframe for results, anything not updated will be NA
   n <- length(cat_vars) + length(cont_vars)
   ewas_result_df <- data.frame(Variable = character(n),
-                              N = numeric(n),
-                              Converged = logical(n),
-                              Beta = numeric(n),
-                              SE = numeric(n),
-                              Variable_pvalue = numeric(n),
-                              LRT_pvalue = numeric(n),
-                              Diff_AIC = numeric(n),
-                              pval = numeric(n),
-                              phenotype = character(n),
-                              weight = character(n),
-                              stringsAsFactors = FALSE
-  )
+                               Variable_type = character(n),
+                               N = numeric(n),
+                               Converged = logical(n),
+                               Beta = numeric(n),
+                               SE = numeric(n),
+                               Variable_pvalue = numeric(n),
+                               LRT_pvalue = numeric(n),
+                               Diff_AIC = numeric(n),
+                               pval = numeric(n),
+                               phenotype = character(n),
+                               weight = character(n),
+                               stringsAsFactors = FALSE)
   ewas_result_df[] <- NA  # Fill df with NA values
-  i = 0 # Increment before processing each variable
+  ewas_result_df$Converged <- FALSE  # Default to not converged
+  i <- 0 # Increment before processing each variable
   
   # Process categorical variables, if any
   print(paste("Processing ", length(cat_vars), " categorical variables", sep=""))
@@ -366,63 +486,18 @@ ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_cova
     i <- i + 1
     # Update var name and phenotype
     ewas_result_df$Variable[i] <- var_name
-    ewas_result_df$phenotype <- y
+    ewas_result_df$phenotype[i] <- y
+    ewas_result_df$Variable_type[i] <- "Categorial/Binary"
     
-    # Run Regression for the single variable
-    if(is.null(weights)){
-      result <- regress_cat(d, covariates, phenotype=y, var_name, regression_family, allowed_nonvarying, min_n)
-    } else {
-      # Get weight
-      if(single_weight){
-        weight <- weights
-      } else {
-        weight = weights[[var_name]]
-      }
-      # Record weight, moving on if no weight was provided for the variable
-      if(is.null(weight)){
-        next
-      } else if(!(weight %in% names(d))){
-        next
-      }
-      ewas_result_df$weight[i] <- weight
-      data = d[!is.na(d[weight]), ]
-      # Get strata and fpc if they are not null
-      if(!is.null(strata)){
-        strata_values <- data[strata]
-      } else {
-        strata_values <- NULL
-      }
-      if(!is.null(fpc)){
-        fpc_values <- data[fpc]
-      } else {
-        fpc_values <- NULL
-      }
-      # Create survey design object
-      if(is.null(ids)){
-        sd <- survey::svydesign(ids = ~1,
-                                weights = data[weight],
-                                data = data,
-                                strata = strata_values,
-                                fpc = fpc_values,
-                                ...)
-      } else{
-        sd <- survey::svydesign(ids = data[ids],
-                                weights = data[weight],
-                                data = data,
-                                strata = strata_values,
-                                fpc = fpc_values,
-                                ...)
-      }
-      # Regress, updating the dataframe if results were returned
-      result <- regress_cat(sd, covariates, phenotype=y, var_name, regression_family, allowed_nonvarying, min_n)
-    }
+    result <- regress(d, y, var_name, covariates, min_n, allowed_nonvarying, regression_family, var_type="cat",
+                      use_survey, single_weight, weights, strata, fpc, ids, ...)
     
     # Save results
     if(!is.null(result)){
-        ewas_result_df[i, c("N", "Converged", "LRT_pvalue", "Diff_AIC", "pval")] <- result
+      ewas_result_df[i, colnames(result)] <- result
     }
   }
-
+  
   # Process continuous variables, if any
   print(paste("Processing ", length(cont_vars), " continuous variables", sep=""))
   for(var_name in cont_vars){
@@ -430,68 +505,25 @@ ewas <- function(d, cat_vars=NULL, cont_vars=NULL, y, cat_covars=NULL, cont_cova
     i <- i + 1
     # Update var name and phenotype
     ewas_result_df$Variable[i] <- var_name
-    ewas_result_df$phenotype <- y
+    ewas_result_df$phenotype[i] <- y
+    ewas_result_df$Variable_type[i] <- "Continuous"
     
-    # Run regression for the single variable
-    if(is.null(weights)){
-      result <- regress_cont(d, covariates, phenotype=y, var_name, regression_family, allowed_nonvarying, min_n)
-    } else {
-      # Get weight
-      if(single_weight){
-        weight <- weights
-      } else {
-        weight = weights[[var_name]]
-      }
-      # Record weight, moving on if no weight was provided for the variable
-      if(is.null(weight)){
-        next
-      } else if(!(weight %in% names(d))){
-        next
-      }
-      ewas_result_df$weight[i] <- weight
-      data = d[!is.na(d[weight]), ]
-      # Get strata and fpc if they are not null
-      if(!is.null(strata)){
-        strata_values <- data[strata]
-      } else {
-        strata_values <- NULL
-      }
-      if(!is.null(fpc)){
-        fpc_values <- data[fpc]
-      } else {
-        fpc_values <- NULL
-      }
-      # Create survey design object
-      if(is.null(ids)){
-        sd <- survey::svydesign(ids = ~1,
-                                weights = data[weight],
-                                data = data,
-                                strata = strata_values,
-                                fpc = fpc_values,
-                                ...)
-      } else{
-        sd <- survey::svydesign(ids = data[ids],
-                                weights = data[weight],
-                                data = data,
-                                strata = strata_values,
-                                fpc = fpc_values,
-                                ...)
-      }
-      # Regress, updating the dataframe if results were returned
-      result <- regress_cont(sd, covariates, phenotype=y, var_name, regression_family, allowed_nonvarying, min_n)
-    }
+    result <- regress(d, y, var_name, covariates, min_n, allowed_nonvarying, regression_family, var_type="cont",
+                      use_survey, single_weight, weights, strata, fpc, ids, ...)
+    
+    # Save results
     if(!is.null(result)){
-      ewas_result_df[i, c("N", "Converged", "Beta", "SE", "Variable_pvalue", "pval")] <- result
+      ewas_result_df[i, colnames(result)] <- result
     }
   }
-
+  
   t2 <- Sys.time()
   print(paste("Finished in", round(as.numeric(difftime(t2,t1, units="secs")), 6), "secs", sep=" "))
   n_null_results <- sum(is.null(ewas_result_df$pval))
   if (n_null_results > 0){
     warning(paste(n_null_results, "of", nrow(ewas_result_df), "variables had a NULL result due to an error (see earlier warnings for details)"))
   }
-
+  
   # Sort by pval
   ewas_result_df <- ewas_result_df[order(ewas_result_df$pval),]
   return(ewas_result_df)
