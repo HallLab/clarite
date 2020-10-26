@@ -1,6 +1,13 @@
 # clarite
 CLeaning to Analysis: Reproducibility-based Interface for Traits and Exposures
 
+---
+**NOTE**
+
+There is now a [python version](https://github.com/HallLab/clarite-python) of CLARITE that is more actively developed.  See documentation [here](https://clarite-python.readthedocs.io/en/latest/).
+
+---
+
 ## Overview
 
 The goal of `clarite` is to guide a dataset from the “raw” data stage to EWAS analysis and 
@@ -22,6 +29,10 @@ Environment-Wide Association Study, and results visualization, all of which can 
 package. The user starts with raw data and alternates filtering (dark boxes) or summary steps (light boxes) until it is sufficiently “cleaned” and in a stage where analyses can be run.
 
 ![Image](https://github.com/RitchieLab/utility/blob/master/personal/ana/images/clariteworkflow.svg)
+
+## Questions
+
+If you have any questions not answered by the documentation, feel free to open an [Issue](https://github.com/HallLab/clarite/issues).
 
 ## Citing CLARITE
 
